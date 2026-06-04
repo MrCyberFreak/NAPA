@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-06-04T23:10:50+00:00",
+  "updated_utc": "2026-06-04T23:34:00+00:00",
   "run_date": "2026-06-04",
   "probe": [
     {
@@ -8,8 +8,8 @@
       "reachable": true,
       "status": 200,
       "blocked": false,
-      "latency_ms": 516,
-      "note": "36482B"
+      "latency_ms": 79,
+      "note": "11813B"
     },
     {
       "host": "scores.playpool.io",
@@ -17,8 +17,8 @@
       "reachable": true,
       "status": 200,
       "blocked": false,
-      "latency_ms": 702,
-      "note": "39162B"
+      "latency_ms": 109,
+      "note": "11804B"
     },
     {
       "host": "poolshooters.com",
@@ -26,10 +26,17 @@
       "reachable": true,
       "status": 200,
       "blocked": false,
-      "latency_ms": 2038,
-      "note": "24452B"
+      "latency_ms": 87,
+      "note": "11798B"
     }
   ],
-  "captured": [],
+  "captured": [
+    "division",
+    "leaderboard",
+    "live_scores",
+    "roster_grid",
+    "schedule",
+    "scratch"
+  ],
   "unchanged": []
 }

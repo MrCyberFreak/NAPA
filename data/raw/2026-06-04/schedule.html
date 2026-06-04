@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script>
+      (function(){
+          setTimeout(function(){
+              window.location.reload();
+          }, 5000);
+      }())
+  </script>
+  <link rel="icon" href="data:,">
+  <title>One moment, please...</title>
+  <style>
+.spinner {
+    -webkit-animation: spin 1s ease-out;
+    animation: spin 1s ease-out;
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+#outer-container {
+    text-align: center;
+}
+#container {
+        display: inline-block;
+        height: 100px;
+    }
+#text {
+    float: left;
+    height: 100px;
+    line-height: 100px;
+    font-size: 3rem;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    padding: 0 .4em 0 .2em;
+    letter-spacing: 0.06em;
+    color: rgba(38, 122, 72, 0.86);
+}
+@media (min-height: 180px) {
+    #outer-container {
+        margin-top: 0;
+    }
+}
+@media (min-height: 360px) {
+    #outer-container {
+        margin-top: 5%;
+    }
+}
+@media (min-height: 540px) {
+    #outer-container {
+        margin-top: 10%;
+    }
+}
+@media (min-height: 720px) {
+    #outer-container {
+        margin-top: 20%;
+    }
+}
+@media (min-width: 1450px) {
+    .throbber {
+        width: 90px;
+        height: 90px;
+        float: left;
+        padding: 5px 0 5px 5px;
+        opacity: 0.86;
+    }
+    #container {
+        display: inline-block;
+        border: 3px solid rgb(38, 122, 72, 0.86);
+        border-radius: 51px;
+        height: 100px;
+    }
+}
+
+  </style>
+</head>
+<body>
+  <div id="outer-container">
+    <div id="container">
+<div class="throbber">
+    <svg class="spinner" width="90px" height="90px" viewBox="0 0 47 47"
+         version="1.1"
+         xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink">
+        <title>Loader</title>
+        <defs>
+            <polygon id="path-1"
+                     points="0 0.375484146 0 15.7255695 15.7013244 15.7255695 15.7013244 0.375484146 0 0.375484146"></polygon>
+        </defs>
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none"
+           fill-rule="evenodd">
+            <g id="Logo" transform="translate(-5.000000, -2.000000)">
+                <g id="Group-2" transform="translate(5.000000, 2.000000)">
+                    <path d="M22.6150244,4.52988293 C23.1538049,3.06256585 23.6031707,1.59582195 24.231939,0.158882927 C25.1902805,2.22459024 25.8190488,4.43989512 26.7768171,6.47579756 C29.1417195,7.40376098 31.7164024,7.7929439 34.1116829,8.69110244 C28.9623171,11.2663585 23.7229634,13.7510537 18.4836098,16.176139 C19.7709512,12.2545049 21.2382683,8.4217122 22.6150244,4.52988293 L22.6150244,4.52988293 Z"
+                          id="Fill-1" fill="#467C45"></path>
+                    <path d="M13.7718598,8.94461585 C16.1424939,7.68077439 18.4500793,6.28968902 20.8207134,5.02527439 C18.9240915,10.8412378 16.7747012,16.5614817 14.8465549,22.3774451 C12.7292622,18.3950549 10.895689,14.2544695 8.9044939,10.2090305 C8.27228659,8.85004268 7.5455061,7.55353049 7.00844512,6.16359146 C9.31545732,6.95342073 11.4648476,8.24935976 13.7718598,8.94461585"
+                          id="Fill-3" fill="#467C45"></path>
+                    <path d="M24.2134256,15.0745049 C29.4602305,12.4969561 34.7379866,9.91940732 40.0157427,7.4031878 C39.1565598,9.61276098 38.1747183,11.7300537 37.2232549,13.9086756 C38.4504134,16.2099561 39.9544134,18.388578 41.0898646,20.7511878 C35.4435598,18.9405415 29.8287793,17.0381878 24.2134256,15.0745049"
+                          id="Fill-5" fill="#467C45"></path>
+                    <g id="Group-9"
+                       transform="translate(0.000000, 11.919659)">
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <g id="Clip-8"></g>
+                        <path d="M8.34869024,0.375484146 C9.93064146,3.33419146 11.2781659,6.43963049 12.7426171,9.45622805 C13.7387878,11.5362646 14.793422,13.5876427 15.7013244,15.7255695 C10.4579585,13.9091915 5.21401951,12.03435 -0.000114634146,10.0718134 C2.05069024,9.1341061 4.21842195,8.4898622 6.29845854,7.61119146 C6.97193415,5.17980122 7.67521463,2.77706951 8.34869024,0.375484146"
+                              id="Fill-7" fill="#467C45"
+                              mask="url(#mask-2)"></path>
+                    </g>
+                    <path d="M29.1793195,18.0496049 C33.5600634,19.4670561 37.9081366,21.0776659 42.2888805,22.5593122 C43.6742341,23.0745927 45.1558805,23.4609098 46.5085634,24.1372512 C44.2216122,25.039422 41.9025634,25.9100683 39.6477098,26.8110927 C38.8103073,29.4195927 38.2302585,32.1261049 37.3607585,34.7346049 C35.5890878,31.4497634 34.0432463,28.0353854 32.3684415,24.6852024 C31.3052098,22.4945439 30.1456854,20.3044585 29.1793195,18.0496049"
+                          id="Fill-10" fill="#467C45"></path>
+                    <path d="M28.9972232,29.3489207 C29.5789915,27.69475 30.0684793,26.0113476 30.7419549,24.3887012 C31.538089,25.7660305 32.1811866,27.2356402 32.9154183,28.6444939 C34.7220524,32.4709817 36.68115,36.205189 38.4568329,40.0316768 C36.2827963,39.1449817 34.1402841,38.1654329 31.9364427,37.2460671 C29.6403207,38.4709329 27.4662841,39.9405427 25.1094061,41.1035061 C26.3033207,37.1549329 27.7419793,33.2671159 28.9972232,29.3489207"
+                          id="Fill-12" fill="#467C45"></path>
+                    <path d="M4.97133902,25.64555 C9.93385122,27.1873793 14.7737049,29.036428 19.6748878,30.6705378 C20.4148512,30.9170012 21.1542415,31.1944159 21.8328756,31.5337329 C16.5304732,33.9685622 11.3214976,36.6498549 5.95776585,38.99355 C6.82096098,36.8355622 7.89966829,34.7698549 8.7319122,32.581489 C7.68358293,30.1764646 6.11194878,28.01905 4.97133902,25.64555"
+                          id="Fill-14" fill="#467C45"></path>
+                    <path d="M15.4549183,35.8770488 C19.4671134,33.9317073 23.4483573,31.8952317 27.4915037,30.0433171 C26.4110768,33.6542927 25.0222841,37.203939 23.8186256,40.8143415 C23.1090402,42.7275854 22.5530646,44.7033049 21.7511988,46.5855976 C20.7630524,44.4866463 20.0534671,42.2650366 19.1277963,40.1351341 C16.6276256,39.2094634 14.0042232,38.684439 11.4736744,37.9748537 C12.6773329,37.0801341 14.1584061,36.586061 15.4549183,35.8770488"
+                          id="Fill-16" fill="#467C45"></path>
+                </g>
+            </g>
+        </g>
+    </svg>
+</div>
+      <div id="text">
+        Please wait while your request is being verified...
+      </div>
+    </div>
+  </div>
+  <div id="usu1ltanxlqh"></div>
+  <script>
+var a0B=a0L;function a0u(){var J=['60b54a2be4','apply','test','a6105c0a61','value','method','208775WpAVgW','2292579WSwnBQ','document','constructo','techange','length','(((.+)+)+)','onreadysta','mimeTypes','80ODhhiR','plugins','7fa3b767c4','send','hidden','type','map','getElement','15662124mOCrwb','createElem','open','name','appVersion','d49030b349','append','5768460rHrDWR','addEventLi','appendChil','prototype','784063MSXekB','__proto__','ne;','search','DOMContent','input','languages','0950635027','10aOaZjH','ent','navigator','outerHeigh','GET','toString','stener','userAgent','308496rWfKZu','entries','52226mPryNx','webdriver'];a0u=function(){return J;};return a0u();}function a0L(l,z){var u=a0u();return a0L=function(L,f){L=L-0x1ba;var Q=u[L];return Q;},a0L(l,z);}(function(l,z){var a0D={l:0x1bf,z:0x1e1,u:0x1e5,L:0x1da},o=a0L,u=l();while(!![]){try{var L=parseInt(o(0x1c1))/0x1*(-parseInt(o(0x1ed))/0x2)+-parseInt(o(0x1ca))/0x3+parseInt(o(a0D.l))/0x4+parseInt(o(0x1c9))/0x5+parseInt(o(a0D.z))/0x6+-parseInt(o(a0D.u))/0x7*(parseInt(o(0x1d2))/0x8)+parseInt(o(a0D.L))/0x9;if(L===z)break;else u['push'](u['shift']());}catch(f){u['push'](u['shift']());}}}(a0u,0xa4d28));var a0f=window[a0B(0x1ef)],a0Q={'webdriverCheck':function(){var a0Z={l:0x1c2},X=a0B;return X(a0Z.l)in window||!!a0f[X(0x1c2)];},'userAgentCheck':function(){var m=a0B;return/headless|bytespider/i['test'](a0f[m(0x1be)]);},'appVersionCheck':function(){var a0s={l:0x1c5},S=a0B;return/headless/i[S(a0s.l)](a0f[S(0x1de)]);},'pluginArraySpoofing':function(){var a0x={l:0x1e4},C=a0B;let l=PluginArray['prototype']===a0f[C(0x1d3)][C(0x1e6)];if(a0f['plugins']['length']>0x0)l&=Plugin[C(a0x.l)]===a0f[C(0x1d3)][0x0]['__proto__'];return!l;},'mimeTypeArraySpoofing':function(){var a0K={l:0x1e4,z:0x1d1,u:0x1e6,L:0x1ce},a=a0B;let l=MimeTypeArray[a(a0K.l)]===a0f[a(a0K.z)][a(a0K.u)];if(a0f[a(a0K.z)][a(a0K.L)]>0x0)l&=MimeType[a(0x1e4)]===a0f[a(a0K.z)][0x0][a(a0K.u)];return!l;},'noLanguage':function(){var a0F={l:0x1ce},I=a0B;return!a0f['language']||a0f[I(0x1eb)][I(a0F.l)]===0x0;},'zeroOuterDimensions':function(){var a0T={l:0x1ba},A=a0B;return window[A(a0T.l)+'t']===0x0&&window['outerWidth']===0x0;}},a0P=function(u,L){var a0k={l:0x1bd},a0g={l:0x1bc},H=a0B,f=(function(){var a0M={l:0x1c4},P=!![];return function(O,c){var j=P?function(){var N=a0L;if(c){var U=c[N(a0M.l)](O,arguments);return c=null,U;}}:function(){};return P=![],j;};}()),Q=f(this,function(){var e=a0L;return Q[e(a0g.l)]()[e(0x1e8)](e(0x1cf)+'+$')['toString']()[e(0x1cc)+'r'](Q)['search'](e(0x1cf)+'+$');});Q(),window['addEventLi'+H(a0k.l)]?window[H(0x1cb)][H(0x1e2)+H(0x1bd)](H(0x1e9)+'Loaded',u,L):window[H(0x1cb)]['attachEven'+'t'](H(0x1d0)+H(0x1cd),u);};a0P(function(){var a0d={l:0x1db,z:0x1ee,u:0x1db,L:0x1ee,f:0x1ea,Q:0x1cb,P:0x1c0,O:0x1ce,c:0x1c6,j:0x1bb,U:0x1d5,i:0x1e7,R:0x1c8,v:0x1dd,w:0x1c7,q:0x1d7,V:0x1d6,b:0x1dd,p:0x1dd,E:0x1d7,B:0x1e3};setTimeout(function(){var y=a0L,l=window[y(0x1cb)][y(0x1d9)+'ById']('usu1ltanxlqh'),z=+((+!+[]+!![]+!![])+(+!+[]+!![]+!![]+[])+(+!+[]+!![]+!![]+!![]+!![])+(+!+[]+!![]+!![]+!![]+!![]+!![]+[])+(+!+[]+!![]+!![]+!![]+!![]+!![]+!![]+!![]+!![])+(+!+[]+!![]+!![]+!![]+!![]+!![]+!![]+!![]+[])+(+![])),u=window['document'][y(a0d.l)+y(a0d.z)]('form'),L=window['document'][y(a0d.l)+y(a0d.z)](y(0x1ea)),f=window[y(0x1cb)][y(a0d.u)+y(a0d.L)](y(0x1ea)),Q=window[y(0x1cb)]['createElem'+'ent'](y(a0d.f)),P=window[y(a0d.Q)][y(a0d.u)+y(a0d.L)]('input'),O=+((+!+[]+!![]+!![])+(+!+[]+!![]+!![]+!![]+!![]+!![]+!![]+[])+(+!+[]+!![]+!![]+!![]+!![]+!![])+(+!+[]+[])+(+!+[]+!![]+!![]+!![]+!![]+!![]+!![])+(+!+[]+!![]+!![]+!![]+!![]+!![]+[])+(+!+[]+!![]+!![]+!![])),c='wsidchk',j='pdata',U='https%3A%2F%2Fpaper.playpool.io%2Fprint_schedule_v1.php%3Fdid%3D13077%26divID%3D13077%26weekNumber%3D27%26weekDay%3DThursday',i='/z0f76a1d14fd21a8fb5fd0d03e0fdc3d3cedae52f',R='failedChecks',v=Object[y(a0d.P)](a0Q)[y(0x1d8)](([b,p])=>{try{return p()?b:null;}catch(E){return null;}})['filter'](b=>b!==null),w=v[y(a0d.O)]>0x0;if(w){var q=new URLSearchParams();q['append']('id',y(a0d.c)+'1b41b08f12'+y(0x1ec)+'9e'),q['append']('ts','1780616022'),q[y(0x1e0)](c,z+O),q['append'](j,U),v['forEach'](b=>q['append'](R,b));var V=new XMLHttpRequest();V[y(0x1dc)](y(a0d.j),i+'?'+q[y(0x1bc)]()),V[y(a0d.U)](null);}else u['id']='usu1ltanxlqh',u['style']='display:no'+y(a0d.i),u[y(a0d.R)]=y(0x1bb),u['action']=i,L['id']='t2w6ngxmhq4j',L[y(a0d.v)]=c,L[y(a0d.w)]=z+O,L[y(a0d.q)]=y(a0d.V),Q[y(a0d.v)]='id',Q[y(0x1c7)]=y(0x1d4)+y(0x1c3)+y(0x1df)+'c7',Q[y(0x1d7)]=y(0x1d6),P[y(a0d.b)]='ts',P['value']='1780616022',P[y(0x1d7)]=y(a0d.V),f['id']='x1dwwrohv2qc',f[y(a0d.p)]=j,f[y(0x1c7)]=U,f[y(a0d.E)]=y(a0d.V),u[y(a0d.B)+'d'](L),u['appendChil'+'d'](f),u[y(a0d.B)+'d'](Q),u[y(0x1e3)+'d'](P),l['appendChil'+'d'](u),u['submit']();},0x3e8);},![]);
+  </script>
+</body>
+</html>
