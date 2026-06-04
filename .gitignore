@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Data: the SQLite DB and the raw HTML archive are generated/large.
+# Keep the directory structure (.gitkeep) but not the contents.
+data/napa.db
+data/raw/*
+!data/raw/.gitkeep
+
+# OS
+.DS_Store

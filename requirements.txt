@@ -1,0 +1,7 @@
+# NAPA 13077 data system — runtime + dev deps
+# Fetch + parse
+httpx>=0.27
+beautifulsoup4>=4.12
+lxml>=5.0
+# Tests
+pytest>=8.0
