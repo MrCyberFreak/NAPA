@@ -7,11 +7,10 @@ venv/
 .pytest_cache/
 .ruff_cache/
 
-# Data: the SQLite DB and the raw HTML archive are generated/large.
-# Keep the directory structure (.gitkeep) but not the contents.
+# Data: the SQLite DB is a build artifact regenerable from the archive.
+# The raw HTML archive (data/raw/) IS committed — the cloud scrape pushes it
+# back as the durable historical record.
 data/napa.db
-data/raw/*
-!data/raw/.gitkeep
 
 # OS
 .DS_Store

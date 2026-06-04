@@ -5,6 +5,8 @@ Verifies the archive path, write-on-change behavior, and fail-soft stop.
 
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 
@@ -71,3 +73,31 @@ def test_fail_soft_stops_without_raising(tmp_path):
     assert "roster_grid" in written
     assert "scratch" not in written
     assert calls["n"] == 2
+
+
+def test_probe_classifies_ok_blocked_and_unreachable():
+    def handler(request):
+        host = request.url.host
+        if "paper" in host:
+            return httpx.Response(200, content=b"<html>roster grid</html>")
+        if "scores" in host:
+            return httpx.Response(403, content=b"Forbidden")
+        raise httpx.ConnectError("no route to host")  # poolshooters
+
+    with _client(handler) as client:
+        results = {p.host: p for p in fetch.probe_hosts(client)}
+
+    paper = results["paper.playpool.io"]
+    assert paper.reachable and not paper.blocked and paper.status == 200
+    scores = results["scores.playpool.io"]
+    assert scores.reachable and scores.blocked and scores.status == 403
+    pool = results["poolshooters.com"]
+    assert not pool.reachable and pool.status is None
+
+
+def test_heartbeat_is_written_with_timestamp(tmp_path):
+    out = fetch.write_heartbeat(tmp_path, {"run_date": "2026-06-04", "captured": []})
+    data = json.loads(out.read_text())
+    assert out.name == "_heartbeat.json"
+    assert data["run_date"] == "2026-06-04"
+    assert "updated_utc" in data
