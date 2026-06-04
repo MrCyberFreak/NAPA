@@ -29,6 +29,7 @@ import sqlite3
 from pathlib import Path
 
 from . import config
+from .parse.profile import Profile
 from .parse.roster import RosterPlayer, parse_roster_file
 
 SCHEMA = """
@@ -185,6 +186,51 @@ def load_roster(
         "captured_date": captured_date,
         "season": season,
     }
+
+
+def load_profile(conn: sqlite3.Connection, profile: Profile, captured_date: str | None = None) -> None:
+    """Enrich a player with profile demographics (gender / home_base /
+    member_since). Existing non-null values are preserved (COALESCE), so a
+    profile load never wipes data with a missing field. If the profile carries
+    dated current CSRs, record them as a snapshot too (append-only).
+
+    Highest-ever CSRs are available on the parsed Profile for the scout-grid
+    drill-down but are not persisted yet (no schema column).
+    """
+    init_db(conn)
+    if not profile.player_id:
+        return
+    seen = captured_date or profile.as_of or dt.date.today().isoformat()
+    conn.execute(
+        """
+        INSERT INTO players (player_id, name, gender, home_base, member_since, first_seen, last_seen)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(player_id) DO UPDATE SET
+            name         = COALESCE(excluded.name, players.name),
+            gender       = COALESCE(excluded.gender, players.gender),
+            home_base    = COALESCE(excluded.home_base, players.home_base),
+            member_since = COALESCE(excluded.member_since, players.member_since),
+            first_seen   = MIN(players.first_seen, excluded.first_seen),
+            last_seen    = MAX(players.last_seen,  excluded.last_seen)
+        """,
+        (profile.player_id, profile.name, profile.gender, profile.home_base,
+         profile.member_since, seen, seen),
+    )
+    if profile.current_csr and profile.as_of:
+        c = profile.current_csr
+        conn.execute(
+            """
+            INSERT INTO skill_snapshots
+                (player_id, captured_date, csr_8, csr_9, csr_10, session_matches)
+            VALUES (?, ?, ?, ?, ?, NULL)
+            ON CONFLICT(player_id, captured_date) DO UPDATE SET
+                csr_8 = COALESCE(excluded.csr_8, skill_snapshots.csr_8),
+                csr_9 = COALESCE(excluded.csr_9, skill_snapshots.csr_9),
+                csr_10 = COALESCE(excluded.csr_10, skill_snapshots.csr_10)
+            """,
+            (profile.player_id, profile.as_of, c.get(8), c.get(9), c.get(10)),
+        )
+    conn.commit()
 
 
 # --------------------------------------------------------------------------- #
