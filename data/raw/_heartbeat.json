@@ -1,0 +1,35 @@
+{
+  "updated_utc": "2026-06-04T23:10:50+00:00",
+  "run_date": "2026-06-04",
+  "probe": [
+    {
+      "host": "paper.playpool.io",
+      "url": "https://paper.playpool.io/roster_grid.php?did=13077&lcF8=N",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "latency_ms": 516,
+      "note": "36482B"
+    },
+    {
+      "host": "scores.playpool.io",
+      "url": "https://scores.playpool.io/livescores.php?divID=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "latency_ms": 702,
+      "note": "39162B"
+    },
+    {
+      "host": "poolshooters.com",
+      "url": "https://poolshooters.com/division.php?did=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "latency_ms": 2038,
+      "note": "24452B"
+    }
+  ],
+  "captured": [],
+  "unchanged": []
+}
