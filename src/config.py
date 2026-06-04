@@ -11,8 +11,12 @@ from __future__ import annotations
 DID = 13077
 
 # Season runs ~27 weekly rounds (R1 = 2025-10-02, R27 = 2026-06-04).
+SEASON = "2025-26"
 SEASON_WEEKS = 27
 WEEK_DAY = "Thursday"
+
+# Default on-disk database (the app reads ONLY from here).
+DB_PATH = "data/napa.db"
 
 # Two hosts, different behavior (see plan "Ground truth").
 HOST_PAPER = "https://paper.playpool.io"        # cooperative — plain fetch works

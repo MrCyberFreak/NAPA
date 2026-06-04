@@ -1,26 +1,296 @@
-"""Database (Phase 2) — SQLite schema + loader.
+"""Database (Phase 2) — SQLite schema + loader, designed for HISTORY.
 
-Stub. Schema is designed for HISTORY, not just current state:
-  players(player_id, name, gender, home_base, member_since, ...)
+The official site only shows *current* values and overwrites them. This schema
+keeps the drift record: skill ratings are stored as append-only dated snapshots,
+so re-loading the roster grid on a new date adds history rather than clobbering.
+
+Schema:
+  players(player_id, name, gender, home_base, member_since, first_seen, last_seen)
   skill_snapshots(player_id, captured_date, csr_8, csr_9, csr_10, session_matches)
-  teams, team_members(team_id, player_id, season)
-  matches(round, date, home_team, away_team, ...)
-  games(match_id, home_player_id, away_player_id, game_type, home_won, ...)
+      -> the drift record; PK (player_id, captured_date), append-only by date
+  teams(team_id, name, season)
+  team_members(team_id, player_id, season, is_captain)
+  matches(match_id, season, round, date, home_team_id, away_team_id)
+  games(game_id, match_id, home_player_id, away_player_id, game_type, ...)
+      -> per-rack grain for forecasting
 
-Rules: snapshots are append-only by date; do NOT FK games.player_id to roster
-membership (subs exist). The app reads ONLY from this DB.
+Rules (from the build plan):
+- Snapshots are append-only by captured_date.
+- Players are a SUPERSET of the roster (subs play), so player rows can come from
+  any source and games.*_player_id is NOT constrained to roster membership.
+- The app reads ONLY from this DB.
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+import sqlite3
+from pathlib import Path
+
+from . import config
+from .parse.roster import RosterPlayer, parse_roster_file
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS players (
+    player_id    TEXT PRIMARY KEY,
+    name         TEXT NOT NULL,
+    gender       TEXT,
+    home_base    TEXT,
+    member_since TEXT,
+    first_seen   TEXT,
+    last_seen    TEXT
+);
+
+-- The drift record: append-only by captured_date.
+CREATE TABLE IF NOT EXISTS skill_snapshots (
+    player_id       TEXT NOT NULL REFERENCES players(player_id),
+    captured_date   TEXT NOT NULL,
+    csr_8           INTEGER,
+    csr_9           INTEGER,
+    csr_10          INTEGER,
+    session_matches INTEGER,
+    PRIMARY KEY (player_id, captured_date)
+);
+
+CREATE TABLE IF NOT EXISTS teams (
+    team_id INTEGER PRIMARY KEY,
+    name    TEXT NOT NULL,
+    season  TEXT NOT NULL,
+    UNIQUE (name, season)
+);
+
+CREATE TABLE IF NOT EXISTS team_members (
+    team_id    INTEGER NOT NULL REFERENCES teams(team_id),
+    player_id  TEXT NOT NULL REFERENCES players(player_id),
+    season     TEXT NOT NULL,
+    is_captain INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (team_id, player_id, season)
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+    match_id     INTEGER PRIMARY KEY,
+    season       TEXT NOT NULL,
+    round        INTEGER,
+    date         TEXT,
+    home_team_id INTEGER REFERENCES teams(team_id),
+    away_team_id INTEGER REFERENCES teams(team_id)
+);
+
+-- Per-rack grain. NOTE: *_player_id deliberately NOT FK-constrained to roster
+-- membership — subs appear in results without being roster members.
+CREATE TABLE IF NOT EXISTS games (
+    game_id         INTEGER PRIMARY KEY,
+    match_id        INTEGER REFERENCES matches(match_id),
+    home_player_id  TEXT,
+    away_player_id  TEXT,
+    game_type       INTEGER,           -- 8 / 9 / 10
+    home_won        INTEGER,
+    home_score      INTEGER,
+    away_score      INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
+CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
+"""
+
+
+def connect(path: str | Path = config.DB_PATH) -> sqlite3.Connection:
+    """Open the DB with foreign keys on and dict-like rows."""
+    p = Path(path)
+    if p.parent and str(p.parent) not in ("", "."):
+        p.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(p)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+
+def init_db(conn: sqlite3.Connection) -> None:
+    conn.executescript(SCHEMA)
+    conn.commit()
+
+
+# --------------------------------------------------------------------------- #
+# Loading
+# --------------------------------------------------------------------------- #
+
+def _upsert_player(conn: sqlite3.Connection, player_id: str, name: str, seen: str) -> None:
+    conn.execute(
+        """
+        INSERT INTO players (player_id, name, first_seen, last_seen)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(player_id) DO UPDATE SET
+            name       = excluded.name,
+            first_seen = MIN(players.first_seen, excluded.first_seen),
+            last_seen  = MAX(players.last_seen,  excluded.last_seen)
+        """,
+        (player_id, name, seen, seen),
+    )
+
+
+def _get_or_create_team(conn: sqlite3.Connection, name: str, season: str) -> int:
+    conn.execute(
+        "INSERT INTO teams (name, season) VALUES (?, ?) ON CONFLICT(name, season) DO NOTHING",
+        (name, season),
+    )
+    row = conn.execute(
+        "SELECT team_id FROM teams WHERE name = ? AND season = ?", (name, season)
+    ).fetchone()
+    return row["team_id"]
+
+
+def load_roster(
+    conn: sqlite3.Connection,
+    players: list[RosterPlayer],
+    captured_date: str,
+    season: str = config.SEASON,
+) -> dict:
+    """Load a parsed roster grid into the DB.
+
+    - players: upserted (first_seen/last_seen widen with each load)
+    - teams / team_members: upserted for the season
+    - skill_snapshots: append-only by captured_date (drift record)
+    Idempotent: re-loading the same date updates that snapshot; a new date
+    appends history.
+    """
+    init_db(conn)
+    for p in players:
+        _upsert_player(conn, p.player_id, p.player, captured_date)
+        team_id = _get_or_create_team(conn, p.team, season)
+        conn.execute(
+            """
+            INSERT INTO team_members (team_id, player_id, season, is_captain)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(team_id, player_id, season)
+                DO UPDATE SET is_captain = excluded.is_captain
+            """,
+            (team_id, p.player_id, season, int(p.is_captain)),
+        )
+        conn.execute(
+            """
+            INSERT INTO skill_snapshots
+                (player_id, captured_date, csr_8, csr_9, csr_10, session_matches)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(player_id, captured_date) DO UPDATE SET
+                csr_8 = excluded.csr_8, csr_9 = excluded.csr_9,
+                csr_10 = excluded.csr_10, session_matches = excluded.session_matches
+            """,
+            (p.player_id, captured_date, p.csr_8, p.csr_9, p.csr_10, p.session_matches),
+        )
+    conn.commit()
+    return {
+        "players": len(players),
+        "teams": len({p.team for p in players}),
+        "captured_date": captured_date,
+        "season": season,
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Queries (demonstrate the history the official site can't show)
+# --------------------------------------------------------------------------- #
+
+def csr_history(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Row]:
+    """A player's per-game CSR over time — the drift the live site overwrites."""
+    return conn.execute(
+        """
+        SELECT captured_date, csr_8, csr_9, csr_10, session_matches
+        FROM skill_snapshots WHERE player_id = ? ORDER BY captured_date
+        """,
+        (player_id,),
+    ).fetchall()
+
+
+def team_depth(conn: sqlite3.Connection, season: str = config.SEASON) -> list[sqlite3.Row]:
+    """Roster size per team — bench depth is an exploitable scouting signal
+    (only 5 play on league night; a deep team can hold back a counter)."""
+    return conn.execute(
+        """
+        SELECT t.name AS team, COUNT(*) AS roster_size,
+               SUM(tm.is_captain) AS captains
+        FROM team_members tm JOIN teams t ON t.team_id = tm.team_id
+        WHERE tm.season = ?
+        GROUP BY t.team_id ORDER BY roster_size DESC, t.name
+        """,
+        (season,),
+    ).fetchall()
+
+
+def team_roster_latest(
+    conn: sqlite3.Connection, team: str, season: str = config.SEASON
+) -> list[sqlite3.Row]:
+    """A team's players with their most-recent CSR snapshot (scout-grid input)."""
+    return conn.execute(
+        """
+        SELECT p.player_id, p.name, tm.is_captain,
+               s.csr_8, s.csr_9, s.csr_10, s.session_matches, s.captured_date
+        FROM team_members tm
+        JOIN teams t   ON t.team_id = tm.team_id
+        JOIN players p ON p.player_id = tm.player_id
+        JOIN skill_snapshots s ON s.player_id = p.player_id
+        WHERE t.name = ? AND tm.season = ?
+          AND s.captured_date = (
+              SELECT MAX(captured_date) FROM skill_snapshots
+              WHERE player_id = p.player_id)
+        ORDER BY tm.is_captain DESC, p.name
+        """,
+        (team, season),
+    ).fetchall()
+
+
+# --------------------------------------------------------------------------- #
+# CLI
+# --------------------------------------------------------------------------- #
+
+def _discover_roster_source() -> Path | None:
+    """Prefer the newest archived roster grid; fall back to a fixtures capture."""
+    raw = Path("data/raw")
+    if raw.is_dir():
+        archived = sorted(raw.glob("*/roster_grid.*"), reverse=True)
+        if archived:
+            return archived[0]
+    fx = Path("fixtures")
+    if fx.is_dir():
+        for pat in ("roster*grid*.mht", "roster*grid*.mhtml", "roster*grid*.html"):
+            hits = sorted(fx.glob(pat))
+            if hits:
+                return hits[0]
+    return None
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA 13077 database loader")
-    parser.add_argument("--load", action="store_true", help="parse fixtures/archive and load the DB")
-    parser.parse_args()
-    raise NotImplementedError("database schema + loader is Phase 2")
+    parser.add_argument("--load", action="store_true",
+                        help="parse a roster grid and load it into the DB")
+    parser.add_argument("--roster", type=str, default=None,
+                        help="path to a roster-grid file (default: newest archive, "
+                             "else a fixtures/ capture)")
+    parser.add_argument("--date", type=str, default=dt.date.today().isoformat(),
+                        help="captured_date for the snapshot (YYYY-MM-DD, default: today)")
+    parser.add_argument("--db", type=str, default=config.DB_PATH,
+                        help=f"database path (default: {config.DB_PATH})")
+    args = parser.parse_args()
+
+    if not args.load:
+        parser.print_help()
+        return
+
+    source = Path(args.roster) if args.roster else _discover_roster_source()
+    if source is None or not source.exists():
+        raise SystemExit(
+            "No roster grid found. Fetch one to data/raw/<date>/roster_grid.html, "
+            "commit a capture to fixtures/, or pass --roster PATH."
+        )
+
+    players = parse_roster_file(source)
+    conn = connect(args.db)
+    result = load_roster(conn, players, captured_date=args.date)
+    print(f"Loaded {result['players']} players / {result['teams']} teams "
+          f"from {source} @ {result['captured_date']} into {args.db}")
+    for row in team_depth(conn):
+        print(f"  {row['roster_size']:>2}  {row['team']}")
+    conn.close()
 
 
 if __name__ == "__main__":
