@@ -99,25 +99,74 @@ def write_on_change(name: str, content: bytes, date: str, root: Path = ARCHIVE_R
     return out
 
 
+# --------------------------------------------------------------------------- #
+# Bot-challenge handling
+# --------------------------------------------------------------------------- #
+# Every host answers a plain GET with a soft "One moment, please..." JS
+# interstitial (HTTP 200, NOT 403) that reloads after ~5s. It carries no
+# client-side cookie computation — only a reload — so re-requesting with the
+# same cookie jar after the delay typically clears it. This is NOT error-retry
+# (HTTP errors still stop the run): it is politely following the page's OWN
+# reload instruction, strictly bounded.
+_CHALLENGE_RELOAD_WAIT = 5.0
+_CHALLENGE_ATTEMPTS = 3
+
+
+def is_challenge(body: str) -> bool:
+    low = body[:2000].lower()
+    return "one moment, please" in low or (
+        "window.location.reload" in low and "settimeout" in low
+    )
+
+
+def _challenge_sleep() -> None:
+    time.sleep(_CHALLENGE_RELOAD_WAIT)
+
+
+def get_clearing_challenge(
+    client: httpx.Client,
+    url: str,
+    attempts: int = _CHALLENGE_ATTEMPTS,
+    sleep: Callable[[], None] = _challenge_sleep,
+) -> tuple[httpx.Response, int]:
+    """GET url; if it returns the reload challenge, wait + re-GET (same client,
+    so any challenge cookie is resent) up to `attempts` times. Returns the final
+    response and the number of attempts made."""
+    resp = client.get(url)
+    tries = 1
+    while is_challenge(resp.text) and tries < attempts:
+        sleep()
+        resp = client.get(url)
+        tries += 1
+    return resp, tries
+
+
 def fetch_pages(
     client: httpx.Client,
     pages: Iterable[tuple[str, dict]] = EASY_PAGES,
     date: str | None = None,
     root: Path = ARCHIVE_ROOT,
     sleep: Callable[[], None] = _polite_sleep,
+    challenge_sleep: Callable[[], None] = _challenge_sleep,
 ) -> dict[str, Path | None]:
-    """Fetch each page into the archive. Fail-soft: on the first error, log and
-    STOP (return what was captured so far) — never retry-hammer the host."""
+    """Fetch each page into the archive. Clears the soft reload-challenge when
+    present. Fail-soft: on an HTTP error OR an uncleared bot-challenge, log and
+    STOP (return what was captured so far) — never retry-hammer, never archive a
+    challenge interstitial."""
     date = date or dt.date.today().isoformat()
     written: dict[str, Path | None] = {}
     pages = list(pages)
     for i, (name, kw) in enumerate(pages):
         target = config.url(name, **kw)
         try:
-            resp = client.get(target)
+            resp, tries = get_clearing_challenge(client, target, sleep=challenge_sleep)
             resp.raise_for_status()
         except httpx.HTTPError as exc:
             print(f"[fetch] {name}: request failed ({exc}); stopping (fail-soft).")
+            break
+        if is_challenge(resp.text):
+            print(f"[fetch] {name}: bot-challenge not cleared after {tries} attempts; "
+                  "stopping (fail-soft). A real browser is needed for this host.")
             break
         out = write_on_change(name, resp.content, date, root)
         written[name] = out
@@ -151,33 +200,50 @@ class ProbeResult:
     url: str
     reachable: bool          # got any HTTP response (network path works)
     status: int | None
-    blocked: bool            # reachable but bot-blocked (403/429/challenge)
+    blocked: bool            # reachable but hard-blocked (403/429/block markers)
+    challenge: bool          # reachable but served the JS reload-challenge (uncleared)
     latency_ms: int | None
     note: str
+
+    @property
+    def verdict(self) -> str:
+        if not self.reachable:
+            return "UNREACHABLE"
+        if self.blocked:
+            return "BLOCKED"
+        if self.challenge:
+            return "CHALLENGE"
+        return "OK"
 
     def summary(self) -> str:
         if not self.reachable:
             return f"{self.host:<22} UNREACHABLE   {self.note}"
-        verdict = "BLOCKED" if self.blocked else "OK"
-        return (f"{self.host:<22} {verdict:<11} HTTP {self.status} "
+        return (f"{self.host:<22} {self.verdict:<11} HTTP {self.status} "
                 f"{self.latency_ms}ms  {self.note}".rstrip())
 
 
-def probe_hosts(client: httpx.Client, targets: dict[str, str] = PROBE_TARGETS) -> list[ProbeResult]:
-    """GET one representative endpoint per host and classify the outcome:
-    UNREACHABLE (no HTTP response = network/DNS blocked) vs BLOCKED (HTTP
-    403/429/challenge = bot-block) vs OK (real response). Read-only, one hit each."""
+def probe_hosts(
+    client: httpx.Client,
+    targets: dict[str, str] = PROBE_TARGETS,
+    challenge_sleep: Callable[[], None] = _challenge_sleep,
+) -> list[ProbeResult]:
+    """GET one representative endpoint per host (clearing the soft reload-
+    challenge if possible) and classify the outcome: UNREACHABLE (no HTTP
+    response) vs BLOCKED (403/429/block markers) vs CHALLENGE (JS interstitial
+    that wouldn't clear — needs a real browser) vs OK (real content)."""
     results: list[ProbeResult] = []
     for host, url in targets.items():
         t0 = time.perf_counter()
         try:
-            resp = client.get(url)
+            resp, tries = get_clearing_challenge(client, url, sleep=challenge_sleep)
             ms = int((time.perf_counter() - t0) * 1000)
-            blocked = _looks_blocked(resp.status_code, resp.text)
-            note = f"{len(resp.content)}B" + (" (block markers)" if blocked and resp.status_code < 400 else "")
-            results.append(ProbeResult(host, url, True, resp.status_code, blocked, ms, note))
+            challenge = is_challenge(resp.text)
+            blocked = _looks_blocked(resp.status_code, resp.text) and not challenge
+            note = f"{len(resp.content)}B, {tries} req" + (" CHALLENGE" if challenge else "")
+            results.append(ProbeResult(host, url, True, resp.status_code, blocked, challenge, ms, note))
         except httpx.HTTPError as exc:
-            results.append(ProbeResult(host, url, False, None, False, None, type(exc).__name__ + f": {exc}"))
+            results.append(ProbeResult(host, url, False, None, False, False, None,
+                                       type(exc).__name__ + f": {exc}"))
     return results
 
 
