@@ -101,3 +101,60 @@ def test_heartbeat_is_written_with_timestamp(tmp_path):
     assert out.name == "_heartbeat.json"
     assert data["run_date"] == "2026-06-04"
     assert "updated_utc" in data
+
+
+_CHALLENGE_HTML = (
+    "<html><head><title>One moment, please...</title>"
+    "<script>(function(){setTimeout(function(){window.location.reload();},5000)}())</script>"
+    "</head><body>spinner</body></html>"
+)
+
+
+def test_is_challenge_detects_reload_interstitial():
+    assert fetch.is_challenge(_CHALLENGE_HTML)
+    assert not fetch.is_challenge("<html><body>real roster grid</body></html>")
+
+
+def test_fetch_clears_reload_challenge(tmp_path):
+    seen: dict[str, int] = {}
+
+    def handler(request):
+        path = request.url.path
+        seen[path] = seen.get(path, 0) + 1
+        # roster_grid challenges once, then serves real content on the reload.
+        if "roster_grid" in path and seen[path] == 1:
+            return httpx.Response(200, text=_CHALLENGE_HTML)
+        return httpx.Response(200, text=f"<html>real {path}</html>")
+
+    with _client(handler) as client:
+        written = fetch.fetch_pages(
+            client, pages=[("roster_grid", {})], date="2026-06-04",
+            root=tmp_path, sleep=NO_SLEEP, challenge_sleep=NO_SLEEP,
+        )
+
+    assert written["roster_grid"] is not None
+    body = (tmp_path / "2026-06-04" / "roster_grid.html").read_bytes()
+    assert b"real" in body and b"One moment" not in body
+    assert seen["/roster_grid.php"] == 2  # cleared on the reload
+
+
+def test_fetch_stops_and_archives_nothing_when_challenge_persists(tmp_path):
+    handler = lambda req: httpx.Response(200, text=_CHALLENGE_HTML)  # noqa: E731
+
+    with _client(handler) as client:
+        written = fetch.fetch_pages(
+            client, pages=[("roster_grid", {}), ("schedule", {})],
+            date="2026-06-04", root=tmp_path, sleep=NO_SLEEP, challenge_sleep=NO_SLEEP,
+        )
+
+    assert "roster_grid" not in written  # not archived (no challenge interstitials)
+    assert "schedule" not in written     # stopped (fail-soft)
+    assert not (tmp_path / "2026-06-04").exists()
+
+
+def test_probe_reports_challenge_verdict():
+    handler = lambda req: httpx.Response(200, text=_CHALLENGE_HTML)  # noqa: E731
+    with _client(handler) as client:
+        results = fetch.probe_hosts(client, challenge_sleep=NO_SLEEP)
+    assert all(r.verdict == "CHALLENGE" for r in results)
+    assert all(r.reachable and r.challenge and not r.blocked for r in results)
