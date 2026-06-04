@@ -52,6 +52,7 @@ EASY_PAGES: list[tuple[str, dict]] = [
 ARCHIVE_PAGES: list[tuple[str, dict]] = EASY_PAGES + [
     ("division", {}),
     ("leaderboard", {}),
+    ("live_scores", {}),
 ]
 
 # One representative real endpoint per host, for the reachability probe.

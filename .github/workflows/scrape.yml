@@ -52,7 +52,14 @@ jobs:
 
       - name: Scrape archive (fail-soft)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
-        run: python -m src.fetch --load --date "$(date -u +%F)"
+        run: python -m src.fetch --date "$(date -u +%F)"
+
+      # DB load parses the archive; keep it best-effort so a parser issue never
+      # blocks committing the raw archive (the durable, replayable record).
+      - name: Load DB (best-effort)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        continue-on-error: true
+        run: python -m src.db --load --date "$(date -u +%F)"
 
       - name: Commit archive back
         run: |

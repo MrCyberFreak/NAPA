@@ -48,6 +48,8 @@ def url(name: str, **kw) -> str:
         "leaderboard": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=leader&ver=detailed",
         "achievements": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=ach",
         "weekly_scores": f"{HOST_POOLSHOOTERS}/standings_weekly_scores.php?did={did}&week={week}",
+        # Live per-game scoring data endpoint (the games grain).
+        "live_scores": f"{HOST_SCORES}/getlivescore.php?divID={did}&makeup=",
         # Hard tier (poolshooters.com profile deep tabs) — JS/AJAX loaded, Phase 6
         "profile": f"{HOST_POOLSHOOTERS}/stats.php?playerID={player_id}",
         # Live scoreboard (not needed for read-only)
