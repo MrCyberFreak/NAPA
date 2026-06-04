@@ -50,9 +50,17 @@ jobs:
           python -m src.fetch --probe-only --root data/raw | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Scrape archive (fail-soft)
+      # Plain GETs can't pass the hosts' "One moment..." JS challenge, so the
+      # real capture uses a headless browser that executes the page's JS.
+      - name: Install Playwright Chromium
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
-        run: python -m src.fetch --date "$(date -u +%F)"
+        run: |
+          pip install -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Browser scrape (fail-soft, clears JS challenge)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        run: python -m src.browser_fetch --date "$(date -u +%F)"
 
       # DB load parses the archive; keep it best-effort so a parser issue never
       # blocks committing the raw archive (the durable, replayable record).

@@ -1,0 +1,3 @@
+# Browser-fetch path (Phase 4) — clears the JS bot-challenge that plain GETs
+# cannot. Install + `python -m playwright install --with-deps chromium`.
+playwright>=1.40
