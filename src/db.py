@@ -32,6 +32,7 @@ from . import config
 from .parse.profile import Profile
 from .parse.roster import RosterPlayer, parse_roster_file
 from .parse.schedule import Fixture
+from .parse.standings import TeamRecord
 from .parse.weekly_scores import Game
 
 SCHEMA = """
@@ -77,7 +78,9 @@ CREATE TABLE IF NOT EXISTS matches (
     round        INTEGER,
     date         TEXT,
     home_team_id INTEGER REFERENCES teams(team_id),
-    away_team_id INTEGER REFERENCES teams(team_id)
+    away_team_id INTEGER REFERENCES teams(team_id),
+    home_points  INTEGER,             -- team match points (from standings record)
+    away_points  INTEGER
 );
 
 -- Per-rack/game grain. NOTE: *_player_id deliberately NOT FK-constrained to
@@ -367,6 +370,42 @@ def load_games(conn: sqlite3.Connection, games: list[Game], season: str = config
             "unresolved_player_slots": unresolved_players}
 
 
+def load_team_record(conn: sqlite3.Connection, record: TeamRecord, season: str = config.SEASON) -> dict:
+    """Load a team's season match results (team-level points) into matches,
+    aligning each week's points to that match's home/away orientation. Played
+    weeks only. Summing across all teams' records yields full standings."""
+    init_db(conn)
+    loaded = unresolved = 0
+    for r in record.results:
+        if r.home_points is None or r.away_points is None:
+            continue
+        points = {r.home: r.home_points, r.away: r.away_points}
+        teams = {_resolve_team_id(conn, r.home, season): r.home,
+                 _resolve_team_id(conn, r.away, season): r.away}
+        if None in teams:
+            unresolved += 1
+            continue
+        row = conn.execute(
+            """
+            SELECT match_id, home_team_id, away_team_id FROM matches
+            WHERE season = ? AND round = ?
+              AND home_team_id IN (?, ?) AND away_team_id IN (?, ?)
+            """,
+            (season, r.week, *teams.keys(), *teams.keys()),
+        ).fetchone()
+        if not row:
+            unresolved += 1
+            continue
+        conn.execute(
+            "UPDATE matches SET home_points = ?, away_points = ? WHERE match_id = ?",
+            (points[teams[row["home_team_id"]]], points[teams[row["away_team_id"]]],
+             row["match_id"]),
+        )
+        loaded += 1
+    conn.commit()
+    return {"results": len(record.results), "loaded": loaded, "unresolved": unresolved}
+
+
 # --------------------------------------------------------------------------- #
 # Queries (demonstrate the history the official site can't show)
 # --------------------------------------------------------------------------- #
@@ -384,6 +423,29 @@ def player_game_log(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Ro
         ORDER BY played_date DESC
         """,
         (player_id,),
+    ).fetchall()
+
+
+def standings(conn: sqlite3.Connection, season: str = config.SEASON) -> list[sqlite3.Row]:
+    """Team standings = total match points across played weeks, by team. Complete
+    only for teams whose season records have been loaded (each page = one team)."""
+    return conn.execute(
+        """
+        SELECT t.name AS team,
+               SUM(pts) AS points,
+               COUNT(*) AS matches_played
+        FROM (
+            SELECT home_team_id AS team_id, home_points AS pts FROM matches
+            WHERE season = ?1 AND home_points IS NOT NULL
+            UNION ALL
+            SELECT away_team_id, away_points FROM matches
+            WHERE season = ?1 AND away_points IS NOT NULL
+        ) r
+        JOIN teams t ON t.team_id = r.team_id
+        GROUP BY r.team_id
+        ORDER BY points DESC, team
+        """,
+        (season,),
     ).fetchall()
 
 
