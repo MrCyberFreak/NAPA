@@ -32,6 +32,7 @@ from . import config
 from .parse.profile import Profile
 from .parse.roster import RosterPlayer, parse_roster_file
 from .parse.schedule import Fixture
+from .parse.weekly_scores import Game
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS players (
@@ -79,23 +80,30 @@ CREATE TABLE IF NOT EXISTS matches (
     away_team_id INTEGER REFERENCES teams(team_id)
 );
 
--- Per-rack grain. NOTE: *_player_id deliberately NOT FK-constrained to roster
--- membership — subs appear in results without being roster members.
+-- Per-rack/game grain. NOTE: *_player_id deliberately NOT FK-constrained to
+-- roster membership — subs appear in results without being roster members. The
+-- player NAME is always recorded (canonical key is the 8-digit id, resolved by
+-- name; NULL id = a sub not on the roster).
 CREATE TABLE IF NOT EXISTS games (
-    game_id         INTEGER PRIMARY KEY,
-    match_id        INTEGER REFERENCES matches(match_id),
-    home_player_id  TEXT,
-    away_player_id  TEXT,
-    game_type       INTEGER,           -- 8 / 9 / 10
-    home_won        INTEGER,
-    home_score      INTEGER,
-    away_score      INTEGER
+    game_id          INTEGER PRIMARY KEY,
+    match_id         INTEGER REFERENCES matches(match_id),
+    played_date      TEXT,
+    home_player_id   TEXT,
+    away_player_id   TEXT,
+    home_player_name TEXT,
+    away_player_name TEXT,
+    game_type        INTEGER,           -- 8 / 9 / 10 (None until inferable)
+    home_won         INTEGER,
+    home_score       INTEGER,           -- racks won
+    away_score       INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
 CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_match_unique
     ON matches(season, round, home_team_id, away_team_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_game_unique
+    ON games(played_date, home_player_name, away_player_name);
 """
 
 
@@ -282,9 +290,102 @@ def load_schedule(
     return {"loaded": loaded, "unresolved": unresolved, "fixtures": len(fixtures)}
 
 
+def _player_teams(conn: sqlite3.Connection, name: str, season: str) -> tuple[str | None, set[str]]:
+    """Resolve a results NAME to (canonical 8-digit id, set of teams). Canonical
+    key is the 8-digit id (results/live-scores give only names). A sub not on the
+    roster resolves to (None, set())."""
+    rows = conn.execute(
+        """
+        SELECT p.player_id AS pid, t.name AS team
+        FROM players p
+        LEFT JOIN team_members tm ON tm.player_id = p.player_id AND tm.season = ?
+        LEFT JOIN teams t ON t.team_id = tm.team_id
+        WHERE p.name = ?
+        """,
+        (season, name),
+    ).fetchall()
+    if not rows:
+        return None, set()
+    return rows[0]["pid"], {r["team"] for r in rows if r["team"]}
+
+
+def _find_match(conn, date, teams_a, teams_b, season) -> int | None:
+    """Find the match on `date` for these players' teams (orientation-agnostic —
+    the schedule's home/away may differ from the game's). Prefer a match whose
+    BOTH teams are known; otherwise a single known team uniquely identifies the
+    match (each team plays once per round), which also links a sub's game."""
+    known = teams_a | teams_b
+    if not date or not known:
+        return None
+    rows = conn.execute(
+        """
+        SELECT m.match_id, h.name AS home, a.name AS away
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_team_id
+        JOIN teams a ON a.team_id = m.away_team_id
+        WHERE m.season = ? AND m.date = ?
+        """,
+        (season, date),
+    ).fetchall()
+    both = [m for m in rows if {m["home"], m["away"]} <= known]
+    if len(both) == 1:
+        return both[0]["match_id"]
+    touching = [m for m in rows if {m["home"], m["away"]} & known]
+    return touching[0]["match_id"] if len(touching) == 1 else None
+
+
+def load_games(conn: sqlite3.Connection, games: list[Game], season: str = config.SEASON) -> dict:
+    """Load per-game results into `games`. Resolves player names -> 8-digit ids
+    (NULL for subs), links each game to its match by the team pair + date.
+    Idempotent on (played_date, home_name, away_name)."""
+    init_db(conn)
+    loaded = linked = unresolved_players = 0
+    for g in games:
+        hid, hteams = _player_teams(conn, g.home.player, season)
+        aid, ateams = _player_teams(conn, g.away.player, season)
+        unresolved_players += (hid is None) + (aid is None)
+        match_id = _find_match(conn, g.date, hteams, ateams, season)
+        linked += match_id is not None
+        conn.execute(
+            """
+            INSERT INTO games (match_id, played_date, home_player_id, away_player_id,
+                               home_player_name, away_player_name, game_type,
+                               home_won, home_score, away_score)
+            VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+            ON CONFLICT(played_date, home_player_name, away_player_name) DO UPDATE SET
+                match_id = excluded.match_id,
+                home_won = excluded.home_won,
+                home_score = excluded.home_score,
+                away_score = excluded.away_score
+            """,
+            (match_id, g.date, hid, aid, g.home.player, g.away.player,
+             int(g.home_won), g.home.racks_won, g.away.racks_won),
+        )
+        loaded += 1
+    conn.commit()
+    return {"games": len(games), "loaded": loaded, "linked_to_match": linked,
+            "unresolved_player_slots": unresolved_players}
+
+
 # --------------------------------------------------------------------------- #
 # Queries (demonstrate the history the official site can't show)
 # --------------------------------------------------------------------------- #
+
+def player_game_log(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Row]:
+    """Every recorded game a player appears in (either side), most recent first."""
+    return conn.execute(
+        """
+        SELECT played_date, home_player_name, away_player_name,
+               home_score, away_score, home_won,
+               CASE WHEN home_player_id = ?1 THEN home_won
+                    ELSE NOT home_won END AS player_won
+        FROM games
+        WHERE home_player_id = ?1 OR away_player_id = ?1
+        ORDER BY played_date DESC
+        """,
+        (player_id,),
+    ).fetchall()
+
 
 def matches_for_round(conn: sqlite3.Connection, round_: int, season: str = config.SEASON):
     """This-round fixtures with resolved team names (scout-grid entry point)."""
