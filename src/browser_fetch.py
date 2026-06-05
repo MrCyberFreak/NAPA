@@ -188,6 +188,59 @@ def backfill_score_sheets(weeks, out_root: str | Path = "data/raw/scores",
     return saved
 
 
+def explore_profile(player_id: str, out_dir: str | Path, headless: bool = True) -> list[str]:
+    """One-off: open a player profile, click each deep tab, and save the rendered
+    HTML + every XHR/JSON/HTML response the tabs trigger — to learn how RIVALS /
+    H2H / TRENDS load before building the harvester."""
+    import re as _re
+    from playwright.sync_api import sync_playwright
+
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    responses: list[tuple[str, str, bytes]] = []
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=headless)
+        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+
+        def on_resp(r) -> None:
+            try:
+                ct = r.headers.get("content-type", "")
+                if any(t in ct for t in ("json", "html", "javascript")):
+                    responses.append((r.url, ct, r.body()))
+            except Exception:  # noqa: BLE001
+                pass
+
+        page.on("response", on_resp)
+        url = config.url("profile", player_id=player_id)
+        try:
+            page.goto(url, wait_until="networkidle", timeout=45000)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[explore] nav: {exc}")
+        for _ in range(6):
+            if not fetch.is_challenge(page.content()):
+                break
+            page.wait_for_timeout(6000)
+        (out / "profile_main.html").write_text(page.content(), encoding="utf-8")
+
+        for label in ("RIVALS", "H2H", "TRENDS", "SEASONS", "MATCHES", "MATCH HISTORY"):
+            try:
+                page.get_by_text(label, exact=False).first.click(timeout=4000)
+                page.wait_for_timeout(3500)
+                (out / f"tab_{label.replace(' ', '_')}.html").write_text(
+                    page.content(), encoding="utf-8")
+            except Exception as exc:  # noqa: BLE001
+                print(f"[explore] tab {label}: {type(exc).__name__}")
+
+        for i, (u, ct, body) in enumerate(responses):
+            name = _re.sub(r"[^A-Za-z0-9._-]", "_", u.split("//", 1)[-1])[:70]
+            ext = ".json" if "json" in ct else (".js" if "javascript" in ct else ".html")
+            (out / f"resp_{i:03d}_{name}{ext}").write_bytes(body)
+        browser.close()
+    print(f"[explore] saved profile + {len(responses)} responses to {out}")
+    return [str(out)]
+
+
 def _parse_weeks(spec: str) -> list[int]:
     if "-" in spec:
         lo, hi = spec.split("-", 1)
@@ -203,10 +256,16 @@ def main() -> None:
     parser.add_argument("--capture-url", help="one-off: capture a page's JS assets + HTML")
     parser.add_argument("--out", help="output dir for --capture-url")
     parser.add_argument("--backfill-weeks", help="e.g. 1-27 : backfill score sheets")
+    parser.add_argument("--explore-profile", help="player_id : capture profile tabs + XHR")
     args = parser.parse_args()
 
     if args.capture_url:
         capture_assets(args.capture_url, args.out or "data/raw/_assets", headless=not args.headed)
+        return
+
+    if args.explore_profile:
+        explore_profile(args.explore_profile, args.out or "data/raw/profile_explore",
+                        headless=not args.headed)
         return
 
     if args.backfill_weeks:
