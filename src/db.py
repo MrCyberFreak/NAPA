@@ -29,7 +29,7 @@ import sqlite3
 from pathlib import Path
 
 from . import config
-from .parse.profile import Profile
+from .parse.profile import CueSpeed, Profile, TrendForm
 from .parse.roster import RosterPlayer, parse_roster_file
 from .parse.schedule import Fixture
 from .parse.standings import TeamRecord
@@ -43,7 +43,23 @@ CREATE TABLE IF NOT EXISTS players (
     home_base    TEXT,
     member_since TEXT,
     first_seen   TEXT,
-    last_seen    TEXT
+    last_seen    TEXT,
+    peak_csr_8   INTEGER, peak_csr_9 INTEGER, peak_csr_10 INTEGER,   -- career peaks (profile)
+    peak_on_8    TEXT, peak_on_9 TEXT, peak_on_10 TEXT               -- date each peak set
+);
+
+-- Player form snapshot (TRENDS tab): lifetime + last-10 + 30/60/90-day windows.
+-- Snapshot layer (dated) — the "form term" for forecasting.
+CREATE TABLE IF NOT EXISTS player_form (
+    player_id        TEXT NOT NULL,
+    captured_date    TEXT NOT NULL,
+    lifetime_played  INTEGER, lifetime_w INTEGER, lifetime_l INTEGER,
+    lifetime_win_pct INTEGER, avg_ppm REAL,
+    last10_w INTEGER, last10_l INTEGER, last10_win_pct INTEGER, last10_assessment TEXT,
+    d30_played INTEGER, d30_w INTEGER, d30_l INTEGER,
+    d60_played INTEGER, d60_w INTEGER, d60_l INTEGER,
+    d90_played INTEGER, d90_w INTEGER, d90_l INTEGER,
+    PRIMARY KEY (player_id, captured_date)
 );
 
 -- The drift record: append-only by captured_date.
@@ -524,6 +540,46 @@ def load_rivals(conn: sqlite3.Connection, subject_id: str, rivals, captured_date
         n += 1
     conn.commit()
     return n
+
+
+def load_cuespeed(conn: sqlite3.Connection, player_id: str, cs: CueSpeed) -> None:
+    """Fold career-peak CueSpeed (per game + date) into the players row. Current
+    dated ratings corroborate the roster-grid snapshots and aren't re-stored."""
+    init_db(conn)
+    pk = cs.peak
+    conn.execute(
+        """INSERT INTO players (player_id, name, peak_csr_8, peak_csr_9, peak_csr_10,
+                                peak_on_8, peak_on_9, peak_on_10)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(player_id) DO UPDATE SET
+               peak_csr_8=excluded.peak_csr_8, peak_csr_9=excluded.peak_csr_9,
+               peak_csr_10=excluded.peak_csr_10, peak_on_8=excluded.peak_on_8,
+               peak_on_9=excluded.peak_on_9, peak_on_10=excluded.peak_on_10""",
+        (player_id, player_id,
+         pk.get(8, (None, None))[0], pk.get(9, (None, None))[0], pk.get(10, (None, None))[0],
+         pk.get(8, (None, None))[1], pk.get(9, (None, None))[1], pk.get(10, (None, None))[1]),
+    )
+    conn.commit()
+
+
+def load_trends(conn: sqlite3.Connection, player_id: str, form: TrendForm, captured_date: str) -> None:
+    """Record a dated form snapshot (lifetime + last-10 + 30/60/90-day)."""
+    init_db(conn)
+    d30 = form.d30 or (None, None, None)
+    d60 = form.d60 or (None, None, None)
+    d90 = form.d90 or (None, None, None)
+    conn.execute(
+        """INSERT OR REPLACE INTO player_form
+           (player_id, captured_date, lifetime_played, lifetime_w, lifetime_l,
+            lifetime_win_pct, avg_ppm, last10_w, last10_l, last10_win_pct, last10_assessment,
+            d30_played, d30_w, d30_l, d60_played, d60_w, d60_l, d90_played, d90_w, d90_l)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (player_id, captured_date, form.lifetime_played, form.lifetime_w, form.lifetime_l,
+         form.lifetime_win_pct, form.avg_ppm, form.last10_w, form.last10_l, form.last10_win_pct,
+         form.last10_assessment, d30[0], d30[1], d30[2], d60[0], d60[1], d60[2],
+         d90[0], d90[1], d90[2]),
+    )
+    conn.commit()
 
 
 def update_pairing_h2h(conn: sqlite3.Connection, player_id: str, rival_id: str,

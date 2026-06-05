@@ -131,6 +131,118 @@ def parse_profile_file(path) -> Profile:
 
 
 # --------------------------------------------------------------------------- #
+# MAIN tab: dated CueSpeed ratings (current + peak per game).
+# --------------------------------------------------------------------------- #
+
+_RATING_RE = re.compile(r"(\d+)\s*\(([A-Z][a-z]{2})\s+(\d{1,2}),\s*(\d{4})\)")
+_GAME_LABEL_RE = re.compile(r"^(8|9|10)-Ball:", re.IGNORECASE)
+_MONTHS = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+           "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+
+
+def _mon_date(mon: str, day: str, year: str) -> str | None:
+    return f"{year}-{_MONTHS[mon]:02d}-{int(day):02d}" if mon in _MONTHS else None
+
+
+@dataclass
+class CueSpeed:
+    # game -> (rating, as_of ISO date)
+    current: dict[int, tuple[int, str | None]] = field(default_factory=dict)
+    peak: dict[int, tuple[int, str | None]] = field(default_factory=dict)
+
+
+def parse_cuespeed(html: str) -> CueSpeed:
+    """MAIN tab -> current + HIGHEST (peak) CueSpeed per game, each dated."""
+    soup = BeautifulSoup(html, "lxml")
+    cs = CueSpeed()
+    target: dict | None = None
+    for tr in soup.find_all("tr"):
+        cells = [c.get_text(" ", strip=True) for c in tr.find_all(["td", "th"])]
+        cells = [c for c in cells if c]
+        if not cells:
+            continue
+        head = cells[0].upper()
+        if "HIGHEST CUESPEED RATINGS" in head:
+            target = cs.peak
+            continue
+        if "CUESPEED RATINGS" in head:
+            target = cs.current
+            continue
+        if target is None or len(cells) < 2:
+            continue
+        gm = _GAME_LABEL_RE.match(cells[0])
+        vm = _RATING_RE.search(cells[1])
+        if gm and vm:
+            target[int(gm.group(1))] = (int(vm.group(1)),
+                                        _mon_date(vm.group(2), vm.group(3), vm.group(4)))
+    return cs
+
+
+# --------------------------------------------------------------------------- #
+# TRENDS tab: lifetime + last-10 + 30/60/90-day form (the form term).
+# --------------------------------------------------------------------------- #
+
+@dataclass
+class TrendForm:
+    lifetime_played: int | None = None
+    lifetime_w: int | None = None
+    lifetime_l: int | None = None
+    lifetime_win_pct: int | None = None
+    avg_ppm: float | None = None
+    last10_w: int | None = None
+    last10_l: int | None = None
+    last10_win_pct: int | None = None
+    last10_assessment: str | None = None
+    d30: tuple[int, int, int] | None = None   # (played, w, l)
+    d60: tuple[int, int, int] | None = None
+    d90: tuple[int, int, int] | None = None
+
+
+def _section(text: str, start: str, *ends: str) -> str:
+    i = text.find(start)
+    if i < 0:
+        return ""
+    j = len(text)
+    for e in ends:
+        k = text.find(e, i + len(start))
+        if k >= 0:
+            j = min(j, k)
+    return text[i:j]
+
+
+def parse_trends(html: str) -> TrendForm:
+    text = re.sub(r"\s+", " ", BeautifulSoup(html, "lxml").get_text(" ", strip=True))
+    f = TrendForm()
+
+    life = _section(text, "LIFETIME STATS", "LAST 10")
+    if life:
+        m = re.search(r"Matches Played:\s*(\d+)", life);  f.lifetime_played = int(m.group(1)) if m else None
+        m = re.search(r"Match Record:\s*(\d+)\s*wins?\s*-?\s*(\d+)\s*loss", life)
+        if m: f.lifetime_w, f.lifetime_l = int(m.group(1)), int(m.group(2))
+        m = re.search(r"Win %:\s*(\d+)%", life);  f.lifetime_win_pct = int(m.group(1)) if m else None
+        m = re.search(r"AvgPPM:\s*([\d.]+)", life);  f.avg_ppm = float(m.group(1)) if m else None
+
+    l10 = _section(text, "LAST 10 MATCHES", "LAST 30")
+    if l10:
+        m = re.search(r"Match Record:\s*(\d+)\s*wins?\s*-?\s*(\d+)\s*loss", l10)
+        if m: f.last10_w, f.last10_l = int(m.group(1)), int(m.group(2))
+        m = re.search(r"Win %:\s*(\d+)%", l10);  f.last10_win_pct = int(m.group(1)) if m else None
+        m = re.search(r"Assessment:\s*(.+?)(?:\s*LAST|\s*©|$)", l10)
+        if m: f.last10_assessment = m.group(1).strip()
+
+    for tag, attr, nxt in (("LAST 30 DAYS", "d30", "LAST 60"),
+                           ("LAST 60 DAYS", "d60", "LAST 90"),
+                           ("LAST 90 DAYS", "d90", "©")):
+        sec = _section(text, tag, nxt)
+        if sec:
+            played = re.search(r"Matches Played:\s*(\d+)", sec)
+            rec = re.search(r"Match Record:\s*(\d+)\s*wins?\s*-?\s*(\d+)\s*loss", sec)
+            if played and rec:
+                setattr(f, attr, (int(played.group(1)), int(rec.group(1)), int(rec.group(2))))
+    return f
+
+
+# --------------------------------------------------------------------------- #
 # Deep tabs (JS/AJAX-loaded via stats.php?...&xTab=N). The harvest captures
 # RIVALS (xTab=5; drill per rival via &rival=<id>), H2H (12), TRENDS (33).
 # --------------------------------------------------------------------------- #
