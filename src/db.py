@@ -33,7 +33,7 @@ from .parse.profile import Profile
 from .parse.roster import RosterPlayer, parse_roster_file
 from .parse.schedule import Fixture
 from .parse.standings import TeamRecord
-from .parse.weekly_scores import Game
+from .parse.weekly_scores import Game, ScoreSheet
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS players (
@@ -95,7 +95,9 @@ CREATE TABLE IF NOT EXISTS games (
     away_player_id   TEXT,
     home_player_name TEXT,
     away_player_name TEXT,
-    game_type        INTEGER,           -- 8 / 9 / 10 (None until inferable)
+    game_type        INTEGER,           -- 8 / 9 / 10 (None from the live board)
+    home_race        INTEGER,           -- race target (for censored-count handling)
+    away_race        INTEGER,
     home_won         INTEGER,
     home_score       INTEGER,           -- racks won
     away_score       INTEGER
@@ -368,6 +370,68 @@ def load_games(conn: sqlite3.Connection, games: list[Game], season: str = config
     conn.commit()
     return {"games": len(games), "loaded": loaded, "linked_to_match": linked,
             "unresolved_player_slots": unresolved_players}
+
+
+def _resolve_player_id(conn: sqlite3.Connection, name: str) -> str | None:
+    row = conn.execute("SELECT player_id FROM players WHERE name = ?", (name,)).fetchone()
+    return row["player_id"] if row else None
+
+
+def load_score_sheets(conn: sqlite3.Connection, sheets: list[ScoreSheet],
+                      season: str = config.SEASON) -> dict:
+    """Load score-sheet games (the authoritative per-game grain, WITH game type +
+    race targets) into `games`. Resolves names -> 8-digit ids (subs kept, NULL).
+    Links the match by the two teams + date. Dedupes mirrored rows so fetching
+    both teams' sheets for a match doesn't double-count games."""
+    init_db(conn)
+    loaded = skipped = unresolved = 0
+    for sh in sheets:
+        # All games on a sheet share the match; resolve it once from the matchup.
+        hteam_id = _resolve_team_id(conn, sh.home_team, season)
+        ateam_id = _resolve_team_id(conn, sh.away_team, season)
+        match_row = conn.execute(
+            """SELECT match_id FROM matches WHERE season = ? AND date = ?
+               AND ((home_team_id = ? AND away_team_id = ?)
+                 OR (home_team_id = ? AND away_team_id = ?))""",
+            (season, sh.date, hteam_id, ateam_id, ateam_id, hteam_id),
+        ).fetchone() if (hteam_id and ateam_id and sh.date) else None
+        match_id = match_row["match_id"] if match_row else None
+        for g in sh.games:
+            # mirror check: same game from the opponent's sheet (home/away flipped)
+            dup = conn.execute(
+                """SELECT 1 FROM games WHERE played_date = ? AND game_type = ?
+                   AND ((home_player_name = ? AND away_player_name = ?)
+                     OR (home_player_name = ? AND away_player_name = ?))""",
+                (sh.date, g.game_type, g.home_player, g.away_player,
+                 g.away_player, g.home_player),
+            ).fetchone()
+            if dup:
+                skipped += 1
+                continue
+            hid = _resolve_player_id(conn, g.home_player)
+            aid = _resolve_player_id(conn, g.away_player)
+            unresolved += (hid is None) + (aid is None)
+            won = g.home_won
+            conn.execute(
+                """
+                INSERT INTO games (match_id, played_date, home_player_id, away_player_id,
+                                   home_player_name, away_player_name, game_type,
+                                   home_race, away_race, home_won, home_score, away_score)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(played_date, home_player_name, away_player_name) DO UPDATE SET
+                    match_id=excluded.match_id, game_type=excluded.game_type,
+                    home_race=excluded.home_race, away_race=excluded.away_race,
+                    home_won=excluded.home_won, home_score=excluded.home_score,
+                    away_score=excluded.away_score
+                """,
+                (match_id, sh.date, hid, aid, g.home_player, g.away_player, g.game_type,
+                 g.home_race, g.away_race, None if won is None else int(won),
+                 g.home_wins, g.away_wins),
+            )
+            loaded += 1
+    conn.commit()
+    return {"sheets": len(sheets), "loaded": loaded, "deduped": skipped,
+            "unresolved_player_slots": unresolved}
 
 
 def load_team_record(conn: sqlite3.Connection, record: TeamRecord, season: str = config.SEASON) -> dict:

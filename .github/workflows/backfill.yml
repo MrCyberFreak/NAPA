@@ -1,0 +1,47 @@
+name: backfill-scores
+
+# One-off (manual): historical per-game backfill. Walks
+# standings_weekly_scores.php?week=N for the requested weeks, follows every
+# score-sheet (scores.php) link, and commits the rendered HTML to data/raw/scores/.
+# Resumable (skips sheets already committed). This is the Phase 6 training data.
+
+on:
+  workflow_dispatch:
+    inputs:
+      weeks:
+        description: "Weeks to backfill (e.g. 1-27 or 1,2,3)"
+        default: "1-27"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-scores
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+      - name: Backfill score sheets
+        run: python -m src.browser_fetch --backfill-weeks "${{ inputs.weeks }}"
+      - name: Commit score sheets
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw/scores
+          if git diff --cached --quiet; then
+            echo "No new score sheets."
+          else
+            git commit -m "chore(backfill): historical score sheets [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
