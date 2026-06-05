@@ -42,5 +42,9 @@ jobs:
             echo "No assets captured."
           else
             git commit -m "chore(assets): race calculator JS + HTML [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
           fi

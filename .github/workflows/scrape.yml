@@ -78,5 +78,9 @@ jobs:
             echo "No archive changes to commit (write-on-change: nothing new)."
           else
             git commit -m "chore(archive): scrape $(date -u +%F) [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
           fi
