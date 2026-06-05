@@ -128,3 +128,71 @@ def parse_profile(html: str) -> Profile:
 def parse_profile_file(path) -> Profile:
     from .roster import read_source  # reuse the .mht/.html loader
     return parse_profile(read_source(path))
+
+
+# --------------------------------------------------------------------------- #
+# Deep tabs (JS/AJAX-loaded via stats.php?...&xTab=N). The harvest captures
+# RIVALS (xTab=5; drill per rival via &rival=<id>), H2H (12), TRENDS (33).
+# --------------------------------------------------------------------------- #
+
+_RIVAL_LINK_RE = re.compile(r"playerID=(\d{8})[^\"']*?rival=(\d{8})")
+_WL_RE = re.compile(r"(\d+)\s*-\s*(\d+)")
+
+
+@dataclass(frozen=True)
+class Rival:
+    rival_id: str
+    name: str
+
+
+def parse_profile_rivals(html: str) -> tuple[str | None, list[Rival]]:
+    """RIVALS tab -> (subject player_id, lifetime opponents). Each rival row is a
+    drill-down link stats.php?...&playerID=<subject>&rival=<rival_id>. This is the
+    pairing-graph densifier; rival_id is the canonical 8-digit key."""
+    soup = BeautifulSoup(html, "lxml")
+    subject: str | None = None
+    seen: set[str] = set()
+    rivals: list[Rival] = []
+    for a in soup.find_all("a", href=True):
+        m = _RIVAL_LINK_RE.search(a["href"])
+        if not m:
+            continue
+        subject = m.group(1)
+        rid = m.group(2)
+        if rid in seen:
+            continue
+        seen.add(rid)
+        rivals.append(Rival(rival_id=rid, name=a.get_text(" ", strip=True)))
+    return subject, rivals
+
+
+@dataclass
+class H2HSummary:
+    total_matches: int | None = None
+    wins: int | None = None
+    losses: int | None = None
+    win_pct: int | None = None
+    per_game: dict[int, tuple[int, int]] = field(default_factory=dict)  # game -> (w, l)
+
+
+def parse_h2h_summary(html: str) -> H2HSummary:
+    """H2H tab -> overall meetings, record, win%, and per-game W-L."""
+    soup = BeautifulSoup(html, "lxml")
+    text_rows = [r.get_text(" | ", strip=True) for t in soup.find_all("table")
+                 for r in t.find_all("tr")]
+    blob = "\n".join(text_rows)
+    s = H2HSummary()
+    m = re.search(r"Total H2H Matches.*?\b(\d+)\b", blob, re.DOTALL)
+    if m:
+        s.total_matches = int(m.group(1))
+    m = re.search(r"H2H W-L Record\D+(\d+)\s*-\s*(\d+)", blob, re.DOTALL)
+    if m:
+        s.wins, s.losses = int(m.group(1)), int(m.group(2))
+    m = re.search(r"H2H Win %\D+(\d+)%", blob, re.DOTALL)
+    if m:
+        s.win_pct = int(m.group(1))
+    for g in (8, 9, 10):
+        m = re.search(rf"{g}-ball H2H W-L\D+(\d+)\s*-\s*(\d+)", blob, re.DOTALL)
+        if m:
+            s.per_game[g] = (int(m.group(1)), int(m.group(2)))
+    return s

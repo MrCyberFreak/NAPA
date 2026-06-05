@@ -103,6 +103,22 @@ CREATE TABLE IF NOT EXISTS games (
     away_score       INTEGER
 );
 
+-- Lifetime pairing history from player profiles (RIVALS / H2H drill-downs).
+-- DISTINCT from `games`: these are aggregate W-L counts, not rack-level results,
+-- and lack opponent-skill-at-time. Enrichment of the pairing layer only.
+-- Keyed by 8-digit ids; rivals are a SUPERSET of the roster (subs appear).
+CREATE TABLE IF NOT EXISTS pairing_history (
+    player_id     TEXT NOT NULL,
+    rival_id      TEXT NOT NULL,
+    rival_name    TEXT,
+    total_matches INTEGER,
+    wins INTEGER, losses INTEGER, win_pct INTEGER,
+    g8_w INTEGER, g8_l INTEGER, g9_w INTEGER, g9_l INTEGER, g10_w INTEGER, g10_l INTEGER,
+    lags_won INTEGER,
+    captured_date TEXT,
+    PRIMARY KEY (player_id, rival_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
 CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_match_unique
@@ -488,6 +504,36 @@ def player_game_log(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Ro
         """,
         (player_id,),
     ).fetchall()
+
+
+def load_rivals(conn: sqlite3.Connection, subject_id: str, rivals, captured_date: str | None = None) -> int:
+    """Record lifetime pairing existence/identity from a RIVALS list. Idempotent
+    on (player_id, rival_id); per-game counts are filled later by drill-downs."""
+    init_db(conn)
+    if not subject_id:
+        return 0
+    n = 0
+    for r in rivals:
+        conn.execute(
+            """INSERT INTO pairing_history (player_id, rival_id, rival_name, captured_date)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(player_id, rival_id) DO UPDATE SET
+                   rival_name = COALESCE(excluded.rival_name, pairing_history.rival_name)""",
+            (subject_id, r.rival_id, r.name, captured_date),
+        )
+        n += 1
+    conn.commit()
+    return n
+
+
+def pairing_coverage(conn: sqlite3.Connection) -> dict:
+    """Densification metric: distinct UNORDERED player pairs with lifetime history
+    (from pairing_history) — to compare against the single-session game pairings."""
+    pairs = {frozenset((a, b)) for a, b in
+             conn.execute("SELECT player_id, rival_id FROM pairing_history")}
+    return {"directed_edges": conn.execute("SELECT COUNT(*) FROM pairing_history").fetchone()[0],
+            "distinct_pairings": len(pairs),
+            "subjects": conn.execute("SELECT COUNT(DISTINCT player_id) FROM pairing_history").fetchone()[0]}
 
 
 def pending_matches(conn: sqlite3.Connection, as_of: str, season: str = config.SEASON) -> list[sqlite3.Row]:
