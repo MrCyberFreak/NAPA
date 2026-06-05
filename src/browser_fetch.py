@@ -96,12 +96,58 @@ def fetch_pages_browser(
     return written
 
 
+def capture_assets(url: str, out_dir: str | Path, headless: bool = True) -> list[str]:
+    """One-off: load `url` in Chromium and save every JS asset it requests (plus
+    the rendered HTML). Used to recover a page's dynamic logic/data (e.g. the
+    race calculator's CSR->race lookup) that a static MHTML save drops."""
+    import re as _re
+    from playwright.sync_api import sync_playwright
+
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    saved: list[str] = []
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=headless)
+        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+
+        def on_response(resp) -> None:
+            try:
+                ct = resp.headers.get("content-type", "")
+                if resp.url.split("?")[0].endswith(".js") or "javascript" in ct:
+                    name = _re.sub(r"[^A-Za-z0-9._-]", "_", resp.url.split("//", 1)[-1])[:120]
+                    (out / name).write_bytes(resp.body())
+                    saved.append(name)
+            except Exception:  # noqa: BLE001
+                pass
+
+        page.on("response", on_response)
+        try:
+            page.goto(url, wait_until="networkidle", timeout=45000)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[capture] {url}: {exc}")
+        for _ in range(6):
+            if not fetch.is_challenge(page.content()):
+                break
+            page.wait_for_timeout(6000)
+        (out / "_rendered.html").write_text(page.content(), encoding="utf-8")
+        browser.close()
+    print(f"[capture] saved {len(saved)} JS assets + _rendered.html to {out}")
+    return saved
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA 13077 browser fetcher (Chromium)")
     parser.add_argument("--date", default=dt.date.today().isoformat())
     parser.add_argument("--root", default=str(fetch.ARCHIVE_ROOT))
     parser.add_argument("--headed", action="store_true", help="run with a visible browser")
+    parser.add_argument("--capture-url", help="one-off: capture a page's JS assets + HTML")
+    parser.add_argument("--out", help="output dir for --capture-url")
     args = parser.parse_args()
+
+    if args.capture_url:
+        capture_assets(args.capture_url, args.out or "data/raw/_assets", headless=not args.headed)
+        return
 
     root = Path(args.root)
     written = fetch_pages_browser(date=args.date, root=root, headless=not args.headed)

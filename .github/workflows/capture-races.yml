@@ -1,0 +1,46 @@
+name: capture-races
+
+# One-off (manual): recover the NAPA race calculator's CSR->race lookup, which
+# loads dynamically and isn't in a static page save. Captures every JS asset
+# races.napaleagues.com requests + the rendered HTML, and commits them so the
+# lookup can be parsed into a static table (parsed once, never fetched live).
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "URL to capture"
+        default: "https://races.napaleagues.com/"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: capture-races
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+      - name: Capture race calculator assets
+        run: python -m src.browser_fetch --capture-url "${{ inputs.url }}" --out data/raw/race_assets
+      - name: Commit assets
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw/race_assets
+          if git diff --cached --quiet; then
+            echo "No assets captured."
+          else
+            git commit -m "chore(assets): race calculator JS + HTML [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
