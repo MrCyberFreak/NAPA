@@ -241,6 +241,81 @@ def explore_profile(player_id: str, out_dir: str | Path, headless: bool = True) 
     return [str(out)]
 
 
+_PROFILE_TABS = {"main": "", "h2h": "&xTab=12", "trends": "&xTab=33", "rivals": "&xTab=5"}
+
+
+def _roster_player_ids() -> list[str]:
+    import glob
+
+    from .parse.roster import parse_roster_file
+    grids = sorted(glob.glob("data/raw/*/roster_grid.html"))
+    if not grids:
+        return []
+    return sorted({p.player_id for p in parse_roster_file(grids[-1])})
+
+
+def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path = "data/raw/profiles",
+                     tabs=("rivals", "h2h", "trends", "main"), drill_rivals: bool = True,
+                     headless: bool = True) -> int:
+    """Harvest player profiles into data/raw/profiles/<id>/. Resumable (skips
+    files already on disk), spaced, fail-soft PER PAGE (logs and continues — a
+    re-run resumes). With drill_rivals, follows each RIVALS link for per-game
+    lifetime H2H. Rate-limit-friendly: slow + bounded."""
+    from playwright.sync_api import sync_playwright
+
+    from .parse.profile import parse_profile_rivals
+
+    out_root = Path(out_root)
+    player_ids = player_ids or _roster_player_ids()
+    base = lambda pid: f"{config.HOST_POOLSHOOTERS}/stats.php?playerSelected=Y&playerID={pid}"
+    saved = 0
+
+    def cleared(page, url: str) -> str:
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[harvest] nav {url}: {exc}")
+            return ""
+        for _ in range(6):
+            if not fetch.is_challenge(page.content()):
+                break
+            page.wait_for_timeout(6000)
+        return page.content()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=headless)
+        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+
+        def get(url: str, path: Path) -> str:
+            nonlocal saved
+            if path.exists() and path.stat().st_size > 500:
+                return path.read_text(encoding="utf-8", errors="replace")
+            html = cleared(page, url)
+            if html and not fetch.is_challenge(html):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(html, encoding="utf-8")
+                saved += 1
+                page.wait_for_timeout(1500)  # polite
+            return html
+
+        try:
+            for pid in player_ids:
+                pdir = out_root / pid
+                for name in tabs:
+                    get(base(pid) + _PROFILE_TABS[name], pdir / f"{name}.html")
+                if drill_rivals:
+                    rfile = pdir / "rivals.html"
+                    if rfile.exists():
+                        _, rivals = parse_profile_rivals(rfile.read_text(encoding="utf-8", errors="replace"))
+                        for r in rivals:
+                            get(base(pid) + f"&xTab=5&rival={r.rival_id}",
+                                pdir / f"rival_{r.rival_id}.html")
+        finally:
+            browser.close()
+    print(f"[harvest] saved {saved} new profile pages")
+    return saved
+
+
 def _parse_weeks(spec: str) -> list[int]:
     if "-" in spec:
         lo, hi = spec.split("-", 1)
@@ -257,7 +332,16 @@ def main() -> None:
     parser.add_argument("--out", help="output dir for --capture-url")
     parser.add_argument("--backfill-weeks", help="e.g. 1-27 : backfill score sheets")
     parser.add_argument("--explore-profile", help="player_id : capture profile tabs + XHR")
+    parser.add_argument("--harvest", action="store_true", help="harvest roster profiles")
+    parser.add_argument("--harvest-tabs", default="rivals,h2h,trends,main",
+                        help="comma tabs to harvest")
+    parser.add_argument("--harvest-drill", default="1", help="1=drill rivals, 0=tabs only")
     args = parser.parse_args()
+
+    if args.harvest:
+        harvest_profiles(tabs=tuple(args.harvest_tabs.split(",")),
+                         drill_rivals=args.harvest_drill == "1", headless=not args.headed)
+        return
 
     if args.capture_url:
         capture_assets(args.capture_url, args.out or "data/raw/_assets", headless=not args.headed)
