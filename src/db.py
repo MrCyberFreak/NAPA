@@ -490,6 +490,25 @@ def player_game_log(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Ro
     ).fetchall()
 
 
+def pending_matches(conn: sqlite3.Connection, as_of: str, season: str = config.SEASON) -> list[sqlite3.Row]:
+    """Scheduled matches whose date has passed (<= as_of) but have NO loaded
+    games — i.e. not-yet-played makeups. Structured for re-pull: the match row
+    (teams + round + date) persists; re-fetching its score sheet later fills it
+    in and it drops off this list. Missing games are PENDING, never an error."""
+    return conn.execute(
+        """
+        SELECT m.round, m.date, h.name AS home_team, a.name AS away_team
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_team_id
+        JOIN teams a ON a.team_id = m.away_team_id
+        WHERE m.season = ? AND m.date <= ?
+          AND NOT EXISTS (SELECT 1 FROM games g WHERE g.match_id = m.match_id)
+        ORDER BY m.round, home_team
+        """,
+        (season, as_of),
+    ).fetchall()
+
+
 def standings(conn: sqlite3.Connection, season: str = config.SEASON) -> list[sqlite3.Row]:
     """Team standings = total match points across played weeks, by team. Complete
     only for teams whose season records have been loaded (each page = one team)."""
