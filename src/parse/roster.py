@@ -39,8 +39,9 @@ _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
 # Captain marker "(C)" (tolerant of spacing/case).
 _CAPTAIN_RE = re.compile(r"\(\s*[Cc]\s*\)")
 
-# CSR triple rendered as "8 / 9 / 10".
-_CSR_TRIPLE_RE = re.compile(r"(\d{1,4})\s*/\s*(\d{1,4})\s*/\s*(\d{1,4})")
+# CSR triple. The live roster grid renders it dash-separated ("95 - 80 - 81");
+# the slash form ("95 / 80 / 81") also appears in some views. Accept either.
+_CSR_TRIPLE_RE = re.compile(r"(\d{1,4})\s*[-/]\s*(\d{1,4})\s*[-/]\s*(\d{1,4})")
 
 _ANY_INT_RE = re.compile(r"\d+")
 

@@ -1,0 +1,49 @@
+name: explore-profile
+
+# One-off (manual): capture a single player profile + its JS-loaded tabs
+# (RIVALS / H2H / TRENDS) and every XHR response, to learn the data format
+# before building the profile harvester.
+
+on:
+  workflow_dispatch:
+    inputs:
+      player_id:
+        description: "8-digit playerID to explore"
+        default: "10063698"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: explore-profile
+  cancel-in-progress: false
+
+jobs:
+  explore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+      - name: Explore profile
+        run: python -m src.browser_fetch --explore-profile "${{ inputs.player_id }}" --out data/raw/profile_explore
+      - name: Commit
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw/profile_explore
+          if git diff --cached --quiet; then
+            echo "Nothing captured."
+          else
+            git commit -m "chore(explore): profile tabs + XHR [skip ci]"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
+          fi

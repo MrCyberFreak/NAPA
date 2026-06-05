@@ -1,0 +1,86 @@
+name: scrape-archive
+
+# Cloud-first automation for the NAPA 13077 archive.
+# - Thursday-night capture (league night) + a daily write-on-change pass.
+# - Host-agnostic, config-driven fetcher; a connectivity probe logs each host's
+#   reachability FROM THE RUNNER so we learn what is actually blocked vs assumed.
+# - Fail-soft: the fetcher logs and STOPS on error (never retry-hammers); a
+#   heartbeat file makes a missed/failed run visible.
+# - The scraped archive is committed back to the repo as the durable record.
+#
+# Cron is UTC and not DST-aware. Division time zone is America/Denver
+# (MDT = UTC-6 in season). 04:00 UTC Fri ~= Thu 22:00 MDT (league night);
+# 14:00 UTC ~= 08:00 MDT (daily pass).
+
+on:
+  schedule:
+    - cron: "0 4 * * 5"    # Thursday night (America/Denver) — league-night capture
+    - cron: "0 14 * * *"   # daily ~08:00 MDT — write-on-change pass
+  workflow_dispatch:
+    inputs:
+      probe_only:
+        description: "Only run the host-reachability probe (no fetch/commit)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape-archive
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Connectivity probe (host reachability from the runner)
+        run: |
+          echo "## Host reachability ($(date -u +%FT%TZ))" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          python -m src.fetch --probe-only --root data/raw | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      # Plain GETs can't pass the hosts' "One moment..." JS challenge, so the
+      # real capture uses a headless browser that executes the page's JS.
+      - name: Install Playwright Chromium
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        run: |
+          pip install -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Browser scrape (fail-soft, clears JS challenge)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        run: python -m src.browser_fetch --date "$(date -u +%F)"
+
+      # DB load parses the archive; keep it best-effort so a parser issue never
+      # blocks committing the raw archive (the durable, replayable record).
+      - name: Load DB (best-effort)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        continue-on-error: true
+        run: python -m src.db --load --date "$(date -u +%F)"
+
+      - name: Commit archive back
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw
+          if git diff --cached --quiet; then
+            echo "No archive changes to commit (write-on-change: nothing new)."
+          else
+            git commit -m "chore(archive): scrape $(date -u +%F) [skip ci]"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
+          fi
