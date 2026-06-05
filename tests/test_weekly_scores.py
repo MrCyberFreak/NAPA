@@ -136,3 +136,24 @@ def test_score_sheet_mirror_dedup():
     result = load_score_sheets(conn, [mirror], season=SEASON)
     assert result["deduped"] == 5
     assert conn.execute("SELECT COUNT(*) FROM games").fetchone()[0] == 5
+
+
+@pytest.mark.skipif(not SHEET.exists(), reason="no score_sheet fixture")
+def test_pending_matches_flags_unplayed_not_errors():
+    """A scheduled match with no loaded games (date passed) is PENDING, not an
+    error; loading its games drops it from the list (re-pull structure)."""
+    from src.parse.weekly_scores import parse_score_sheet_file
+    from src.db import load_score_sheets, pending_matches
+    conn = _loaded_db()
+    # Before any games: all of week-1's matches are pending as of W1 date.
+    pend_before = pending_matches(conn, as_of="2025-10-02", season=SEASON)
+    assert any("Ed's Balls" in p["home_team"] or "Ed's Balls" in p["away_team"]
+               for p in pend_before)
+    # Load the Ed's Balls vs Pocket Predators sheet -> that match no longer pending.
+    load_score_sheets(conn, [parse_score_sheet_file(SHEET)], season=SEASON)
+    pend_after = pending_matches(conn, as_of="2025-10-02", season=SEASON)
+    assert len(pend_after) == len(pend_before) - 1
+    assert not any("Pocket Predators" in p["home_team"] and "Ed's Balls" in p["away_team"]
+                   for p in pend_after)
+    # Future rounds are never "pending" (date hasn't passed).
+    assert all(p["date"] <= "2025-10-02" for p in pend_after)
