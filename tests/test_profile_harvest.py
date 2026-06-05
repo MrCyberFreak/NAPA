@@ -64,3 +64,38 @@ def test_parse_rival_h2h_and_load():
         "WHERE player_id='10063698' AND rival_id='10071539'").fetchone()
     assert row["total_matches"] == 2 and row["lags_won"] == 1
     assert row["g8_w"] == 0 and row["g8_l"] == 2
+
+
+MAIN = REPO / "fixtures" / "profile_main.html"
+TRENDS = REPO / "fixtures" / "profile_trends.html"
+
+
+@pytest.mark.skipif(not MAIN.exists(), reason="no main fixture")
+def test_cuespeed_current_and_peak():
+    from src.parse.profile import parse_cuespeed
+    from src.db import connect, load_cuespeed
+    cs = parse_cuespeed(_read(MAIN))
+    assert cs.current[8] == (95, "2026-04-30")
+    assert cs.peak[8] == (100, "2024-09-19")
+    assert cs.peak[9] == (80, "2026-05-07") and cs.peak[10] == (81, "2026-05-14")
+    conn = connect(":memory:")
+    load_cuespeed(conn, "10063698", cs)
+    row = conn.execute("SELECT peak_csr_8, peak_on_8, peak_csr_9 FROM players "
+                       "WHERE player_id='10063698'").fetchone()
+    assert row["peak_csr_8"] == 100 and row["peak_on_8"] == "2024-09-19" and row["peak_csr_9"] == 80
+
+
+@pytest.mark.skipif(not TRENDS.exists(), reason="no trends fixture")
+def test_trends_form_windows():
+    from src.parse.profile import parse_trends
+    from src.db import connect, load_trends
+    f = parse_trends(_read(TRENDS))
+    assert (f.lifetime_played, f.lifetime_w, f.lifetime_l) == (128, 85, 43)
+    assert f.lifetime_win_pct == 66 and abs(f.avg_ppm - 11.26) < 1e-6
+    assert (f.last10_w, f.last10_l) == (7, 3) and f.last10_assessment == "Highly recommended."
+    assert f.d30 == (2, 1, 1) and f.d60 == (5, 3, 2) and f.d90 == (6, 3, 3)
+    conn = connect(":memory:")
+    load_trends(conn, "10063698", f, captured_date="2026-06-05")
+    row = conn.execute("SELECT lifetime_w, last10_assessment, d90_l FROM player_form "
+                       "WHERE player_id='10063698'").fetchone()
+    assert row["lifetime_w"] == 85 and row["d90_l"] == 3
