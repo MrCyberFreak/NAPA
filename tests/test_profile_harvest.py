@@ -46,3 +46,21 @@ def test_load_rivals_into_pairing_history():
     # idempotent
     load_rivals(conn, subject, rivals)
     assert conn.execute("SELECT COUNT(*) FROM pairing_history").fetchone()[0] == 62
+
+
+RIVAL_DD = REPO / "fixtures" / "profile_rival_h2h.html"
+
+
+@pytest.mark.skipif(not RIVAL_DD.exists(), reason="no rival drill-down fixture")
+def test_parse_rival_h2h_and_load():
+    from src.parse.profile import parse_rival_h2h
+    from src.db import connect, update_pairing_h2h
+    pg = parse_rival_h2h(_read(RIVAL_DD))
+    assert pg[8] == (2, 1, 0, 2)        # Sam vs Aaron Allen: 8-ball 2 played, 1 lag, 0-2
+    conn = connect(":memory:")
+    update_pairing_h2h(conn, "10063698", "10071539", pg, rival_name="Aaron Allen")
+    row = conn.execute(
+        "SELECT total_matches, lags_won, g8_w, g8_l FROM pairing_history "
+        "WHERE player_id='10063698' AND rival_id='10071539'").fetchone()
+    assert row["total_matches"] == 2 and row["lags_won"] == 1
+    assert row["g8_w"] == 0 and row["g8_l"] == 2

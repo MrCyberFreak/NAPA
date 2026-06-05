@@ -166,6 +166,24 @@ def parse_profile_rivals(html: str) -> tuple[str | None, list[Rival]]:
     return subject, rivals
 
 
+_RIVAL_GAME_RE = re.compile(
+    r"(8|9|10)-BALL MATCHES\s+Played\s+(\d+)\s+matches?\s+"
+    r"Won the lag:\s+(\d+)\s+times?\s+Record\s+(\d+)\s+wins?\s*-\s*(\d+)\s+loss",
+    re.IGNORECASE)
+
+
+def parse_rival_h2h(html: str) -> dict[int, tuple[int, int, int, int]]:
+    """Rival drill-down (xTab=5&rival=<id>) -> per-game lifetime H2H:
+    {game: (matches_played, lags_won, wins, losses)} for 8/9/10-ball."""
+    text = re.sub(r"\s+", " ", BeautifulSoup(html, "lxml").get_text(" ", strip=True))
+    out: dict[int, tuple[int, int, int, int]] = {}
+    for m in _RIVAL_GAME_RE.finditer(text):
+        g = int(m.group(1))
+        if g not in out:  # first (canonical) block per game
+            out[g] = (int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5)))
+    return out
+
+
 @dataclass
 class H2HSummary:
     total_matches: int | None = None

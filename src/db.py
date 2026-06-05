@@ -526,6 +526,32 @@ def load_rivals(conn: sqlite3.Connection, subject_id: str, rivals, captured_date
     return n
 
 
+def update_pairing_h2h(conn: sqlite3.Connection, player_id: str, rival_id: str,
+                       per_game: dict, rival_name: str | None = None) -> None:
+    """Fold a rival drill-down's per-game (played, lags, wins, losses) into the
+    pairing row. Aggregate counts only — never rack-level, never into `games`."""
+    init_db(conn)
+    g = {k: per_game.get(k, (0, 0, 0, 0)) for k in (8, 9, 10)}
+    total = sum(v[0] for v in g.values())
+    lags = sum(v[1] for v in g.values())
+    wins = sum(v[2] for v in g.values())
+    losses = sum(v[3] for v in g.values())
+    conn.execute(
+        """INSERT INTO pairing_history
+               (player_id, rival_id, rival_name, total_matches, wins, losses, lags_won,
+                g8_w, g8_l, g9_w, g9_l, g10_w, g10_l)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+           ON CONFLICT(player_id, rival_id) DO UPDATE SET
+               rival_name=COALESCE(pairing_history.rival_name, excluded.rival_name),
+               total_matches=excluded.total_matches, wins=excluded.wins,
+               losses=excluded.losses, lags_won=excluded.lags_won,
+               g8_w=excluded.g8_w, g8_l=excluded.g8_l, g9_w=excluded.g9_w,
+               g9_l=excluded.g9_l, g10_w=excluded.g10_w, g10_l=excluded.g10_l""",
+        (player_id, rival_id, rival_name, total, wins, losses, lags,
+         g[8][2], g[8][3], g[9][2], g[9][3], g[10][2], g[10][3]),
+    )
+
+
 def pairing_coverage(conn: sqlite3.Connection) -> dict:
     """Densification metric: distinct UNORDERED player pairs with lifetime history
     (from pairing_history) — to compare against the single-session game pairings."""
