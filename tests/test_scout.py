@@ -75,3 +75,18 @@ def test_renderers_produce_output(conn):
 def test_unknown_team_raises(conn):
     with pytest.raises(ValueError):
         build_grid(conn, "Nope FC", "The Furies #2", season=SEASON)
+
+
+def test_cell_carries_real_race_lengths(conn):
+    from src.race import race as race_lookup
+    grid = build_grid(conn, "Pocket Pals #1", "Cheat Code Felt Billiards #6", season=SEASON)
+    cell = grid.cells[0][0]
+    for e in cell.edges:
+        assert e.race == race_lookup(e.my_csr, e.opp_csr)
+        my_race, opp_race = e.race
+        assert my_race >= 2 and opp_race >= 2          # NAPA minimum race is 2
+        # stronger player races to the higher (or equal) number
+        if e.my_csr > e.opp_csr:
+            assert my_race >= opp_race
+    # drill-down shows the race column
+    assert "race" in render_cell(cell)

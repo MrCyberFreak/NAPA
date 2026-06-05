@@ -20,3 +20,4 @@ Personal pipeline: scrape division 13077 -> archive raw HTML -> parse -> SQLite 
 ## Domain
 - LC = Lagger's Choice; skill is per-game (8/9/10). The spread matters, not one number.
 - CSR = CueSpeed Rating. Higher = stronger. SM = session matches played.
+- Race lengths: src/race.py is the NAPA matrix transcribed from races.js (class = stronger player's CSR band; race from band+diff). Static lookup, never fetched live. Provenance: data/raw/race_assets/.
