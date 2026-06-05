@@ -1,14 +1,241 @@
-"""Weekly-scores parser -> per-game player-vs-player results (the `games` grain).
+"""Live-scores parser -> per-game (race) results (the `games` grain).
 
-Stub — implemented after the roster parser. NOTE: the exact page shape is not
-yet confirmed (no per-game page captured). Capture one
-`standings_weekly_scores.php?...&week=N` page first, then pin this parser to it.
-Players seen here are a SUPERSET of the roster (subs play), so do not constrain
-output to roster membership.
+Source: scores.playpool.io/livescores.php (fixture: live_scores.mht). The page
+has two parts:
+- Matchup header tables (HOME/AWAY team) for the CURRENT week (often no games yet).
+- Per-game DETAIL tables for the most recent played games, one per table:
+    PLAYERS | SL | GM | TM | RC | G1..G11 | TRUN | SNAP
+  with two player rows (home, away), a 'W' in each rack column the player won,
+  RC='W' marking the race winner, and a trailing date row.
+
+Each detail table is ONE game (a race of racks) between a home and away player.
+The two rounds can differ (headers = upcoming, details = last played), so we do
+NOT pair header<->detail; team/round come from the players + the game date.
+
+Players here are a SUPERSET of the roster (subs play) — the canonical key is the
+8-digit playerID, resolved by NAME downstream; rows are kept regardless.
 """
 
 from __future__ import annotations
 
+import re
+from dataclasses import dataclass, field
 
-def parse_weekly_scores(html: str):
-    raise NotImplementedError("weekly-scores parser pending a confirmed fixture")
+from bs4 import BeautifulSoup
+
+from .roster import read_source
+
+_MONTHS = {
+    "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+    "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12,
+}
+_DATE_RE = re.compile(r"([A-Z][a-z]{2})\.?\s+(\d{1,2}),\s*(\d{4})")
+
+
+@dataclass(frozen=True)
+class PlayerLine:
+    player: str
+    sl: int | None          # per-game CueSpeed for the game played
+    racks_won: int
+    is_race_winner: bool
+
+
+@dataclass(frozen=True)
+class Game:
+    date: str | None        # ISO yyyy-mm-dd
+    home: PlayerLine
+    away: PlayerLine
+
+    @property
+    def home_won(self) -> bool:
+        # RC='W' marks the race winner; fall back to the rack count.
+        if self.home.is_race_winner != self.away.is_race_winner:
+            return self.home.is_race_winner
+        return self.home.racks_won >= self.away.racks_won
+
+
+def _parse_date(text: str) -> str | None:
+    m = _DATE_RE.search(text)
+    if not m or m.group(1) not in _MONTHS:
+        return None
+    return f"{m.group(3)}-{_MONTHS[m.group(1)]:02d}-{int(m.group(2)):02d}"
+
+
+def _int(text: str) -> int | None:
+    m = re.search(r"-?\d+", text or "")
+    return int(m.group()) if m else None
+
+
+def _is_detail_header(cells: list[str]) -> bool:
+    up = [c.upper() for c in cells]
+    return "PLAYERS" in up and "G1" in up
+
+
+def _col_index(cells: list[str], label: str) -> int | None:
+    up = [c.upper() for c in cells]
+    return up.index(label) if label in up else None
+
+
+def parse_live_scores(html: str) -> list[Game]:
+    soup = BeautifulSoup(html, "lxml")
+    games: list[Game] = []
+    for table in soup.find_all("table"):
+        rows = [
+            [re.sub(r"\s+", " ", c.get_text(" ", strip=True)) for c in tr.find_all(["td", "th"])]
+            for tr in table.find_all("tr")
+        ]
+        if not rows or not _is_detail_header(rows[0]):
+            continue
+
+        header = rows[0]
+        name_i = _col_index(header, "PLAYERS")
+        sl_i = _col_index(header, "SL")
+        rc_i = _col_index(header, "RC")
+        g_cols = [i for i in (_col_index(header, f"G{k}") for k in range(1, 12)) if i is not None]
+
+        date = None
+        players: list[PlayerLine] = []
+        for r in rows[1:]:
+            joined = " ".join(r).strip()
+            if not joined:
+                continue
+            # the trailing date row is a single dated cell with no player name
+            if (len(r) <= 2 or not (r[name_i] if name_i is not None and name_i < len(r) else "")) \
+                    and _parse_date(joined):
+                date = _parse_date(joined)
+                continue
+            name = r[name_i] if name_i is not None and name_i < len(r) else ""
+            if not name or not re.search(r"[A-Za-z]", name):
+                continue
+            rack_wins = [
+                (r[i].strip().upper() == "W") if i < len(r) else False for i in g_cols
+            ]
+            players.append(PlayerLine(
+                player=name,
+                sl=_int(r[sl_i]) if sl_i is not None and sl_i < len(r) else None,
+                racks_won=sum(rack_wins),
+                is_race_winner=(rc_i is not None and rc_i < len(r) and r[rc_i].strip().upper() == "W"),
+            ))
+
+        if len(players) < 2:
+            continue
+        games.append(Game(date=date, home=players[0], away=players[1]))
+    return games
+
+
+def parse_live_scores_file(path) -> list[Game]:
+    return parse_live_scores(read_source(path))
+
+
+# --------------------------------------------------------------------------- #
+# Score sheet (scores.php) — the authoritative per-game grain for backfill.
+# One table per game: game_type | home_player (team) | away_player (team), then
+# RACE / # WINS / SCORE rows. Unlike the live board, it carries the GAME TYPE
+# (8/9/10) and each player's race target (needed for censored-count handling).
+# --------------------------------------------------------------------------- #
+
+_GAME_TYPE_RE = re.compile(r"(\d+)\s*-?\s*ball", re.IGNORECASE)
+_NAME_TEAM_RE = re.compile(r"^(.*?)\s*\((.+)\)\s*$")
+_SHEET_DATE_RE = re.compile(r"([A-Z][a-z]{2})\.?\s+(\d{1,2}),\s*(\d{4})")
+
+
+@dataclass(frozen=True)
+class ScoreGame:
+    game_type: int                  # 8 / 9 / 10
+    home_player: str
+    home_team: str
+    away_player: str
+    away_team: str
+    home_race: int | None
+    away_race: int | None
+    home_wins: int | None
+    away_wins: int | None
+
+    @property
+    def home_won(self) -> bool | None:
+        if self.home_wins is None or self.home_race is None or self.away_race is None:
+            return None
+        if self.home_wins >= self.home_race:
+            return True
+        if self.away_wins is not None and self.away_wins >= self.away_race:
+            return False
+        return None  # incomplete
+
+
+@dataclass
+class ScoreSheet:
+    home_team: str
+    away_team: str
+    date: str | None
+    games: list[ScoreGame] = field(default_factory=list)
+
+
+def _name_team(text: str) -> tuple[str, str]:
+    m = _NAME_TEAM_RE.match(text)
+    return (m.group(1).strip(), m.group(2).strip()) if m else (text.strip(), "")
+
+
+def parse_score_sheet(html: str) -> ScoreSheet:
+    soup = BeautifulSoup(html, "lxml")
+    tables = soup.find_all("table")
+
+    matchup_home = matchup_away = ""
+    date = None
+    games: list[ScoreGame] = []
+
+    for table in tables:
+        rows = [[c.get_text(" ", strip=True) for c in tr.find_all(["td", "th"])]
+                for tr in table.find_all("tr")]
+        if not rows:
+            continue
+        first = rows[0]
+        # matchup header "TeamA vs. TeamB"
+        if len(first) == 1 and " vs" in first[0].lower() and not games and not matchup_home:
+            parts = re.split(r"\s+vs\.?\s+", first[0], maxsplit=1, flags=re.IGNORECASE)
+            if len(parts) == 2:
+                matchup_home, matchup_away = parts[0].strip(), parts[1].strip()
+            continue
+        if len(first) == 1 and _SHEET_DATE_RE.search(first[0]) and date is None:
+            date = _sheet_date(first[0])
+            continue
+        # game table: first row is [game_type, home_player(team), away_player(team)]
+        gt = _GAME_TYPE_RE.match(first[0]) if first else None
+        if gt and len(first) >= 3:
+            by_label = {r[0].upper(): r[1:] for r in rows if r and r[0]}
+            hp, ht = _name_team(first[1])
+            ap, at = _name_team(first[2])
+            race = by_label.get("RACE", [])
+            wins = by_label.get("# WINS", by_label.get("WINS", []))
+            games.append(ScoreGame(
+                game_type=int(gt.group(1)),
+                home_player=hp, home_team=ht, away_player=ap, away_team=at,
+                home_race=_int(race[0]) if len(race) > 0 else None,
+                away_race=_int(race[1]) if len(race) > 1 else None,
+                home_wins=_int(wins[0]) if len(wins) > 0 else None,
+                away_wins=_int(wins[1]) if len(wins) > 1 else None,
+            ))
+    return ScoreSheet(home_team=matchup_home, away_team=matchup_away, date=date, games=games)
+
+
+def _sheet_date(text: str) -> str | None:
+    m = _SHEET_DATE_RE.search(text)
+    if not m or m.group(1) not in _MONTHS:
+        return None
+    return f"{m.group(3)}-{_MONTHS[m.group(1)]:02d}-{int(m.group(2)):02d}"
+
+
+def parse_score_sheet_file(path) -> ScoreSheet:
+    return parse_score_sheet(read_source(path))
+
+
+def parse_week_index(html: str) -> list[str]:
+    """From a standings_weekly_scores.php?week=N page, the 'view score sheet'
+    links -> score-sheet (scores.php) URLs (one per team; dedup at load)."""
+    soup = BeautifulSoup(html, "lxml")
+    seen, urls = set(), []
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "scores.php" in href and href not in seen:
+            seen.add(href)
+            urls.append(href)
+    return urls
