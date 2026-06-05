@@ -136,6 +136,65 @@ def capture_assets(url: str, out_dir: str | Path, headless: bool = True) -> list
     return saved
 
 
+def backfill_score_sheets(weeks, out_root: str | Path = "data/raw/scores",
+                          headless: bool = True) -> list[str]:
+    """Walk standings_weekly_scores.php?week=N for each week, follow every
+    'view score sheet' (scores.php) link, and save the rendered HTML. Resumable:
+    skips sheets already on disk. The raw archive is the durable backfill record."""
+    import re as _re
+    from playwright.sync_api import sync_playwright
+
+    from .parse.weekly_scores import parse_week_index
+
+    out_root = Path(out_root)
+    saved: list[str] = []
+
+    def cleared(page, url: str) -> str:
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[backfill] nav failed {url}: {exc}")
+            return ""
+        for _ in range(6):
+            if not fetch.is_challenge(page.content()):
+                break
+            page.wait_for_timeout(6000)
+        return page.content()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=headless)
+        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+        try:
+            for wk in weeks:
+                wkdir = out_root / f"week_{wk:02d}"
+                wkdir.mkdir(parents=True, exist_ok=True)
+                idx_html = cleared(page, config.url("weekly_scores", week=wk))
+                (wkdir / "_index.html").write_text(idx_html, encoding="utf-8")
+                urls = parse_week_index(idx_html)
+                print(f"[backfill] week {wk}: {len(urls)} score sheets")
+                for url in urls:
+                    tid = _re.search(r"tid=(\d+)", url)
+                    target = wkdir / f"{tid.group(1) if tid else 'x'}.html"
+                    if target.exists() and target.stat().st_size > 500:
+                        continue  # resume
+                    html = cleared(page, url)
+                    if html and not fetch.is_challenge(html):
+                        target.write_text(html, encoding="utf-8")
+                        saved.append(str(target))
+                    page.wait_for_timeout(1200)
+        finally:
+            browser.close()
+    print(f"[backfill] saved {len(saved)} new score sheets")
+    return saved
+
+
+def _parse_weeks(spec: str) -> list[int]:
+    if "-" in spec:
+        lo, hi = spec.split("-", 1)
+        return list(range(int(lo), int(hi) + 1))
+    return [int(x) for x in spec.split(",") if x]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA 13077 browser fetcher (Chromium)")
     parser.add_argument("--date", default=dt.date.today().isoformat())
@@ -143,10 +202,15 @@ def main() -> None:
     parser.add_argument("--headed", action="store_true", help="run with a visible browser")
     parser.add_argument("--capture-url", help="one-off: capture a page's JS assets + HTML")
     parser.add_argument("--out", help="output dir for --capture-url")
+    parser.add_argument("--backfill-weeks", help="e.g. 1-27 : backfill score sheets")
     args = parser.parse_args()
 
     if args.capture_url:
         capture_assets(args.capture_url, args.out or "data/raw/_assets", headless=not args.headed)
+        return
+
+    if args.backfill_weeks:
+        backfill_score_sheets(_parse_weeks(args.backfill_weeks), headless=not args.headed)
         return
 
     root = Path(args.root)
