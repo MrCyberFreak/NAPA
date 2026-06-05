@@ -31,6 +31,7 @@ from pathlib import Path
 from . import config
 from .parse.profile import Profile
 from .parse.roster import RosterPlayer, parse_roster_file
+from .parse.schedule import Fixture
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS players (
@@ -93,6 +94,8 @@ CREATE TABLE IF NOT EXISTS games (
 
 CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
 CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_match_unique
+    ON matches(season, round, home_team_id, away_team_id);
 """
 
 
@@ -233,9 +236,69 @@ def load_profile(conn: sqlite3.Connection, profile: Profile, captured_date: str 
     conn.commit()
 
 
+def _resolve_team_id(conn: sqlite3.Connection, short_name: str, season: str) -> int | None:
+    """Schedule uses SHORT team names ('The Furies'); rosters carry the full
+    'The Furies Felt Billiards Team #2'. Resolve by prefix (exact first)."""
+    row = conn.execute(
+        "SELECT team_id FROM teams WHERE season = ? AND name = ?",
+        (season, short_name),
+    ).fetchone()
+    if row:
+        return row["team_id"]
+    rows = conn.execute(
+        "SELECT team_id FROM teams WHERE season = ? AND name LIKE ? || '%'",
+        (season, short_name),
+    ).fetchall()
+    return rows[0]["team_id"] if len(rows) == 1 else None
+
+
+def load_schedule(
+    conn: sqlite3.Connection,
+    fixtures: list[Fixture],
+    season: str = config.SEASON,
+) -> dict:
+    """Load fixtures into matches, resolving short team names to team_ids.
+    Idempotent on (season, round, home, away). Unresolved teams are skipped
+    (counted), so a name mismatch is visible rather than silently corrupting."""
+    init_db(conn)
+    loaded = unresolved = 0
+    for f in fixtures:
+        home_id = _resolve_team_id(conn, f.home, season)
+        away_id = _resolve_team_id(conn, f.away, season)
+        if home_id is None or away_id is None:
+            unresolved += 1
+            continue
+        conn.execute(
+            """
+            INSERT INTO matches (season, round, date, home_team_id, away_team_id)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(season, round, home_team_id, away_team_id)
+                DO UPDATE SET date = excluded.date
+            """,
+            (season, f.round, f.date, home_id, away_id),
+        )
+        loaded += 1
+    conn.commit()
+    return {"loaded": loaded, "unresolved": unresolved, "fixtures": len(fixtures)}
+
+
 # --------------------------------------------------------------------------- #
 # Queries (demonstrate the history the official site can't show)
 # --------------------------------------------------------------------------- #
+
+def matches_for_round(conn: sqlite3.Connection, round_: int, season: str = config.SEASON):
+    """This-round fixtures with resolved team names (scout-grid entry point)."""
+    return conn.execute(
+        """
+        SELECT m.round, m.date, h.name AS home_team, a.name AS away_team
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_team_id
+        JOIN teams a ON a.team_id = m.away_team_id
+        WHERE m.season = ? AND m.round = ?
+        ORDER BY m.date, home_team
+        """,
+        (season, round_),
+    ).fetchall()
 
 def csr_history(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Row]:
     """A player's per-game CSR over time — the drift the live site overwrites."""
