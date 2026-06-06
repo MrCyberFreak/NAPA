@@ -155,6 +155,57 @@ The per-type curves carry the same upward rack-WR trend but the individual bins
 their own — reinforcing §1: per-type effects must borrow strength (pooled
 CSR-difference link with per-game offsets), not be estimated bin-by-bin.
 
+### 3a. Is the 9-ball curve flatter? (called-9 slop hypothesis)
+
+**Hypothesis being tested.** This league requires the 9 to be *called*, but slop
+keeps the rack alive (you don't lose for a slopped ball, the game continues). The
+conjecture is that this lets weaker players hang around and steal racks, which
+would **compress the skill→win-rate relationship in 9-ball specifically** —
+i.e. a flatter per-rack curve than 8- and 10-ball.
+
+Two descriptive flatness measures per game type (these are plain summary
+statistics of the observed racks — *not* a fitted forecasting model):
+
+**(a) Rise from small to large CSR gap** (pooled rack-WR, stronger player):
+
+| Game | small gap ≤10 (racks) | large gap ≥20 (racks) | **rise** |
+|------|----------------------:|----------------------:|---------:|
+| 8-ball  | 51.4% (434)  | 73.2% (1069) | **+21.8 pp** |
+| 9-ball  | 53.7% (205)  | 67.4% (408)  | **+13.7 pp** |
+| 10-ball | 54.9% (235)  | 69.4% (579)  | **+14.5 pp** |
+
+**(b) Slope of a rack-weighted linear-probability fit** (pp of rack-WR per +10
+CSR points), with a **game-clustered bootstrap 95% CI** (3,000 reps, resampling
+whole races so correlated racks-within-a-race don't inflate precision):
+
+| Game | slope (pp / +10 CSR) | 95% CI | races | racks |
+|------|---------------------:|:------:|------:|------:|
+| 8-ball  | +5.31 | [4.62, 6.10] | 276 | 1,823 |
+| 9-ball  | +5.09 | [3.17, 7.32] | 117 | 719 |
+| 10-ball | +4.67 | [3.30, 5.90] | 162 | 1,015 |
+
+Pairwise (independent bootstrap): P(slope₈ > slope₉) = **0.57** (a coin flip),
+P(slope₈ > slope₁₀) = 0.81, P(slope₁₀ > slope₉) = 0.34.
+
+**Verdict: no — 9-ball is NOT meaningfully flatter on this season's data.** The
+two measures even disagree on the ranking of 9 vs 10: by "rise" 9-ball is
+marginally the flattest, but by slope it sits *between* 8 and 10. Its slope point
+estimate (5.09) is statistically tied with 8-ball (0.57 ≈ even odds), and its 95%
+CI is enormous — [3.17, 7.32] — because the 9-ball sample is the thinnest (117
+covered races, 719 racks, vs 1,823 for 8-ball). **All three CIs overlap heavily;
+the per-rack slopes are indistinguishable (~4.7–5.3 pp / +10 CSR).**
+
+The most one can say is a weak hint that 8-ball is the *steepest* and 10-ball the
+*flattest* (P = 0.81), with 9-ball ambiguous — which is the opposite of the
+hypothesis singling out 9-ball. The called-9 slop mechanism remains plausible but
+**unconfirmed**; the data cannot yet detect it.
+
+**Design consequence.** Don't hard-code a flatter 9-ball curve. Fit the
+skill→prob curve **per game type but partially pooled toward a shared slope**, so
+the thin 9/10-ball curves borrow strength from 8-ball rather than chasing noise.
+Keep 9-ball's curve free to diverge as data accrues, and revisit this test next
+season. (See PHASE6_DESIGN.md §"Per-game curves".)
+
 ---
 
 ## 4. Pairing depth — `games` is not H2H training data
