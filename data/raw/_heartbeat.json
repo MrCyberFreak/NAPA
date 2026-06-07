@@ -1,15 +1,15 @@
 {
-  "updated_utc": "2026-06-06T14:39:28+00:00",
+  "updated_utc": "2026-06-07T14:42:35+00:00",
   "mode": "browser",
-  "run_date": "2026-06-06",
+  "run_date": "2026-06-07",
   "captured": [
-    "division",
-    "roster_grid",
-    "scratch"
+    "division"
   ],
   "unchanged": [
     "leaderboard",
     "live_scores",
-    "schedule"
+    "roster_grid",
+    "schedule",
+    "scratch"
   ]
 }
