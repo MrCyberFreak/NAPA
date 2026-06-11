@@ -85,6 +85,12 @@ gh workflow run harvest-profiles.yml -f did=<did> -f drill=0
   truly unavoidable, pass `--harvest-drill 0` explicitly.
 - Resumable: re-dispatch skips files already on disk; the workflow commits
   partial captures even on timeout (`if: always()`).
+- The poolshooters.com challenge can take many minutes to clear on a fresh
+  runner. The harvest retries the FIRST fetch hard (~5 min) to land the
+  cookie, then ABORTS loudly on an uncleared challenge ("uncleared
+  bot-challenge — aborting") instead of grinding. A challenge abort is a
+  GREEN run — check the `[harvest]` log line, and re-dispatch ONCE on a
+  fresh runner; if it repeats, wait and investigate, never loop.
 
 ## 5. Rebuild and test locally
 
