@@ -159,19 +159,38 @@ def test_pending_matches_flags_unplayed_not_errors():
     assert all(p["date"] <= "2025-10-02" for p in pend_after)
 
 
-def test_bp_game_table_raises():
-    """A 10BP game table (declared on 14022's roster grid, never yet seen on a
-    played sheet) must RAISE: "10BP" alone would be silently skipped by the
-    game-type regex and "10-Ball BP" silently conflated with plain 10-ball.
-    First real capture -> fixtures/ -> deliberate ScoreGame extension."""
-    import pytest as _pytest
+def test_bp_game_label_shapes_parse_as_10bp():
+    """Every BP label shape canonicalizes to game_type "10BP" — never silently
+    skipped ("10BP" misses the ball regex) nor conflated with plain 10-ball
+    ("10-Ball BP" matches it)."""
     from src.parse.weekly_scores import parse_score_sheet
     for label in ("10BP", "10 BP", "10-Ball BP"):
         html = f"""
         <table>
           <tr><td>{label}</td><td>A Player (Team One)</td><td>B Player (Team Two)</td></tr>
           <tr><td>RACE</td><td>4</td><td>4</td></tr>
+          <tr><td># WINS</td><td>4</td><td>2</td></tr>
         </table>
         """
-        with _pytest.raises(ValueError, match="unrecognized game variant"):
-            parse_score_sheet(html)
+        sh = parse_score_sheet(html)
+        assert len(sh.games) == 1, label
+        g = sh.games[0]
+        assert g.game_type == "10BP"
+        assert (g.home_player, g.away_player) == ("A Player", "B Player")
+        assert g.home_won is True
+
+
+def test_real_10bp_sheet_13986():
+    """Pinned real capture (13986 week_02, 2026-06-09): a 5-game match mixing
+    plain 8-ball tables with one 10BP table. The first real 10BP fixture —
+    promoted the day the score-sheet tripwire fired."""
+    from collections import Counter
+    from src.parse.weekly_scores import parse_score_sheet_file
+    sh = parse_score_sheet_file(REPO / "fixtures" / "score_sheet_10bp_13986.html")
+    assert (sh.home_team, sh.away_team) == ("Zoo Zoo Top", "New Cue")
+    assert sh.date == "2026-06-09"
+    assert Counter(g.game_type for g in sh.games) == {8: 4, "10BP": 1}
+    g = next(g for g in sh.games if g.game_type == "10BP")
+    assert (g.home_player, g.away_player) == ("Dave Mattingly", "Cheryl Jones")
+    assert (g.home_race, g.away_race, g.home_wins, g.away_wins) == (5, 4, 5, 0)
+    assert g.home_won is True
