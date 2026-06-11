@@ -157,3 +157,21 @@ def test_pending_matches_flags_unplayed_not_errors():
                    for p in pend_after)
     # Future rounds are never "pending" (date hasn't passed).
     assert all(p["date"] <= "2025-10-02" for p in pend_after)
+
+
+def test_bp_game_table_raises():
+    """A 10BP game table (declared on 14022's roster grid, never yet seen on a
+    played sheet) must RAISE: "10BP" alone would be silently skipped by the
+    game-type regex and "10-Ball BP" silently conflated with plain 10-ball.
+    First real capture -> fixtures/ -> deliberate ScoreGame extension."""
+    import pytest as _pytest
+    from src.parse.weekly_scores import parse_score_sheet
+    for label in ("10BP", "10 BP", "10-Ball BP"):
+        html = f"""
+        <table>
+          <tr><td>{label}</td><td>A Player (Team One)</td><td>B Player (Team Two)</td></tr>
+          <tr><td>RACE</td><td>4</td><td>4</td></tr>
+        </table>
+        """
+        with _pytest.raises(ValueError, match="unrecognized game variant"):
+            parse_score_sheet(html)

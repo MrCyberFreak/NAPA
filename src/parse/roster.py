@@ -10,11 +10,13 @@ followed by one row per player:
 
     rownum, name, (C) captain flag, 8-digit playerID, CSR "8 / 9 / 10", SM count
 
-The CSR header column is AUTHORITATIVE for the division's game set (B1 recon):
-"CSR 8 - 9 - 10" (3-game LC), bare "CSR" (8-ball-only), "CSR 9 - 10" (2-game
-DP). A row's dash-separated values map positionally onto the declared games;
-undeclared games are None. A value-count/header mismatch RAISES — never guess
-(positional guessing is how a 2-game row's SM gets swallowed as a rating).
+The CSR header column is AUTHORITATIVE for the division's game set (B1 recon
++ 14022 onboarding): "CSR 8 - 9 - 10" (3-game LC), bare "CSR" (8-ball-only),
+"CSR 9 - 10" (2-game DP), "CSR 8 - 9 - 10 - 10BP" (4-game LC with the 10BP
+variant, 14022). A row's dash-separated values map positionally onto the
+declared games; undeclared games are None. A value-count/header mismatch or an
+unknown game token RAISES — never guess (positional guessing is how a 2-game
+row's SM gets swallowed as a rating).
 
 CRITICAL parsing rules (from the build plan):
 - Segment teams on the `#` header rows; take EVERY player row until the next
@@ -37,17 +39,25 @@ from bs4 import BeautifulSoup
 # A team header looks like "# <name> ... CSR <games> SM". Team names can
 # themselves contain '#' (e.g. "Cheat Code Felt Billiards #6"), so we anchor on
 # the leading '#' AND require the "CSR" column marker to avoid false positives.
-# What follows "CSR" declares the division's game set — the three shapes seen
-# in B1 recon (the header row repeats per team block, so it travels with the
-# team segmentation for free):
-#     "CSR 8 - 9 - 10" -> games (8, 9, 10)   3-game LC (13077, 13985)
-#     "CSR"            -> games (8,)         8-ball-only (13298)
-#     "CSR 9 - 10"     -> games (9, 10)      2-game DP (13744)
+# What follows "CSR" declares the division's game set — the shapes seen in B1
+# recon + onboarding (the header row repeats per team block, so it travels
+# with the team segmentation for free). Game tokens may carry a letter suffix
+# ("10BP"); tokens are validated against the known set, unknown ones RAISE:
+#     "CSR 8 - 9 - 10"        -> games ("8", "9", "10")          3-game LC (13077, 13985)
+#     "CSR"                   -> games ("8",)                    8-ball-only (13298)
+#     "CSR 9 - 10"            -> games ("9", "10")               2-game DP (13744)
+#     "CSR 8 - 9 - 10 - 10BP" -> games ("8", "9", "10", "10BP")  4-game LC (14022)
 _TEAM_HEADER_RE = re.compile(
     r"^#\s*(?P<team>.+?)\s+CSR(?![A-Za-z])\s*"
-    r"(?P<games>\d{1,2}(?:\s*[-/]\s*\d{1,2})*)?",
+    r"(?P<games>\d{1,2}(?:[A-Za-z]{1,3})?(?:\s*[-/]\s*\d{1,2}(?:[A-Za-z]{1,3})?)*)?",
     re.IGNORECASE,
 )
+
+# Canonical game labels the system knows how to store (RosterPlayer fields,
+# skill_snapshots columns). A header token outside this set is a NEW division
+# format: capture -> fixture -> deliberate extension, never a silent skip.
+_GAME_TOKEN_RE = re.compile(r"\d{1,2}[A-Za-z]{0,3}")
+_KNOWN_GAMES = ("8", "9", "10", "10BP")
 
 # An 8-digit player ID, not part of a longer run of digits.
 _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
@@ -74,6 +84,9 @@ class RosterPlayer:
     csr_10: int | None
     session_matches: int | None
     is_captain: bool
+    # Defaulted (last): only 4-game grids declare 10BP (14022); keyword-built
+    # RosterPlayers elsewhere keep working without it.
+    csr_10bp: int | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -85,7 +98,8 @@ class RosterPlayer:
         None when fewer than two games carry a rating (8-ball-only grids):
         a single-game player has no cross-game spread.
         """
-        vals = [v for v in (self.csr_8, self.csr_9, self.csr_10) if v is not None]
+        vals = [v for v in (self.csr_8, self.csr_9, self.csr_10, self.csr_10bp)
+                if v is not None]
         if len(vals) < 2:
             return None
         return max(vals) - min(vals)
@@ -93,9 +107,10 @@ class RosterPlayer:
 
 @dataclass(frozen=True)
 class _TeamHeader:
-    """A parsed `#` header row: team name + the declared CSR game set."""
+    """A parsed `#` header row: team name + the declared CSR game set
+    (canonical uppercase labels, e.g. ("8", "9", "10", "10BP"))."""
     team: str
-    games: tuple[int, ...]
+    games: tuple[str, ...]
     text: str  # raw row text, kept for mismatch error messages
 
 
@@ -157,8 +172,8 @@ def _match_team_header(text: str) -> _TeamHeader | None:
         return None
     raw = m.group("games")
     # Bare "CSR" (no game list) is the 8-ball-only shape: one 8-ball rating.
-    games = tuple(int(n) for n in _ANY_INT_RE.findall(raw)) if raw else (8,)
-    if len(set(games)) != len(games) or any(g not in (8, 9, 10) for g in games):
+    games = tuple(t.upper() for t in _GAME_TOKEN_RE.findall(raw)) if raw else ("8",)
+    if len(set(games)) != len(games) or any(g not in _KNOWN_GAMES for g in games):
         raise ValueError(f"unrecognized CSR game set in roster team header: {text!r}")
     return _TeamHeader(team=m.group("team").strip(), games=games, text=text)
 
@@ -205,9 +220,10 @@ def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPla
         team=header.team,
         player=name,
         player_id=player_id,
-        csr_8=by_game.get(8),
-        csr_9=by_game.get(9),
-        csr_10=by_game.get(10),
+        csr_8=by_game.get("8"),
+        csr_9=by_game.get("9"),
+        csr_10=by_game.get("10"),
+        csr_10bp=by_game.get("10BP"),
         session_matches=session_matches,
         is_captain=is_captain,
     )
