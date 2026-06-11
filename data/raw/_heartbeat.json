@@ -1,33 +1,44 @@
 {
-  "updated_utc": "2026-06-11T10:36:08+00:00",
+  "updated_utc": "2026-06-11T14:33:57+00:00",
   "mode": "browser",
   "run_date": "2026-06-11",
   "divisions": {
     "13077": {
       "captured": [
-        "division"
+        "division",
+        "roster_grid",
+        "scratch"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "13985": {
       "captured": [
-        "division"
+        "division",
+        "roster_grid"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule",
         "scratch"
       ]
     },
     "14022": {
+      "captured": [
+        "division",
+        "leaderboard",
+        "live_scores",
+        "roster_grid",
+        "schedule",
+        "scratch"
+      ],
+      "unchanged": []
+    },
+    "13986": {
       "captured": [
         "division",
         "leaderboard",
