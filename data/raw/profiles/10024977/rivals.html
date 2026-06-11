@@ -1,0 +1,599 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="google-site-verification" content="zOdhWUXW7rHW00rvhjMUI636TfPs7T9OMZ0whgmYhTk">
+    <meta name="ROBOTS" content="INDEX,NOFOLLOW">
+    <meta http-equiv="content-type" content="text/html; charset=WINDOWS-1250">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="facebook-domain-verification" content="m7hkhpkk3qoxjimfy3luxsrs977wym">
+    <meta name="copyright" content="North American Poolshooters Association">
+    <meta name="description" content="NAPA - North American Poolshooters Association">
+    <meta name="keywords" content="pool league, billiard league, billiard association, pool association, nationwide pool, amateur pool, united states pool, nationwide billiard, united states billiard, billiards, combo shot, cue stick, bank shot, nine-ball, eight-ball, snooker, break, jump shot, pool table">
+	<link rel="shortcut icon" href="../logo.ico" type="image/x-icon">
+    <title>NAPA - North American Poolshooters Association</title>
+    <!-- Bootstrap core CSS -->
+
+<link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<style type="text/css">
+.navy-background {background-color:#002664;}
+.white {color:#ffffff;}
+.vipresponsive {
+  max-width: 100%;
+  height: auto;
+}
+.navbar-brand, .nav > li > a {
+  padding: 1px 1px;
+}
+
+.btn-circle.btn-xl {
+    width: 200px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 200px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}	           
+
+
+.timeline {
+    border-left: 3px solid #727cf5;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    background: rgba(114, 124, 245, 0.09);
+    margin: 0 auto;
+    letter-spacing: 0.2px;
+    position: relative;
+    line-height: 1.4em;
+    font-size: 1.03em;
+    padding: 50px;
+    list-style: none;
+    text-align: left;
+    max-width: 70%;
+}
+
+@media (max-width: 767px) {
+    .timeline {
+        max-width: 98%;
+        padding: 25px;
+    }
+}
+
+.timeline h1 {
+    font-weight: 300;
+    font-size: 1.4em;
+}
+
+.timeline h2,
+.timeline h3 {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.timeline .event {
+    border-bottom: 1px dashed #e8ebf1;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .timeline .event {
+        padding-top: 30px;
+    }
+}
+
+.timeline .event:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border: none;
+}
+
+.timeline .event:before,
+.timeline .event:after {
+    position: absolute;
+    display: block;
+    top: 0;
+}
+
+.timeline .event:before {
+    left: -207px;
+    content: attr(data-date);
+    text-align: right;
+    font-weight: 100;
+    font-size: 0.9em;
+    min-width: 120px;
+}
+
+@media (max-width: 767px) {
+    .timeline .event:before {
+        left: 0px;
+        text-align: left;
+    }
+}
+
+.timeline .event:after {
+    -webkit-box-shadow: 0 0 0 3px #727cf5;
+    box-shadow: 0 0 0 3px #727cf5;
+    left: -55.8px;
+    background: #fff;
+    border-radius: 50%;
+    height: 9px;
+    width: 9px;
+    content: "";
+    top: 5px;
+}
+
+@media (max-width: 767px) {
+    .timeline .event:after {
+        left: -31.8px;
+    }
+}
+
+.rtl .timeline {
+    border-left: 0;
+    text-align: right;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    border-right: 3px solid #727cf5;
+}
+
+.rtl .timeline .event::before {
+    left: 0;
+    right: -170px;
+}
+
+.rtl .timeline .event::after {
+    left: 0;
+    right: -55.8px;
+}
+
+.event-schedule-area .section-title .title-text {
+    margin-bottom: 50px;
+}
+
+.event-schedule-area .tab-area .nav-tabs {
+    border-bottom: inherit;
+}
+
+.event-schedule-area .tab-area .nav {
+    border-bottom: inherit;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    margin-top: 80px;
+}
+
+.event-schedule-area .tab-area .nav-item {
+    margin-bottom: 75px;
+}
+.event-schedule-area .tab-area .nav-item .nav-link {
+    text-align: center;
+    font-size: 22px;
+    color: #333;
+    font-weight: 600;
+    border-radius: inherit;
+    border: inherit;
+    padding: 0px;
+    text-transform: capitalize !important;
+}
+.event-schedule-area .tab-area .nav-item .nav-link.active {
+    color: #4125dd;
+    background-color: transparent;
+}
+
+.event-schedule-area .tab-area .tab-content .table {
+    margin-bottom: 0;
+    width: 80%;
+}
+.event-schedule-area .tab-area .tab-content .table thead td,
+.event-schedule-area .tab-area .tab-content .table thead th {
+    border-bottom-width: 1px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #252525;
+}
+.event-schedule-area .tab-area .tab-content .table td,
+.event-schedule-area .tab-area .tab-content .table th {
+    border: 1px solid #b7b7b7;
+    padding-left: 30px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th .heading,
+.event-schedule-area .tab-area .tab-content .table tbody td .heading {
+    font-size: 16px;
+    text-transform: capitalize;
+    margin-bottom: 16px;
+    font-weight: 500;
+    color: #252525;
+    margin-bottom: 6px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th span,
+.event-schedule-area .tab-area .tab-content .table tbody td span {
+    color: #4125dd;
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th span.date,
+.event-schedule-area .tab-area .tab-content .table tbody td span.date {
+    color: #656565;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 15px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th p {
+    font-size: 14px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.event-schedule-area-two .section-title .title-text h2 {
+    margin: 0px 0 15px;
+}
+
+.event-schedule-area-two ul.custom-tab {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 30px;
+}
+.event-schedule-area-two ul.custom-tab li {
+    margin-right: 70px;
+    position: relative;
+}
+.event-schedule-area-two ul.custom-tab li a {
+    color: #252525;
+    font-size: 25px;
+    line-height: 25px;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 35px 0;
+    position: relative;
+}
+.event-schedule-area-two ul.custom-tab li a:hover:before {
+    width: 100%;
+}
+.event-schedule-area-two ul.custom-tab li a:before {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    content: "";
+    background: #4125dd;
+    width: 0;
+    height: 2px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two ul.custom-tab li a.active {
+    color: #4125dd;
+}
+
+.event-schedule-area-two .primary-btn {
+    margin-top: 40px;
+}
+
+.event-schedule-area-two .tab-content .table {
+    -webkit-box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+.event-schedule-area-two .tab-content .table thead {
+    background-color: #007bff;
+    color: #fff;
+    font-size: 20px;
+}
+.event-schedule-area-two .tab-content .table thead tr th {
+    padding: 20px;
+    border: 0;
+}
+.event-schedule-area-two .tab-content .table tbody {
+    background: #fff;
+}
+.event-schedule-area-two .tab-content .table tbody tr.inner-box {
+    border-bottom: 1px solid #dee2e6;
+}
+.event-schedule-area-two .tab-content .table tbody tr th {
+    border: 0;
+    padding: 30px 20px;
+    vertical-align: middle;
+}
+.event-schedule-area-two .tab-content .table tbody tr th .event-date {
+    color: #252525;
+    text-align: center;
+}
+.event-schedule-area-two .tab-content .table tbody tr th .event-date span {
+    font-size: 50px;
+    line-height: 50px;
+    font-weight: normal;
+}
+.event-schedule-area-two .tab-content .table tbody tr td {
+    padding: 30px 20px;
+    vertical-align: middle;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .r-no span {
+    color: #252525;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap h3 a {
+    font-size: 20px;
+    line-height: 20px;
+    color: #cf057c;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap h3 a:hover {
+    color: #4125dd;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    margin: 10px 0;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories a {
+    color: #252525;
+    font-size: 16px;
+    margin-left: 10px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories a:before {
+    content: "\f07b";
+    font-family: fontawesome;
+    padding-right: 5px;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .time span {
+    color: #252525;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    margin: 10px 0;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a {
+    color: #4125dd;
+    font-size: 16px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a:hover {
+    color: #4125dd;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a:before {
+    content: "\f007";
+    font-family: fontawesome;
+    padding-right: 5px;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .primary-btn {
+    margin-top: 0;
+    text-align: center;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+}
+
+@media (min-width:1920px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+@media (min-width:1024px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+@media (min-width:768px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+
+	</style>
+	<!-- Custom styles for this template -->
+    <link href="css/4-col-portfolio.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <!-- <a class="navbar-brand" href="/">N.A. Poolshooters Assoc.</a> -->
+        <a class="navbar-brand" href="/">NAPA</a> 
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+<!--
+<li class="nav-item active">
+  <a class="nav-link" href="https://www.napaleagues.com/">Home
+	<span class="sr-only">(current)</span>
+  </a>
+</li>
+-->			
+<li class="nav-item">
+<!--
+  <form class="form-inline" method="post" action='searchBox.php'>
+
+  <input type="text" name="playerSearch" value="" class="form-control" id="search_text" placeholder="Player Last Name" tabindex="0" size="13" required>
+<input type="hidden" name="submitted" value="Y">
+<script language="javascript">document.getElementById("search_text").focus(); </script>
+</form>
+-->
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/brackets.php">Brackets</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://scores.playpool.io/" target="_blank">NAPA Play</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://naparaces.com" target="_blank">Race Calc</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://cuespeed.io" target="_blank">CueSpeed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://billiardlife.com/" target="_blank">Gear</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/start.php">Start A League!</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://loco.napaleagues.com/" target="_blank">LO Login</a>
+            </li>
+
+<!--				 
+<li class="nav-item">
+<form class="form-inline" method="post" action='states.php'>
+
+<input type="hidden" name="submitted" value="Y">
+<input value="" class="form-control" placeholder="Division ID..." autocomplete="off" id="q_header" name="did" type="text" size="10" onkeyup="this.value=this.value.replace(/[^0-9]/g, '');if(this.value==0){this.value='';}"/>
+</form>
+-->
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<div align="CENTER" style="color: #002664">&nbsp;</div>
+
+
+<!-- Page Content -->
+<div class="container">
+<h4 class="my-4">Player Stats</h4>
+  <div class="card mt-4">
+    <div class="card-body">
+      
+    <meta property="og:image" content="images/shooters/no_photo_male.jpg"><!--
+Insert page content
+<div class="container">
+<div class="row">
+<div class="col-md-12">
+-->
+<br><table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+<tbody><tr><td valign="top" width="100%" colspan="2" align="center"><img src="https://playpool.io/images/shooters/no_photo_male.jpg" width="180" height="180" border="1" class="img-responsive"> </td></tr>
+<tr><td valign="top" colspan="2" align="center">
+<h2><a href="stats.php?playerSelected=Y&amp;playerID=10024977" class="text-danger">
+Bryan ODonnell</a></h2></td></tr>
+	<tr><td valign="top" align="right" width="50%"><strong>Shooter's ID: </strong> </td>
+	<td valign="top">10024977
+    
+    </td>
+</tr>
+<tr>
+<td valign="top" align="right"><strong>Gender:</strong> </td>
+<td valign="top">Male</td></tr>
+
+	<tr><td valign="top" align="right"><strong>League:</strong> </td>
+    
+	<td valign="top">NAPA of Northern Colorado
+    </td>
+    </tr>
+
+<tr>
+	<td valign="top" align="right"><strong>Home Base: </strong> </td>
+	<td valign="top">Broomfield, Colorado</td>
+</tr>
+    <tr>
+	<td valign="top" align="right"><strong>NAPA Player Since:</strong> </td>
+	<td valign="top">Mar 23, 2014</td>
+</tr>
+
+<tr>
+	<td valign="top" align="right"><strong><a href="nrp.php" class="text-danger">1-Year NRP:</a></strong><br><small>Since Jun 11, 2025</small></td>
+	<td valign="top" bgcolor="BLUE" class="text-white">42 Regular Matches <br>0 Scotch Doubles<br>0 Scotch Triples<br> 42 Total - Level Blue</td>
+</tr>
+
+<tr>
+	<td valign="top" align="right"><strong>Active Divisions:</strong></td><td valign="top"><a href="division.php?did=13881" class="text-danger">13881</a> &nbsp;&nbsp; <a href="division.php?did=13711" class="text-danger">13711</a> &nbsp;&nbsp; 
+  </td>
+</tr>
+<tr><td colspan="2" align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977"><span style="color:#BB133E">MAIN</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=33"><span style="color:blue">TRENDS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=20"><span style="color:blue">RANKINGS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=1"><span style="color:#BB133E">BONUS PLAY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=12"><span style="color:#BB133E">H2H</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=18"><span style="color:#BB133E">GENDER</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=19"><span style="color:#BB133E">SEASONS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=21"><span style="color:#BB133E">MONTHLY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=22"><span style="color:#BB133E">YEARLY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=6"><span style="color:#BB133E">VENUES</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5"><span style="color:#BB133E"><strong>RIVALS</strong></span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=15"><span style="color:#BB133E">RACE BIN</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=26"><span style="color:#BB133E">QUALIFICATIONS</span></a></td>
+</tr>
+
+<tr><td align="center" bgcolor="#BB133E" colspan="2"><h5 class="text-white">MATCH HISTORY</h5></td></tr>
+<tr><td align="center" bgcolor="#FFFFFF" colspan="2">
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Leagues
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=2">8-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=3">9-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=4">10-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=777">7-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=17">Fast 8</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=9BP">9-ball Pro</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=10BP">10-ball Pro</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=RR9">Rack Royal 9</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=RR10">Rack Royal 10</a>
+  </div>
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Tournaments
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=24">View All</a>
+  </div>
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Local Duels
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=25">View All</a>
+  </div>
+</div>
+</td></tr>
+</tbody></table>  <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered"><tbody><tr><td valign="top" colspan="2" align="center" bgcolor="BB133E"><h5 class="text-white">RIVAL RECORDS</h5></td></tr><tr><td valign="top" colspan="2" align="center" bgcolor="FFFFFF">Below are the players that have played Bryan ODonnell.<br>Select the rival below for record details.</td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034684" class="text-danger"><strong>Aaron Johnson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051731" class="text-danger"><strong>Aaron Struzik</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080802" class="text-danger"><strong>Aaron Gutierrez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10063676" class="text-danger"><strong>Abraheem Yameen</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10083861" class="text-danger"><strong>Abram Hagenstein</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044409" class="text-danger"><strong>Adam Lombardi</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035972" class="text-danger"><strong>AJ Nelson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036896" class="text-danger"><strong>Alex Ruskaup</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044947" class="text-danger"><strong>Alex Engebretson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027699" class="text-danger"><strong>Alex Montoya</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047093" class="text-danger"><strong>Ambrose Rivera</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034999" class="text-danger"><strong>Amy Bradshaw</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034854" class="text-danger"><strong>Angela Nadeau</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024425" class="text-danger"><strong>Angleo Garcia</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049778" class="text-danger"><strong>Anita Gutierrez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080441" class="text-danger"><strong>Annette Garcia</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049412" class="text-danger"><strong>Annie Ramerez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065359" class="text-danger"><strong>Anthony Cordova</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051765" class="text-danger"><strong>Anthony Baros</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10072809" class="text-danger"><strong>Arlene Regensburger</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034073" class="text-danger"><strong>Aron Weaver</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035014" class="text-danger"><strong>Audra Wasson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035211" class="text-danger"><strong>Autumn Teeple</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065023" class="text-danger"><strong>Axia Lombardi</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049069" class="text-danger"><strong>Ayn Brink</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079755" class="text-danger"><strong>B. R. Olguin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033761" class="text-danger"><strong>Bear Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10039820" class="text-danger"><strong>Ben Garcia</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045359" class="text-danger"><strong>Billy Kawamura</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10062211" class="text-danger"><strong>Brad Bakun</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10057661" class="text-danger"><strong>Brady Christenson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10071189" class="text-danger"><strong>Brandonkyle Williams</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050466" class="text-danger"><strong>Bree Toews</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028333" class="text-danger"><strong>Brent Artz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056240" class="text-danger"><strong>Brett Mckay</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041706" class="text-danger"><strong>Brett Payne</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10082816" class="text-danger"><strong>Brian Fiorello</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040380" class="text-danger"><strong>Brian Moss</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025778" class="text-danger"><strong>Brian Divis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040366" class="text-danger"><strong>Brian Polansky</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065787" class="text-danger"><strong>Brian Dewire</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10068812" class="text-danger"><strong>Brian Mcgraw</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044432" class="text-danger"><strong>Brian Weiss</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10048826" class="text-danger"><strong>Brian Franks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059305" class="text-danger"><strong>Brianna Vohs</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056433" class="text-danger"><strong>Brit Garson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024439" class="text-danger"><strong>Brittany Randolph</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044414" class="text-danger"><strong>Brooke Allen</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040019" class="text-danger"><strong>Bruce Byrnes</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028381" class="text-danger"><strong>Bryan LaVelle</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035205" class="text-danger"><strong>Bubba Walcker</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061732" class="text-danger"><strong>Callie Taylor</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054614" class="text-danger"><strong>Cameron Jarvis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038604" class="text-danger"><strong>Candy Tobias</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035123" class="text-danger"><strong>Cara Schable</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050133" class="text-danger"><strong>Carl Malone</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10026764" class="text-danger"><strong>Carlos Lafuente</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050623" class="text-danger"><strong>Carlos Burnett</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047016" class="text-danger"><strong>Carlos Ortega</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036321" class="text-danger"><strong>Cesar Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040042" class="text-danger"><strong>Che Darke</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024442" class="text-danger"><strong>Cheryl Jones</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10048422" class="text-danger"><strong>Chris Connroy</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079753" class="text-danger"><strong>Chris Frieberg</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024440" class="text-danger"><strong>Chris Dirks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028971" class="text-danger"><strong>Chris Bonneau</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041693" class="text-danger"><strong>Chris Linnen</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035003" class="text-danger"><strong>Chris Jackson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035884" class="text-danger"><strong>Chris Shelton</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033672" class="text-danger"><strong>Chris Houck</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050302" class="text-danger"><strong>Chris DeHoyos</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041740" class="text-danger"><strong>Chris Johnson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047109" class="text-danger"><strong>Chris Hipsher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047196" class="text-danger"><strong>Chris jr Dirks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10046352" class="text-danger"><strong>Clayton Sigl</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061779" class="text-danger"><strong>Clifford Price Sr.</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036365" class="text-danger"><strong>Cody McAllister</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035012" class="text-danger"><strong>Cody Brown</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038480" class="text-danger"><strong>Cody Caskey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10058881" class="text-danger"><strong>Collyce Gallagher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045681" class="text-danger"><strong>Conrad Morales</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044416" class="text-danger"><strong>Corbett Brown</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025792" class="text-danger"><strong>Cruz Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061715" class="text-danger"><strong>Cynthia Sedillo</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038239" class="text-danger"><strong>Damian Vander Weg</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040373" class="text-danger"><strong>Damon Glasmann</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049406" class="text-danger"><strong>Dan Folk</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033752" class="text-danger"><strong>Dan Salazar</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036571" class="text-danger"><strong>Dan Garcia</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025836" class="text-danger"><strong>Daniel Lievanos</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10043902" class="text-danger"><strong>Daniel Rocksted</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040557" class="text-danger"><strong>Danny Kulp</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034675" class="text-danger"><strong>Danny Burke</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025141" class="text-danger"><strong>Dave Isaacs</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059236" class="text-danger"><strong>Dave Jones</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041016" class="text-danger"><strong>Dave Barracks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035192" class="text-danger"><strong>Dave Schrecengost</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034682" class="text-danger"><strong>Dave Herzog</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047910" class="text-danger"><strong>David Campbell</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049402" class="text-danger"><strong>David Madera</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085283" class="text-danger"><strong>Debbie Smith</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047092" class="text-danger"><strong>Denise Estrada</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10067208" class="text-danger"><strong>Denise Tenorio</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033771" class="text-danger"><strong>Dennis Velasquez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053046" class="text-danger"><strong>Dennis Chwialkowski</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047188" class="text-danger"><strong>Dennis Houman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044737" class="text-danger"><strong>Derreck Dirks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050837" class="text-danger"><strong>Derrick Corkran</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040367" class="text-danger"><strong>Devin Schroeder</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038508" class="text-danger"><strong>Devon Gonzales</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059399" class="text-danger"><strong>Dianna Wheeling</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049036" class="text-danger"><strong>Dick Petrash</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037629" class="text-danger"><strong>Dick Bethman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038270" class="text-danger"><strong>Diesel Rooks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065736" class="text-danger"><strong>Dion Sims</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061235" class="text-danger"><strong>Dominic Turner</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038937" class="text-danger"><strong>Don Davis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035118" class="text-danger"><strong>Don Lane</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10083789" class="text-danger"><strong>Donny Poczik</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035509" class="text-danger"><strong>Doug Fisher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027703" class="text-danger"><strong>Doug Conry</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10013562" class="text-danger"><strong>Dustin McCall</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049569" class="text-danger"><strong>Dylan Maxwell</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061788" class="text-danger"><strong>Ed Kiefer</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10072808" class="text-danger"><strong>Ed Regensburger</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054604" class="text-danger"><strong>Eddie Henson Jr.</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10057433" class="text-danger"><strong>Eddie Barajas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035284" class="text-danger"><strong>Edmund Gurule</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033751" class="text-danger"><strong>Edmundo Terrazas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034712" class="text-danger"><strong>Eileen Kingsbury</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028320" class="text-danger"><strong>Eric Fortner</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10013563" class="text-danger"><strong>Erin OBrien</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10081696" class="text-danger"><strong>Ernest Carabajal</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045370" class="text-danger"><strong>Ever Olivas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035204" class="text-danger"><strong>Forky Rudin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056938" class="text-danger"><strong>Frank Westbrook</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056518" class="text-danger"><strong>Frank Pikus</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045287" class="text-danger"><strong>Frank Nieto</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10089004" class="text-danger"><strong>Gabe Roman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061821" class="text-danger"><strong>Gabe Boylan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065698" class="text-danger"><strong>Garrett Matsunaga</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025681" class="text-danger"><strong>Gary RedWillow</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065788" class="text-danger"><strong>Gary Franzen</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085157" class="text-danger"><strong>Gavin Chaising</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10062391" class="text-danger"><strong>Gene Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047209" class="text-danger"><strong>George Workman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079754" class="text-danger"><strong>Gerardo Gonzales</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056940" class="text-danger"><strong>Glenn Mares</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044611" class="text-danger"><strong>Gloria Vasquez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036798" class="text-danger"><strong>Grant Pennington</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036803" class="text-danger"><strong>Greg Gaulin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028380" class="text-danger"><strong>Greg Kingsbury</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040379" class="text-danger"><strong>Greg Baldassar</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035220" class="text-danger"><strong>Greg Knight</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051756" class="text-danger"><strong>Harley Davis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10017821" class="text-danger"><strong>Harrison Hatfield</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059673" class="text-danger"><strong>Hunter Miller</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037936" class="text-danger"><strong>Ian Pisowicz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10078117" class="text-danger"><strong>Indy Spann</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033603" class="text-danger"><strong>Isaac Rivera</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10055463" class="text-danger"><strong>Ismael Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047192" class="text-danger"><strong>Jacob Swift</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059288" class="text-danger"><strong>Jacob Zimmerman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064135" class="text-danger"><strong>Jacob Latham</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079159" class="text-danger"><strong>Jacqui Dunnigan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044230" class="text-danger"><strong>James Bennett</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056300" class="text-danger"><strong>James Gallegos</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054516" class="text-danger"><strong>James Davis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054214" class="text-danger"><strong>James Streck</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049424" class="text-danger"><strong>James Lyman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056174" class="text-danger"><strong>James Pacheco</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060680" class="text-danger"><strong>James Dunning</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10043829" class="text-danger"><strong>Jamie Caron</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035219" class="text-danger"><strong>Jason Rosenbaum</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025147" class="text-danger"><strong>Jason Abeyta</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10063395" class="text-danger"><strong>Jason Anderson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027695" class="text-danger"><strong>Jayson Santiago</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047543" class="text-danger"><strong>Jeff Olmsted</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038942" class="text-danger"><strong>Jeff Nachtrieb</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059453" class="text-danger"><strong>Jeff Dutton</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027698" class="text-danger"><strong>Jeff Kraft</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028327" class="text-danger"><strong>Jeff Elliott</strong></a><br><small>Cumberland, North Carolina</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065303" class="text-danger"><strong>Jeff E Smith</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10055274" class="text-danger"><strong>Jennifer Lindsay</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040053" class="text-danger"><strong>Jennifer Woods</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047426" class="text-danger"><strong>Jennifer Harding</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052851" class="text-danger"><strong>Jeremiah Reyes</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035020" class="text-danger"><strong>Jeremy Coulter</strong></a><br><small>El Paso, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056254" class="text-danger"><strong>Jerry Pun</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034855" class="text-danger"><strong>Jerry Carmosino</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10048825" class="text-danger"><strong>Jesse Coffman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10072131" class="text-danger"><strong>Jessica Mccarty</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10088992" class="text-danger"><strong>Jesus Ceja</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080641" class="text-danger"><strong>Jesus Luva</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049127" class="text-danger"><strong>Jill Rodriguez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10070630" class="text-danger"><strong>Jim Daniels</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044355" class="text-danger"><strong>Jim Moore</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028331" class="text-danger"><strong>Jim Disher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10070226" class="text-danger"><strong>Jim Schultz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047422" class="text-danger"><strong>Jim Walker</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034678" class="text-danger"><strong>Jim Vajda III</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024437" class="text-danger"><strong>Jimmy Abeyta</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047714" class="text-danger"><strong>Jimmy Romero</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035502" class="text-danger"><strong>Joanne Hinchliffe</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064216" class="text-danger"><strong>Joe Eiffes</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037145" class="text-danger"><strong>Joel Yaross</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052850" class="text-danger"><strong>John Dennis</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10046336" class="text-danger"><strong>John Mulloy</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050948" class="text-danger"><strong>John Cooper</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040017" class="text-danger"><strong>Johnathan Watson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047764" class="text-danger"><strong>Jon Weaver</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035885" class="text-danger"><strong>Jon Walkup</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028326" class="text-danger"><strong>Jon Nadeau</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024601" class="text-danger"><strong>Jon Felzien</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10058185" class="text-danger"><strong>Josh Brayman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10069790" class="text-danger"><strong>Josh Sanchez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10046428" class="text-danger"><strong>Josh Katcher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10046501" class="text-danger"><strong>Josh Christianson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085350" class="text-danger"><strong>Josh Sandovey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045660" class="text-danger"><strong>Joye Robles</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033108" class="text-danger"><strong>Jp Mullane</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050480" class="text-danger"><strong>JT Ewald</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028562" class="text-danger"><strong>Juan Lizzarga</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024431" class="text-danger"><strong>Julian Horton</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040079" class="text-danger"><strong>Julian Nogales</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059933" class="text-danger"><strong>Justin Sage</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10076828" class="text-danger"><strong>Kain Sponsel</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060097" class="text-danger"><strong>Kalen Shale</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051726" class="text-danger"><strong>Karen Burnett</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080896" class="text-danger"><strong>Kari Fortunato</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049410" class="text-danger"><strong>Kaylenn Bird</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051897" class="text-danger"><strong>Keith Rodgers</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024700" class="text-danger"><strong>Ken Sieh</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10058593" class="text-danger"><strong>Kendall Black</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024454" class="text-danger"><strong>Kenneth Glentz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028330" class="text-danger"><strong>Kevin Kenyon</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053013" class="text-danger"><strong>Kevin Reid</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041751" class="text-danger"><strong>Kevin Vigil</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050893" class="text-danger"><strong>Kevin Pikus</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064096" class="text-danger"><strong>Kim Lutz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037895" class="text-danger"><strong>Kody Toedtli-mckee</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10076554" class="text-danger"><strong>Kristen Lindbloom</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050817" class="text-danger"><strong>Kristen Rainville</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037709" class="text-danger"><strong>Kurt Funk</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052903" class="text-danger"><strong>Lalo Sierra</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027662" class="text-danger"><strong>Lanny Neumann</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040326" class="text-danger"><strong>Larry Tanner</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060191" class="text-danger"><strong>Laura Jenkin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061513" class="text-danger"><strong>Laura Orlikoff</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041932" class="text-danger"><strong>Lee Marshall</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035002" class="text-danger"><strong>LeMichaels Mastin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024436" class="text-danger"><strong>Len LaMaster</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035213" class="text-danger"><strong>Lena Maez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050309" class="text-danger"><strong>Leo Rodriguez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10082537" class="text-danger"><strong>Leon Heitmeyer</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038249" class="text-danger"><strong>Lillian Zamora</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056301" class="text-danger"><strong>Linda Cook</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034679" class="text-danger"><strong>Lindsay Snyder</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025680" class="text-danger"><strong>Lino Chavez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10055020" class="text-danger"><strong>Liz Knutson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050213" class="text-danger"><strong>LJ Matsoukas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038271" class="text-danger"><strong>Loleen Ballinger</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085159" class="text-danger"><strong>Luis Arreola</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10068365" class="text-danger"><strong>Luke Yudnich</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079736" class="text-danger"><strong>Luke Bellacosa</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052053" class="text-danger"><strong>Maja Mckenerick</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028321" class="text-danger"><strong>Malcom Garrison</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10042422" class="text-danger"><strong>Manda Campbell</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060681" class="text-danger"><strong>Manuel Crispin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049478" class="text-danger"><strong>Marcus Anderson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034710" class="text-danger"><strong>Maria Finley</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056157" class="text-danger"><strong>Marika Evanger</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028325" class="text-danger"><strong>Mark Ingalls</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049053" class="text-danger"><strong>Marvin Infante</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10039335" class="text-danger"><strong>Mary Fraser</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10042096" class="text-danger"><strong>Matt Ferguson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059157" class="text-danger"><strong>Matt Tapp</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10039425" class="text-danger"><strong>Matt Bingham</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10088997" class="text-danger"><strong>Matthew Federico</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10046524" class="text-danger"><strong>Matthias Maul</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061245" class="text-danger"><strong>Michael Mischler</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10071194" class="text-danger"><strong>Michael Baruth</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052711" class="text-danger"><strong>Michael Rubio</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065395" class="text-danger"><strong>Michael Du</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034961" class="text-danger"><strong>Michael Rowles</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053196" class="text-danger"><strong>Michael Breeze</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056941" class="text-danger"><strong>Michael Cronstedt</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035021" class="text-danger"><strong>Michael Stephenson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034741" class="text-danger"><strong>Miguel Ortega</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050311" class="text-danger"><strong>Miguel Anariba</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060815" class="text-danger"><strong>Mike Causey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10063591" class="text-danger"><strong>Mike Twite</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038931" class="text-danger"><strong>Mike Reynolds</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025679" class="text-danger"><strong>Mike Newman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045338" class="text-danger"><strong>Mike Lopez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065636" class="text-danger"><strong>Mike Alvarado</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054335" class="text-danger"><strong>Mike Harris</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10081140" class="text-danger"><strong>Mike Lakos</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059589" class="text-danger"><strong>Mike St. Aubin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025668" class="text-danger"><strong>Mike Stockert</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050637" class="text-danger"><strong>Miker Roybal</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052904" class="text-danger"><strong>Mikki Hafer</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035210" class="text-danger"><strong>Mitch Frances</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037638" class="text-danger"><strong>Myron Funk</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10087017" class="text-danger"><strong>Nancy Martin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064313" class="text-danger"><strong>Nancy Farrey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10067209" class="text-danger"><strong>Nancy Grisby</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10071483" class="text-danger"><strong>Nate Benjamin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035015" class="text-danger"><strong>Nate Petros</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10048711" class="text-danger"><strong>Nicholas Glasoe</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10062012" class="text-danger"><strong>Nick Sposato</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034671" class="text-danger"><strong>Nick Harlan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040804" class="text-danger"><strong>Nick Ruskaup</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056315" class="text-danger"><strong>Nicolas De noue</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035330" class="text-danger"><strong>Nikki David</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041640" class="text-danger"><strong>Nina Banecks</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052849" class="text-danger"><strong>Nina Lombardi</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10066191" class="text-danger"><strong>Noah Parker</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061805" class="text-danger"><strong>Paden Clements</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034670" class="text-danger"><strong>Patrick Trujillo</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061028" class="text-danger"><strong>Patrick Marshall</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044736" class="text-danger"><strong>Patrick Wenzel</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050625" class="text-danger"><strong>Paul Carabetta</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025700" class="text-danger"><strong>Paul Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040363" class="text-danger"><strong>Paul Eggleston</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035720" class="text-danger"><strong>Paula David</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052952" class="text-danger"><strong>Paulie Manna</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10060683" class="text-danger"><strong>Penny Allee</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10043105" class="text-danger"><strong>Pravin Sunuwar</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028322" class="text-danger"><strong>Rachael Nadeau</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052239" class="text-danger"><strong>Raechel Fogle</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10042101" class="text-danger"><strong>Ralph Gonzales</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024430" class="text-danger"><strong>Regina Mattingly</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079730" class="text-danger"><strong>Rich Deeming</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054888" class="text-danger"><strong>Rich Williams</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044773" class="text-danger"><strong>Rich Miller</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079735" class="text-danger"><strong>Richard Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051710" class="text-danger"><strong>Richard Bailey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044640" class="text-danger"><strong>Rick Colin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10066156" class="text-danger"><strong>Rick Black</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085156" class="text-danger"><strong>Rick Weingarten</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10062200" class="text-danger"><strong>Rick Witchley</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035478" class="text-danger"><strong>Rick Jackson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054840" class="text-danger"><strong>Rick Dawson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045726" class="text-danger"><strong>Ro Escareno</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024867" class="text-danger"><strong>Rob Randolph</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035208" class="text-danger"><strong>Robbie Ludwig</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10085348" class="text-danger"><strong>Robert Trujillo</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064157" class="text-danger"><strong>Robert Hamilton</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10071821" class="text-danger"><strong>Robert Gleitz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10040424" class="text-danger"><strong>Robert Gomez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051887" class="text-danger"><strong>Robert Gomez, Sr.</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10072129" class="text-danger"><strong>Robert Ruskaup</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035200" class="text-danger"><strong>Roberta Abraham</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056689" class="text-danger"><strong>Robinson Diaz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10028494" class="text-danger"><strong>Rod Springs</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024457" class="text-danger"><strong>Rodney Green</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079734" class="text-danger"><strong>Rodney Lazear</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053250" class="text-danger"><strong>Roman Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10062870" class="text-danger"><strong>Ron Valdez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059941" class="text-danger"><strong>Ron Sullivan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10042612" class="text-danger"><strong>Ron Cunningham</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044858" class="text-danger"><strong>Rose Ramos</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049526" class="text-danger"><strong>Rowland Nwaohuocha</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053042" class="text-danger"><strong>Roy Renfro</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10049294" class="text-danger"><strong>Ryan Logan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10053043" class="text-danger"><strong>Ryan Gray</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10045333" class="text-danger"><strong>Ryan Long</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10057783" class="text-danger"><strong>Sal Mendoza</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035196" class="text-danger"><strong>Sam Laurent</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056156" class="text-danger"><strong>Samantha Malone</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10034673" class="text-danger"><strong>Samuel Baca</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10048624" class="text-danger"><strong>Sandra Padilla</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10055025" class="text-danger"><strong>Santos Martinez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047047" class="text-danger"><strong>Scott Baker</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044410" class="text-danger"><strong>Scott Body</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041933" class="text-danger"><strong>Scott Lorenzi</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050620" class="text-danger"><strong>Sean Richardson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064654" class="text-danger"><strong>Sean Salas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10059303" class="text-danger"><strong>Sean Mena</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10052518" class="text-danger"><strong>Seiji Nagata</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044614" class="text-danger"><strong>Sergei Tsytsarev</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035477" class="text-danger"><strong>Seth Jackson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025951" class="text-danger"><strong>Shancha Windy Boy</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10027701" class="text-danger"><strong>Sheila Wright</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065397" class="text-danger"><strong>Shelby Warr</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10037632" class="text-danger"><strong>Spencer Friedman</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036809" class="text-danger"><strong>Stacy Gitlin</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035010" class="text-danger"><strong>Stephen Dhority</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047184" class="text-danger"><strong>Stephen Blea</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035214" class="text-danger"><strong>Stephen Hart</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065693" class="text-danger"><strong>Steve Ferguson</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10050478" class="text-danger"><strong>Steve Archer</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10055200" class="text-danger"><strong>Steve Lindsay</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10029375" class="text-danger"><strong>Steven Masias</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10033765" class="text-danger"><strong>Sue Fitzpatrick</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035195" class="text-danger"><strong>Sue Boucher</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10030780" class="text-danger"><strong>Tanner Stoops</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035124" class="text-danger"><strong>Tanner Belton</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047425" class="text-danger"><strong>Terrell Easterling</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080688" class="text-danger"><strong>Terry Lester</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10043734" class="text-danger"><strong>Thomas Corrigan</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065583" class="text-danger"><strong>Tiffany Haas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10064098" class="text-danger"><strong>Tiffany Meadows</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10080128" class="text-danger"><strong>Tiffany Steckel</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051755" class="text-danger"><strong>Tim Ramirez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10051807" class="text-danger"><strong>Tina Vargas</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041728" class="text-danger"><strong>Tina Payne</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10044971" class="text-danger"><strong>Tj Harvey</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056173" class="text-danger"><strong>Todd Oney</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10054708" class="text-danger"><strong>Todd Wyatt</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10035974" class="text-danger"><strong>Tom Fellows</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10071218" class="text-danger"><strong>Tom Bartee</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025665" class="text-danger"><strong>Tom Russo</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10024443" class="text-danger"><strong>Tosha Stoops</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10025667" class="text-danger"><strong>Troy Andasola</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10056336" class="text-danger"><strong>Troy McIntyre</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10079936" class="text-danger"><strong>Tucker Grossmann</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10042097" class="text-danger"><strong>Tyler Harmon</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10038247" class="text-danger"><strong>Vicky McBride</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041783" class="text-danger"><strong>Vincent Barron</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10065186" class="text-danger"><strong>Walt Dawes</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10074537" class="text-danger"><strong>Wendy Gonzalez</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10041476" class="text-danger"><strong>Wes Brown</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10036455" class="text-danger"><strong>Will Fleming</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10061335" class="text-danger"><strong>Woody Quezada</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10039091" class="text-danger"><strong>Zach Schultz</strong></a><br><small>Broomfield, Colorado</small></td></tr><tr><td align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10024977&amp;xTab=5&amp;rival=10047090" class="text-danger"><strong>Zakk Mitchell</strong></a><br><small>Broomfield, Colorado</small></td></tr></tbody></table>    </div>
+  </div>
+</div>
+    <!-- /.container -->
+<p>
+    <!-- Footer -->
+    </p><footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">© North American Poolshooters Association</p>
+        <a href="terms.php"><p class="m-0 text-center text-white">Terms and Conditions</p></a>
+        <a href="privacy.php"><p class="m-0 text-center text-white">Privacy Policy</p></a>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://playnapa.io/vendor/jquery/jquery.min.js"></script>
+    <script src="https://playnapa.io/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>	
+
+  
+</body></html>
