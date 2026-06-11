@@ -10,6 +10,12 @@ followed by one row per player:
 
     rownum, name, (C) captain flag, 8-digit playerID, CSR "8 / 9 / 10", SM count
 
+The CSR header column is AUTHORITATIVE for the division's game set (B1 recon):
+"CSR 8 - 9 - 10" (3-game LC), bare "CSR" (8-ball-only), "CSR 9 - 10" (2-game
+DP). A row's dash-separated values map positionally onto the declared games;
+undeclared games are None. A value-count/header mismatch RAISES — never guess
+(positional guessing is how a 2-game row's SM gets swallowed as a rating).
+
 CRITICAL parsing rules (from the build plan):
 - Segment teams on the `#` header rows; take EVERY player row until the next
   header. Real team sizes are 7–11 — NEVER assume 8 per team.
@@ -28,10 +34,20 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-# A team header looks like "# <name> ... CSR 8 - 9 - 10 SM". Team names can
+# A team header looks like "# <name> ... CSR <games> SM". Team names can
 # themselves contain '#' (e.g. "Cheat Code Felt Billiards #6"), so we anchor on
 # the leading '#' AND require the "CSR" column marker to avoid false positives.
-_TEAM_HEADER_RE = re.compile(r"^#\s*(?P<team>.+?)\s+CSR\b", re.IGNORECASE)
+# What follows "CSR" declares the division's game set — the three shapes seen
+# in B1 recon (the header row repeats per team block, so it travels with the
+# team segmentation for free):
+#     "CSR 8 - 9 - 10" -> games (8, 9, 10)   3-game LC (13077, 13985)
+#     "CSR"            -> games (8,)         8-ball-only (13298)
+#     "CSR 9 - 10"     -> games (9, 10)      2-game DP (13744)
+_TEAM_HEADER_RE = re.compile(
+    r"^#\s*(?P<team>.+?)\s+CSR(?![A-Za-z])\s*"
+    r"(?P<games>\d{1,2}(?:\s*[-/]\s*\d{1,2})*)?",
+    re.IGNORECASE,
+)
 
 # An 8-digit player ID, not part of a longer run of digits.
 _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
@@ -39,9 +55,11 @@ _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
 # Captain marker "(C)" (tolerant of spacing/case).
 _CAPTAIN_RE = re.compile(r"\(\s*[Cc]\s*\)")
 
-# CSR triple. The live roster grid renders it dash-separated ("95 - 80 - 81");
-# the slash form ("95 / 80 / 81") also appears in some views. Accept either.
-_CSR_TRIPLE_RE = re.compile(r"(\d{1,4})\s*[-/]\s*(\d{1,4})\s*[-/]\s*(\d{1,4})")
+# A row's CSR run: dash-separated values on the live grid ("95 - 79 - 81"),
+# slash-separated in some views ("95 / 79 / 81"), a bare "90" on single-game
+# grids. The run's length is validated against the header's declared games;
+# the standalone number AFTER the run is the SM column.
+_CSR_RUN_RE = re.compile(r"\d{1,4}(?:\s*[-/]\s*\d{1,4})*")
 
 _ANY_INT_RE = re.compile(r"\d+")
 
@@ -51,9 +69,9 @@ class RosterPlayer:
     team: str
     player: str
     player_id: str
-    csr_8: int
-    csr_9: int
-    csr_10: int
+    csr_8: int | None  # None when the division's grid doesn't declare the game
+    csr_9: int | None
+    csr_10: int | None
     session_matches: int | None
     is_captain: bool
 
@@ -61,10 +79,24 @@ class RosterPlayer:
         return asdict(self)
 
     @property
-    def spread(self) -> int:
-        """Max-minus-min across the three games — the key scouting signal."""
-        vals = (self.csr_8, self.csr_9, self.csr_10)
+    def spread(self) -> int | None:
+        """Max-minus-min across the rated games — the key scouting signal.
+
+        None when fewer than two games carry a rating (8-ball-only grids):
+        a single-game player has no cross-game spread.
+        """
+        vals = [v for v in (self.csr_8, self.csr_9, self.csr_10) if v is not None]
+        if len(vals) < 2:
+            return None
         return max(vals) - min(vals)
+
+
+@dataclass(frozen=True)
+class _TeamHeader:
+    """A parsed `#` header row: team name + the declared CSR game set."""
+    team: str
+    games: tuple[int, ...]
+    text: str  # raw row text, kept for mismatch error messages
 
 
 # --------------------------------------------------------------------------- #
@@ -119,13 +151,20 @@ def _logical_rows(soup: BeautifulSoup) -> list[list[str]]:
     return [[re.sub(r"\s+", " ", line.strip())] for line in text.splitlines() if line.strip()]
 
 
-def _match_team_header(text: str) -> str | None:
+def _match_team_header(text: str) -> _TeamHeader | None:
     m = _TEAM_HEADER_RE.match(text)
-    return m.group("team").strip() if m else None
+    if m is None:
+        return None
+    raw = m.group("games")
+    # Bare "CSR" (no game list) is the 8-ball-only shape: one 8-ball rating.
+    games = tuple(int(n) for n in _ANY_INT_RE.findall(raw)) if raw else (8,)
+    if len(set(games)) != len(games) or any(g not in (8, 9, 10) for g in games):
+        raise ValueError(f"unrecognized CSR game set in roster team header: {text!r}")
+    return _TeamHeader(team=m.group("team").strip(), games=games, text=text)
 
 
-def _match_player_row(cells: list[str], current_team: str | None) -> RosterPlayer | None:
-    if current_team is None:
+def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPlayer | None:
+    if header is None:
         return None
     joined = " ".join(cells).strip()
     id_m = _PLAYER_ID_RE.search(joined)
@@ -134,18 +173,23 @@ def _match_player_row(cells: list[str], current_team: str | None) -> RosterPlaye
     player_id = id_m.group(1)
 
     after_id = joined.split(player_id, 1)[1]
-    nums_after = [int(n) for n in _ANY_INT_RE.findall(after_id)]
-
-    triple = _CSR_TRIPLE_RE.search(after_id)
-    if triple:
-        csr_8, csr_9, csr_10 = (int(g) for g in triple.groups())
-    elif len(nums_after) >= 3:
-        csr_8, csr_9, csr_10 = nums_after[0:3]
-    else:
-        # An 8-digit number with no three trailing ratings is not a player row.
+    run = _CSR_RUN_RE.search(after_id)
+    if run is None:
+        # An 8-digit number with no trailing ratings is not a player row.
         return None
+    values = [int(n) for n in _ANY_INT_RE.findall(run.group(0))]
+    if len(values) != len(header.games):
+        # NEVER map positionally on a mismatch — that's exactly how a 2-game
+        # row under a triple-shaped parser swallows the SM column as a rating.
+        raise ValueError(
+            f"roster row has {len(values)} CSR value(s) but the team header "
+            f"declares {len(header.games)}: header {header.text!r}, row {joined!r}"
+        )
+    by_game = dict(zip(header.games, values))
 
-    session_matches = nums_after[3] if len(nums_after) >= 4 else None
+    # SM stays its own column: the first standalone number AFTER the CSR run.
+    sm_m = _ANY_INT_RE.search(after_id, run.end())
+    session_matches = int(sm_m.group(0)) if sm_m else None
     is_captain = bool(_CAPTAIN_RE.search(joined))
 
     # Name = the text before the player ID, minus the row number and captain mark.
@@ -158,12 +202,12 @@ def _match_player_row(cells: list[str], current_team: str | None) -> RosterPlaye
         return None
 
     return RosterPlayer(
-        team=current_team,
+        team=header.team,
         player=name,
         player_id=player_id,
-        csr_8=csr_8,
-        csr_9=csr_9,
-        csr_10=csr_10,
+        csr_8=by_game.get(8),
+        csr_9=by_game.get(9),
+        csr_10=by_game.get(10),
         session_matches=session_matches,
         is_captain=is_captain,
     )
@@ -173,16 +217,16 @@ def parse_roster(html: str) -> list[RosterPlayer]:
     """Parse roster-grid HTML into a flat list of players (team carried down)."""
     soup = BeautifulSoup(html, "lxml")
     players: list[RosterPlayer] = []
-    current_team: str | None = None
+    current_header: _TeamHeader | None = None
     for cells in _logical_rows(soup):
         text = " ".join(cells).strip()
         if not text:
             continue
-        team = _match_team_header(text)
-        if team is not None:
-            current_team = team
+        header = _match_team_header(text)
+        if header is not None:
+            current_header = header
             continue
-        player = _match_player_row(cells, current_team)
+        player = _match_player_row(cells, current_header)
         if player is not None:
             players.append(player)
     return players
