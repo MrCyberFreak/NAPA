@@ -2,7 +2,7 @@ name: backfill-scores
 
 # One-off (manual): historical per-game backfill. Walks
 # standings_weekly_scores.php?week=N for the requested weeks, follows every
-# score-sheet (scores.php) link, and commits the rendered HTML to data/raw/scores/.
+# score-sheet (scores.php) link, and commits the rendered HTML to data/raw/<did>/scores/.
 # Resumable (skips sheets already committed). This is the Phase 6 training data.
 
 on:
@@ -38,7 +38,7 @@ jobs:
         run: |
           git config user.name  "napa-archive-bot"
           git config user.email "napa-archive-bot@users.noreply.github.com"
-          git add -A data/raw/scores
+          git add -A data/raw
           if git diff --cached --quiet; then
             echo "No new score sheets."
           else

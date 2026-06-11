@@ -5,7 +5,7 @@ fragility lives in the parsers, where it is cheap to fix and replayable against
 this archive.
 
 Design (from the build plan):
-- Pull pages templated on `did`, write data/raw/<date>/<name>.html.
+- Pull pages templated on `did`, write data/raw/<did>/<date>/<name>.html.
 - Write-on-change: skip writing if identical to the last capture of that page.
 - Polite: real UA, spaced + jittered requests, fail-soft (log and STOP on error;
   never retry-hammer).
@@ -54,6 +54,11 @@ ARCHIVE_PAGES: list[tuple[str, dict]] = EASY_PAGES + [
     ("leaderboard", {}),
     ("live_scores", {}),
 ]
+
+def archive_pages(did: int = config.DID) -> list[tuple[str, dict]]:
+    """The archive set templated for one division (kwargs carry the did)."""
+    return [(name, {**kw, "did": did}) for name, kw in ARCHIVE_PAGES]
+
 
 # One representative real endpoint per host, for the reachability probe.
 PROBE_TARGETS: dict[str, str] = {
@@ -260,8 +265,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA 13077 fetcher (host-agnostic)")
     parser.add_argument("--date", default=dt.date.today().isoformat(),
                         help="archive date folder (YYYY-MM-DD, default: today)")
-    parser.add_argument("--root", default=str(ARCHIVE_ROOT),
-                        help=f"archive root (default: {ARCHIVE_ROOT})")
+    parser.add_argument("--root", default=str(config.division_root(config.DID)),
+                        help="archive root (default: the configured division's dir)")
     parser.add_argument("--probe-only", action="store_true",
                         help="run the connectivity probe + heartbeat, skip fetching")
     parser.add_argument("--load", action="store_true",
@@ -278,9 +283,10 @@ def main() -> None:
 
         written: dict[str, Path | None] = {}
         if not args.probe_only:
-            written = fetch_pages(client, pages=ARCHIVE_PAGES, date=args.date, root=root)
+            written = fetch_pages(client, pages=archive_pages(), date=args.date, root=root)
 
-    hb = write_heartbeat(root, {
+    # Heartbeat stays at the archive top level, independent of division roots.
+    hb = write_heartbeat(ARCHIVE_ROOT, {
         "run_date": args.date,
         "probe": [asdict(p) for p in probes],
         "captured": sorted(n for n, v in written.items() if v is not None),

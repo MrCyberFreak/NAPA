@@ -136,8 +136,8 @@ def capture_assets(url: str, out_dir: str | Path, headless: bool = True) -> list
     return saved
 
 
-def backfill_score_sheets(weeks, out_root: str | Path = "data/raw/scores",
-                          headless: bool = True) -> list[str]:
+def backfill_score_sheets(weeks, out_root: str | Path | None = None,
+                          headless: bool = True, did: int = config.DID) -> list[str]:
     """Walk standings_weekly_scores.php?week=N for each week, follow every
     'view score sheet' (scores.php) link, and save the rendered HTML. Resumable:
     skips sheets already on disk. The raw archive is the durable backfill record."""
@@ -146,7 +146,7 @@ def backfill_score_sheets(weeks, out_root: str | Path = "data/raw/scores",
 
     from .parse.weekly_scores import parse_week_index
 
-    out_root = Path(out_root)
+    out_root = Path(out_root) if out_root is not None else config.division_root(did) / "scores"
     saved: list[str] = []
 
     def cleared(page, url: str) -> str:
@@ -168,7 +168,7 @@ def backfill_score_sheets(weeks, out_root: str | Path = "data/raw/scores",
             for wk in weeks:
                 wkdir = out_root / f"week_{wk:02d}"
                 wkdir.mkdir(parents=True, exist_ok=True)
-                idx_html = cleared(page, config.url("weekly_scores", week=wk))
+                idx_html = cleared(page, config.url("weekly_scores", week=wk, did=did))
                 (wkdir / "_index.html").write_text(idx_html, encoding="utf-8")
                 urls = parse_week_index(idx_html)
                 print(f"[backfill] week {wk}: {len(urls)} score sheets")
@@ -244,11 +244,9 @@ def explore_profile(player_id: str, out_dir: str | Path, headless: bool = True) 
 _PROFILE_TABS = {"main": "", "h2h": "&xTab=12", "trends": "&xTab=33", "rivals": "&xTab=5"}
 
 
-def _roster_player_ids() -> list[str]:
-    import glob
-
+def _roster_player_ids(did: int = config.DID) -> list[str]:
     from .parse.roster import parse_roster_file
-    grids = sorted(glob.glob("data/raw/*/roster_grid.html"))
+    grids = sorted(config.division_root(did).glob("*/roster_grid.html"))
     if not grids:
         return []
     return sorted({p.player_id for p in parse_roster_file(grids[-1])})
@@ -326,7 +324,8 @@ def _parse_weeks(spec: str) -> list[int]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA 13077 browser fetcher (Chromium)")
     parser.add_argument("--date", default=dt.date.today().isoformat())
-    parser.add_argument("--root", default=str(fetch.ARCHIVE_ROOT))
+    parser.add_argument("--root", default=str(config.division_root(config.DID)),
+                        help="archive root (default: the configured division's dir)")
     parser.add_argument("--headed", action="store_true", help="run with a visible browser")
     parser.add_argument("--capture-url", help="one-off: capture a page's JS assets + HTML")
     parser.add_argument("--out", help="output dir for --capture-url")
@@ -359,7 +358,8 @@ def main() -> None:
     root = Path(args.root)
     written = fetch_pages_browser(date=args.date, root=root, headless=not args.headed)
 
-    hb = fetch.write_heartbeat(root, {
+    # Heartbeat stays at the archive top level, independent of division roots.
+    hb = fetch.write_heartbeat(fetch.ARCHIVE_ROOT, {
         "mode": "browser",
         "run_date": args.date,
         "captured": sorted(n for n, v in written.items() if v is not None),
