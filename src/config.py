@@ -1,11 +1,15 @@
-"""Single source of truth for the division and its URL patterns.
+"""Single source of truth for the divisions and their URL patterns.
 
-Open decision #1 from the build plan: we don't yet know whether `did=13077`
-persists across seasons. Keep it as ONE config value the whole system keys on,
-so retargeting a new season is a one-line change.
+All 14 NAPA of Northern Colorado divisions live in the DIVISIONS registry;
+flipping a division's `scrape` flag is the one-line per-division activation.
+`DID = 13077` stays the app-wide default so every existing call site keys on
+one config value — retargeting is still a one-line change.
 """
 
 from __future__ import annotations
+
+import pathlib
+from dataclasses import dataclass
 
 # The division everything keys on. Change this (and only this) to retarget.
 DID = 13077
@@ -24,23 +28,70 @@ HOST_POOLSHOOTERS = "https://poolshooters.com"  # bot-blocked — needs resident
 HOST_SCORES = "https://scores.playpool.io"      # scoring login — not needed read-only
 
 
+@dataclass(frozen=True)
+class Division:
+    """One NoCo division. `weekday` must match print_schedule_v1.php's
+    weekDay values verbatim ("Monday".."Sunday"); `fmt` is "LC" or "8"."""
+
+    did: int
+    name: str
+    weekday: str
+    fmt: str
+    scrape: bool = False
+
+
+# The 14 NoCo divisions. Only 13077 starts scrape=True — set a division's
+# `scrape` flag to activate it (see MULTIDIVISION_PLAN.md rollout).
+DIVISIONS: dict[int, Division] = {
+    d.did: d
+    for d in (
+        Division(13077, "Thursday Big Table Felt, No Limit LC", "Thursday", "LC", scrape=True),
+        Division(13985, "Felt Laggers", "Tuesday", "LC"),
+        Division(14022, "Paradise", "Wednesday", "LC"),
+        Division(13986, "Zoosters Laggers", "Tuesday", "LC"),
+        Division(13937, "Pharaoh's", "Wednesday", "LC"),
+        Division(13881, "Broomfield Westminster Laggers", "Monday", "LC"),
+        Division(13711, "Wreckroom Sunday", "Sunday", "LC"),
+        Division(13299, "Piazzas Tuesday", "Tuesday", "LC"),
+        Division(13205, "Greeley", "Monday", "LC"),
+        Division(13744, "DP Broomfield Westminster LC", "Friday", "LC"),
+        Division(13723, "Piazza Friday DP LC", "Friday", "LC"),
+        Division(13743, "DP Broomfield Westminster 8-ball", "Friday", "8"),
+        Division(13722, "Piazza Friday DP 8-ball", "Friday", "8"),
+        Division(13298, "Piazzas Tuesday 8-ball", "Tuesday", "8"),
+    )
+}
+
+
+def active_dids() -> list[int]:
+    """Dids flagged scrape=True, in registry order."""
+    return [did for did, d in DIVISIONS.items() if d.scrape]
+
+
+def division_root(did: int) -> pathlib.Path:
+    """Per-division raw-archive root: data/raw/<did>."""
+    return pathlib.Path("data/raw") / str(did)
+
+
 def url(name: str, **kw) -> str:
     """Build a known URL for the configured division.
 
     `did` defaults to the configured DID; pass overrides as kwargs
-    (e.g. week=5) for the templated endpoints.
+    (e.g. week=5) for the templated endpoints. `week_day` defaults to
+    the registry weekday for known dids (WEEK_DAY for unknown ones).
     """
     did = kw.get("did", DID)
     week = kw.get("week")
     week_number = kw.get("week_number", SEASON_WEEKS)
     player_id = kw.get("player_id")
+    week_day = kw.get("week_day", DIVISIONS[did].weekday if did in DIVISIONS else WEEK_DAY)
 
     templates = {
         # Easy tier (paper.playpool.io)
         "roster_grid": f"{HOST_PAPER}/roster_grid.php?did={did}&lcF8=N",
         "schedule": (
             f"{HOST_PAPER}/print_schedule_v1.php?did={did}&divID={did}"
-            f"&weekNumber={week_number}&weekDay={WEEK_DAY}"
+            f"&weekNumber={week_number}&weekDay={week_day}"
         ),
         "scratch": f"{HOST_PAPER}/scratch.php?division={did}&mastersDivision=N&mastersRace=",
         # Medium tier (poolshooters.com static)
