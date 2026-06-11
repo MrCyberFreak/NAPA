@@ -31,7 +31,10 @@ HOST_SCORES = "https://scores.playpool.io"      # scoring login — not needed r
 @dataclass(frozen=True)
 class Division:
     """One NoCo division. `weekday` must match print_schedule_v1.php's
-    weekDay values verbatim ("Monday".."Sunday"); `fmt` is "LC" or "8"."""
+    weekDay values verbatim ("Monday".."Sunday"). `fmt` ("LC" or "8") is
+    DISPLAY-ONLY — the authoritative game set comes from the roster grid's
+    CSR header at parse time (B1 recon: the "DP ... LC" divisions actually
+    play 9/10-ball only; see data/raw/_recon/VERDICT.md)."""
 
     did: int
     name: str
