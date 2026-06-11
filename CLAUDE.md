@@ -23,7 +23,7 @@ playerID); divisions and teams are routing — everything known about a player
 - Harvest profiles (tabs-only):  python -m src.browser_fetch --harvest --did 13985 --harvest-drill 0
 - Load newest grids:  python -m src.db --load --all-divisions
 - Rebuild DB from archive:  python -m src.db --rebuild   (rosters -> schedules -> sheets -> profiles)
-- Test:   pytest        (105 tests, pinned to fixtures/)
+- Test:   pytest        (108 tests, pinned to fixtures/)
 - Run app / scout grid:  python -m src.app --scout "<team>" "<opp>"  [--division N]   (default 13077)
 
 ## Hard rules
@@ -34,8 +34,11 @@ playerID); divisions and teams are routing — everything known about a player
 - Parsers must pass against fixtures/ before touching live data.
 - Roster grids: segment on `#` team-header rows; NEVER assume team count or size.
   The CSR HEADER declares the division's game set ("CSR8 - 9 - 10" / "CSR" /
-  "CSR9 - 10") — values map positionally, absent games are NULL, a count mismatch
-  RAISES. Never assume three games (B1 recon: "DP LC" divisions play 9/10 only).
+  "CSR9 - 10" / "CSR8 - 9 - 10 - 10BP") — values map positionally, absent games
+  are NULL, a count mismatch or unknown game token RAISES. Never assume three
+  games (B1 recon: "DP LC" divisions play 9/10 only; 14022 plays FOUR — 10BP is
+  a first-class rating, skill_snapshots.csr_10bp). A 10BP game table on a score
+  sheet RAISES until a real one is captured (none seen as of 2026-06-11).
 - Players who appear in results/stats are a SUPERSET of the roster (subs exist). Don't FK games.player_id to roster. player_id is NOT unique per roster grid — a player can be rostered on >1 team (real: Kat Plavnick). Key team membership by (team, player_id).
 - Canonical player key is the 8-digit playerID. Name->id resolution is DIVISION-FIRST
   with an explicit ambiguity rule (A1): the division's roster, else a UNIQUE

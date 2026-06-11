@@ -164,6 +164,7 @@ def test_real_roster_allows_multi_team_players():
 GRID_13985 = REPO / "fixtures" / "roster_grid_13985.html"        # "CSR 8 - 9 - 10"
 GRID_13298 = REPO / "fixtures" / "roster_grid_8ball_13298.html"  # bare "CSR"
 GRID_13744 = REPO / "fixtures" / "roster_grid_2game_13744.html"  # "CSR 9 - 10"
+GRID_14022 = REPO / "fixtures" / "roster_grid_4game_14022.html"  # "CSR 8 - 9 - 10 - 10BP"
 
 
 def test_three_game_grid_13985():
@@ -215,6 +216,46 @@ def test_two_game_dp_grid_13744():
     assert p.session_matches == 9           # ... and SM is NOT a rating
     assert p.is_captain
     assert p.spread == 19
+
+
+def test_four_game_grid_14022():
+    """"CSR 8 - 9 - 10 - 10BP" — the fourth shape (14022 "Paradise", captured
+    2026-06-11). Fired the onboarding header guard: a NEW rated game (10BP)
+    that the pre-fix parser read as a duplicate 10. Small 4-team division —
+    the 7-11 size guard is 13077-specific and does not apply here."""
+    players = parse_roster_file(GRID_14022)
+    summary = roster_summary(players)
+    assert summary["n_players"] == 28
+    assert summary["n_teams"] == 4
+    assert summary["team_sizes"] == {
+        "Pooligan The Paradise Tavern Team #1": 6,
+        "Dazed and Confusede The Paradise Tavern Team #2": 8,
+        "Okay 5 The Paradise Tavern Team #3": 6,
+        "Eat, Shoot and Die The Paradise Tavern Team #4": 8,
+    }
+    assert all(c == 1 for c in summary["captains_per_team"].values())
+    assert all(None not in (p.csr_8, p.csr_9, p.csr_10, p.csr_10bp)
+               for p in players)
+    p = {p.player_id: p for p in players}["10081737"]
+    assert p.player == "Leanetta Malone"
+    assert (p.csr_8, p.csr_9, p.csr_10, p.csr_10bp) == (16, 30, 29, 30)
+    assert p.session_matches == 0
+    assert p.is_captain
+    assert p.spread == 14  # 30 - 16; the 10BP rating counts toward the spread
+
+
+def test_unknown_csr_game_token_raises():
+    """A header declaring a game the system can't store must RAISE — a new
+    game label means schema/parser extension, never a silent skip."""
+    html = """
+    <table>
+      <tr><td>#</td><td>Mystery Team #1</td><td>CSR<br>8 - 9 - 10 - 10XY</td><td>SM</td></tr>
+      <tr><td>1</td><td>Some Player (C)<br>10000098</td><td>50 - 50 - 50 - 50</td><td>0</td></tr>
+    </table>
+    """
+    with pytest.raises(ValueError) as exc:
+        parse_roster(html)
+    assert "10XY" in str(exc.value)
 
 
 def test_csr_count_header_mismatch_raises():

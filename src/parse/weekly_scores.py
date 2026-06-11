@@ -135,6 +135,9 @@ def parse_live_scores_file(path) -> list[Game]:
 # --------------------------------------------------------------------------- #
 
 _GAME_TYPE_RE = re.compile(r"(\d+)\s*-?\s*ball", re.IGNORECASE)
+# A 10BP-style game label ("10BP" / "10 BP" / "10-Ball BP") — see the tripwire
+# in parse_score_sheet.
+_BP_GAME_RE = re.compile(r"\s*\d{1,2}\s*(?:-?\s*ball\s*)?BP\b", re.IGNORECASE)
 _NAME_TEAM_RE = re.compile(r"^(.*?)\s*\((.+)\)\s*$")
 _SHEET_DATE_RE = re.compile(r"([A-Z][a-z]{2})\.?\s+(\d{1,2}),\s*(\d{4})")
 
@@ -198,6 +201,17 @@ def parse_score_sheet(html: str) -> ScoreSheet:
         if len(first) == 1 and _SHEET_DATE_RE.search(first[0]) and date is None:
             date = _sheet_date(first[0])
             continue
+        # 10BP tripwire: 14022's roster declares a 10BP game, but no played
+        # sheet has shown its game table yet. "10BP" alone wouldn't match
+        # _GAME_TYPE_RE (silent skip) and "10-Ball BP" would match as plain
+        # 10-ball (silent conflation) — both corrupt the per-game grain.
+        # RAISE so the first real capture gets promoted to fixtures/ and
+        # ScoreGame extended deliberately.
+        if first and first[0] and _BP_GAME_RE.match(first[0]):
+            raise ValueError(
+                f"unrecognized game variant in score sheet: {first[0]!r} "
+                "(10BP support needs a real fixture — see parse/roster.py)"
+            )
         # game table: first row is [game_type, home_player(team), away_player(team)]
         gt = _GAME_TYPE_RE.match(first[0]) if first else None
         if gt and len(first) >= 3:
