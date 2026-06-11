@@ -167,8 +167,24 @@ def gate_db(did: int, baseline: int, max_null_rate: float, as_of: str,
          f"division tagging: {teams} teams / {matches} matches / {games} games "
          f"carry division_id={did}")
     if has_sheets and games == 0:
-        emit(FAIL, f"division tagging: archived score sheets exist but 0 games "
-                   f"loaded for {did}")
+        # 0 games + archived sheets is a REAL loss only if some sheet actually
+        # contains a game table. A brand-new season backfills the full
+        # schedule as unplayed SHELLS (no game tables at all) -- 0 games is
+        # then the correct state until results are entered on the site.
+        import re as _re
+        ball = _re.compile(r"\d+\s*-?\s*ball", _re.IGNORECASE)
+        with_games = sum(
+            1 for f in config.division_root(did).glob("scores/week_*/*.html")
+            if f.name != "_index.html"
+            and ball.search(f.read_text(encoding="utf-8", errors="replace"))
+        )
+        if with_games:
+            emit(FAIL, f"division tagging: {with_games} archived sheet(s) contain "
+                       f"game tables but 0 games loaded for {did}")
+        else:
+            emit(INFO, f"division tagging: all archived {did} sheets are unplayed "
+                       "shells (new season) -- 0 games is correct until results "
+                       "are entered; re-run the gates after the first results land")
 
     # 13077 sub-recovery: NULL-id slots strictly BELOW the pre-expansion baseline.
     null_13077 = one(
