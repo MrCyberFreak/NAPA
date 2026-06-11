@@ -380,9 +380,16 @@ def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path =
     """Harvest player profiles into data/raw/profiles/<id>/ (player-keyed,
     division-independent; `did` only selects whose roster grid supplies the
     default player_ids). Resumable (skips files already on disk), spaced,
-    fail-soft PER PAGE (logs and continues — a re-run resumes). With
-    drill_rivals, follows each RIVALS link for per-game lifetime H2H.
-    Rate-limit-friendly: slow + bounded."""
+    fail-soft PER PAGE for nav errors (logs and continues — a re-run resumes).
+    With drill_rivals, follows each RIVALS link for per-game lifetime H2H.
+    Rate-limit-friendly: slow + bounded.
+
+    Challenge handling (2026-06-11 14022 harvests): the poolshooters.com
+    challenge clears on a fresh goto — sometimes not for ~40 min on a given
+    runner — and once ONE page clears, the context's cookie un-gates the rest.
+    So the first fetch retries goto hard (~5 min); an uncleared challenge then
+    ABORTS the run loudly instead of silently grinding 36s on every page
+    (observed: 58 min / 0 pages, exit 0). Re-dispatch resumes from disk."""
     from playwright.sync_api import sync_playwright
 
     from .parse.profile import parse_profile_rivals
@@ -391,33 +398,49 @@ def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path =
     player_ids = player_ids or _roster_player_ids(did)
     base = lambda pid: f"{config.HOST_POOLSHOOTERS}/stats.php?playerSelected=Y&playerID={pid}"
     saved = 0
+    cookie_landed = False  # context has cleared the challenge at least once
+    challenged = 0
+    streak = 0  # consecutive challenged pages
 
-    def cleared(page, url: str) -> str:
-        try:
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
-        except Exception as exc:  # noqa: BLE001
-            print(f"[harvest] nav {url}: {exc}")
-            return ""
-        for _ in range(6):
-            if not fetch.is_challenge(page.content()):
-                break
-            page.wait_for_timeout(6000)
-        return page.content()
+    class _ChallengeStuck(Exception):
+        """Uncleared bot-challenge — abort the whole run, never grind."""
+
+    def cleared(page, url: str, attempts: int = 1) -> str:
+        html = ""
+        for _ in range(attempts):
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[harvest] nav {url}: {exc}")
+                return ""
+            for _ in range(6):
+                html = page.content()
+                if not fetch.is_challenge(html):
+                    return html
+                page.wait_for_timeout(6000)
+        return html
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
         page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
 
         def get(url: str, path: Path) -> str:
-            nonlocal saved
+            nonlocal saved, cookie_landed, challenged, streak
             if path.exists() and path.stat().st_size > 500:
                 return path.read_text(encoding="utf-8", errors="replace")
-            html = cleared(page, url)
+            html = cleared(page, url, attempts=8 if not cookie_landed else 1)
             if html and not fetch.is_challenge(html):
+                cookie_landed = True
+                streak = 0
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(html, encoding="utf-8")
                 saved += 1
                 page.wait_for_timeout(1500)  # polite
+            elif html:  # still the challenge page ("" = nav error, fail-soft)
+                challenged += 1
+                streak += 1
+                if not cookie_landed or streak >= 8:
+                    raise _ChallengeStuck(url)
             return html
 
         try:
@@ -432,9 +455,12 @@ def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path =
                         for r in rivals:
                             get(base(pid) + f"&xTab=5&rival={r.rival_id}",
                                 pdir / f"rival_{r.rival_id}.html")
+        except _ChallengeStuck as exc:
+            print(f"[harvest] uncleared bot-challenge — aborting the run ({exc}); "
+                  f"re-dispatch resumes from disk")
         finally:
             browser.close()
-    print(f"[harvest] saved {saved} new profile pages")
+    print(f"[harvest] saved {saved} new profile pages ({challenged} challenged skip(s))")
     return saved
 
 
