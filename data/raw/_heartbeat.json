@@ -1,5 +1,5 @@
 {
-  "updated_utc": "2026-06-11T21:13:14+00:00",
+  "updated_utc": "2026-06-11T22:54:12+00:00",
   "mode": "browser",
   "run_date": "2026-06-11",
   "divisions": {
@@ -76,6 +76,18 @@
       ]
     },
     "13711": {
+      "captured": [
+        "division"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
+        "roster_grid",
+        "schedule",
+        "scratch"
+      ]
+    },
+    "13299": {
       "captured": [
         "division",
         "leaderboard",
