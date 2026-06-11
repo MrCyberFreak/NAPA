@@ -8,9 +8,12 @@ name: backfill-scores
 on:
   workflow_dispatch:
     inputs:
+      did:
+        description: "Division id to backfill"
+        default: "13077"
       weeks:
-        description: "Weeks to backfill (e.g. 1-27 or 1,2,3)"
-        default: "1-27"
+        description: "Weeks to backfill (auto = walk until 2 empty weeks; or 1-27 / 1,2,3)"
+        default: "auto"
 
 permissions:
   contents: write
@@ -33,7 +36,7 @@ jobs:
           pip install -r requirements.txt -r requirements-browser.txt
           python -m playwright install --with-deps chromium
       - name: Backfill score sheets
-        run: python -m src.browser_fetch --backfill-weeks "${{ inputs.weeks }}"
+        run: python -m src.browser_fetch --did "${{ inputs.did }}" --backfill-weeks "${{ inputs.weeks }}"
       - name: Commit score sheets
         run: |
           git config user.name  "napa-archive-bot"
