@@ -45,8 +45,10 @@ def test_schedule_url_weekday_override_and_unknown_did_fallback():
     assert "weekDay=Thursday" in config.url("schedule", did=99999)
 
 
-def test_only_the_default_division_is_active():
-    assert config.active_dids() == [13077]
+def test_active_divisions_match_rollout():
+    # Deliberate tripwire: each onboarding flips ONE flag and extends this
+    # list in the same PR (MULTIDIVISION_PLAN.md rollout, one at a time).
+    assert config.active_dids() == [13077, 13985]
 
 
 def test_division_root_is_per_did():

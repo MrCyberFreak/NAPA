@@ -39,8 +39,9 @@ workflow waits — so resuming mid-playbook is the normal case, not the exceptio
 ## 1. Flip the scrape flag — own PR
 
 - On a branch, add `scrape=True` to the division's entry in `DIVISIONS` in
-  `src/config.py` (mirror the 13077 line). One-line diff; nothing else rides
-  along.
+  `src/config.py` (mirror the 13077 line), and extend the rollout tripwire
+  test `test_active_divisions_match_rollout` in `tests/test_config.py` with
+  the new did. Two-line diff; nothing else rides along.
 - Direct `git push` to main is blocked by the permission classifier. Use:
   `git push -u origin <branch>` → `gh pr create` → `gh pr merge`.
 
