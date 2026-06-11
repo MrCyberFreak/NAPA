@@ -726,9 +726,9 @@ def team_roster_latest(
 # CLI
 # --------------------------------------------------------------------------- #
 
-def _discover_roster_source() -> Path | None:
+def _discover_roster_source(did: int = config.DID) -> Path | None:
     """Prefer the newest archived roster grid; fall back to a fixtures capture."""
-    raw = Path("data/raw")
+    raw = config.division_root(did)
     if raw.is_dir():
         archived = sorted(raw.glob("*/roster_grid.*"), reverse=True)
         if archived:
@@ -762,7 +762,7 @@ def main() -> None:
     source = Path(args.roster) if args.roster else _discover_roster_source()
     if source is None or not source.exists():
         raise SystemExit(
-            "No roster grid found. Fetch one to data/raw/<date>/roster_grid.html, "
+            "No roster grid found. Fetch one to data/raw/<did>/<date>/roster_grid.html, "
             "commit a capture to fixtures/, or pass --roster PATH."
         )
 
