@@ -57,27 +57,27 @@ class Cell:
     my_id: str
     opp_player: str
     opp_id: str
-    edges: tuple[GameEdge, ...]  # one per game in GAMES order
+    edges: tuple[GameEdge, ...]  # one per game BOTH players carry a CSR for
 
     @property
-    def my_pick(self) -> GameEdge:
+    def my_pick(self) -> GameEdge | None:
         """The game I'd choose if I win the lag (largest edge for me)."""
-        return max(self.edges, key=lambda e: e.edge)
+        return max(self.edges, key=lambda e: e.edge) if self.edges else None
 
     @property
-    def opp_pick(self) -> GameEdge:
+    def opp_pick(self) -> GameEdge | None:
         """The game my opponent would choose if they win the lag (smallest edge for me)."""
-        return min(self.edges, key=lambda e: e.edge)
+        return min(self.edges, key=lambda e: e.edge) if self.edges else None
 
     @property
-    def volatility(self) -> int:
-        """How much my edge swings across the three games = how much the lag matters."""
-        return self.my_pick.edge - self.opp_pick.edge
+    def volatility(self) -> int | None:
+        """How much my edge swings across the games = how much the lag matters."""
+        return self.my_pick.edge - self.opp_pick.edge if self.edges else None
 
     @property
-    def neutral_edge(self) -> float:
+    def neutral_edge(self) -> float | None:
         """Lag-neutral midpoint of best/worst case — a scannable single number."""
-        return (self.my_pick.edge + self.opp_pick.edge) / 2
+        return (self.my_pick.edge + self.opp_pick.edge) / 2 if self.edges else None
 
 
 @dataclass(frozen=True)
@@ -103,8 +103,12 @@ class Grid:
 
 
 def _build_cell(me: sqlite3.Row, opp: sqlite3.Row) -> Cell:
+    # A game only makes a scouting edge when BOTH players carry a CSR for it —
+    # snapshots sourced from a 1- or 2-game division's grid leave the others NULL.
     edges = tuple(
-        GameEdge(game=g, my_csr=me[f"csr_{g}"], opp_csr=opp[f"csr_{g}"]) for g in GAMES
+        GameEdge(game=g, my_csr=me[f"csr_{g}"], opp_csr=opp[f"csr_{g}"])
+        for g in GAMES
+        if me[f"csr_{g}"] is not None and opp[f"csr_{g}"] is not None
     )
     return Cell(
         my_player=me["name"], my_id=me["player_id"],
@@ -118,9 +122,10 @@ def build_grid(
     my_team: str,
     opp_team: str,
     season: str = config.SEASON,
+    division_id: int = config.DID,
 ) -> Grid:
-    my_roster = team_roster_latest(conn, my_team, season)
-    opp_roster = team_roster_latest(conn, opp_team, season)
+    my_roster = team_roster_latest(conn, my_team, season, division_id)
+    opp_roster = team_roster_latest(conn, opp_team, season, division_id)
     if not my_roster:
         raise ValueError(f"no roster found for {my_team!r} in season {season!r}")
     if not opp_roster:
@@ -129,7 +134,7 @@ def build_grid(
     cells = tuple(
         tuple(_build_cell(me, opp) for opp in opp_roster) for me in my_roster
     )
-    depth = {r["team"]: r["roster_size"] for r in team_depth(conn, season)}
+    depth = {r["team"]: r["roster_size"] for r in team_depth(conn, season, division_id)}
     return Grid(
         my_team=my_team,
         opp_team=opp_team,
@@ -158,8 +163,11 @@ def _vol_marker(volatility: int) -> str:
 
 
 def render_cell(cell: Cell) -> str:
-    """Drill-down: the three per-game edges, the actual handicapped race, and the
+    """Drill-down: the per-game edges, the actual handicapped race, and the
     LC picks for one pairing."""
+    if not cell.edges:
+        return (f"{cell.my_player} ({cell.my_id})  vs  {cell.opp_player} ({cell.opp_id})\n"
+                "  no game both players carry a CSR for")
     lines = [
         f"{cell.my_player} ({cell.my_id})  vs  {cell.opp_player} ({cell.opp_id})",
         f"  {'game':>5} {'mine':>5} {'opp':>5} {'edge':>6} {'race':>7}",
@@ -194,6 +202,9 @@ def render_grid(grid: Grid) -> str:
     for r, me in enumerate(grid.my_players):
         fields = []
         for cell in grid.cells[r]:
+            if cell.neutral_edge is None:
+                fields.append("--")
+                continue
             marker = _vol_marker(cell.volatility).strip()
             fields.append(f"{cell.neutral_edge:+.0f}{marker}")
         out.append(f"{me[:name_w]:<{name_w}}  " + "".join(f"{f:>10}" for f in fields))
