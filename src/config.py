@@ -49,7 +49,7 @@ DIVISIONS: dict[int, Division] = {
     d.did: d
     for d in (
         Division(13077, "Thursday Big Table Felt, No Limit LC", "Thursday", "LC", scrape=True),
-        Division(13985, "Felt Laggers", "Tuesday", "LC"),
+        Division(13985, "Felt Laggers", "Tuesday", "LC", scrape=True),
         Division(14022, "Paradise", "Wednesday", "LC"),
         Division(13986, "Zoosters Laggers", "Tuesday", "LC"),
         Division(13937, "Pharaoh's", "Wednesday", "LC"),
