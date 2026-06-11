@@ -7,7 +7,7 @@ so re-loading the roster grid on a new date adds history rather than clobbering.
 Three layers, players first (see MULTIDIVISION_PLAN.md):
   IDENTITY (league-wide, never division-scoped):
     players(player_id, name, gender, home_base, member_since, first_seen, last_seen)
-    skill_snapshots(player_id, captured_date, csr_8, csr_9, csr_10, session_matches)
+    skill_snapshots(player_id, captured_date, csr_8, csr_9, csr_10, csr_10bp, session_matches)
         -> the drift record; PK (player_id, captured_date), append-only by date;
            per-game values MERGE across divisions' grids (an 8-ball-only grid
            brings only csr_8); conflicting non-null values warn (CSR is league-
@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS skill_snapshots (
     csr_8           INTEGER,
     csr_9           INTEGER,
     csr_10          INTEGER,
+    csr_10bp        INTEGER,  -- 10BP variant, 4-game grids only (14022)
     session_matches INTEGER,
     PRIMARY KEY (player_id, captured_date)
 );
@@ -275,12 +276,13 @@ def load_roster(
             (team_id, p.player_id, season, int(p.is_captain)),
         )
         existing = conn.execute(
-            "SELECT csr_8, csr_9, csr_10 FROM skill_snapshots "
+            "SELECT csr_8, csr_9, csr_10, csr_10bp FROM skill_snapshots "
             "WHERE player_id = ? AND captured_date = ?",
             (p.player_id, captured_date),
         ).fetchone()
         if existing:
-            for col, new in (("csr_8", p.csr_8), ("csr_9", p.csr_9), ("csr_10", p.csr_10)):
+            for col, new in (("csr_8", p.csr_8), ("csr_9", p.csr_9),
+                             ("csr_10", p.csr_10), ("csr_10bp", p.csr_10bp)):
                 if existing[col] is not None and new is not None and existing[col] != new:
                     csr_conflicts += 1
                     print(f"[load] CSR DISAGREEMENT {p.player} ({p.player_id}) {col}: "
@@ -289,16 +291,18 @@ def load_roster(
         conn.execute(
             """
             INSERT INTO skill_snapshots
-                (player_id, captured_date, csr_8, csr_9, csr_10, session_matches)
-            VALUES (?, ?, ?, ?, ?, ?)
+                (player_id, captured_date, csr_8, csr_9, csr_10, csr_10bp, session_matches)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(player_id, captured_date) DO UPDATE SET
                 csr_8 = COALESCE(excluded.csr_8, skill_snapshots.csr_8),
                 csr_9 = COALESCE(excluded.csr_9, skill_snapshots.csr_9),
                 csr_10 = COALESCE(excluded.csr_10, skill_snapshots.csr_10),
+                csr_10bp = COALESCE(excluded.csr_10bp, skill_snapshots.csr_10bp),
                 session_matches = COALESCE(excluded.session_matches,
                                            skill_snapshots.session_matches)
             """,
-            (p.player_id, captured_date, p.csr_8, p.csr_9, p.csr_10, p.session_matches),
+            (p.player_id, captured_date, p.csr_8, p.csr_9, p.csr_10, p.csr_10bp,
+             p.session_matches),
         )
     conn.commit()
     return {

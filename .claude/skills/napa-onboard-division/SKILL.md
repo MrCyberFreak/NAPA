@@ -93,7 +93,7 @@ gh workflow run harvest-profiles.yml -f did=<did> -f drill=0
 - `python -m src.db --rebuild` — pass-ordered: all rosters → schedules →
   sheets → profiles. `data/napa.db` is regenerable and gitignored; never
   commit it.
-- `pytest` — full suite green (105 tests at last count, pinned to fixtures/).
+- `pytest` — full suite green (108 tests at last count, pinned to fixtures/).
 - A roster-header RAISE here is preflight item 3 firing: capture → fixture →
   deliberate parser fix → re-run. Never a silent workaround.
 
