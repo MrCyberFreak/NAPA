@@ -14,3 +14,5 @@ data/napa.db
 
 # OS
 .DS_Store
+data/*.db
+data/*.db-journal
