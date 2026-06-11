@@ -26,6 +26,7 @@ _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
 _GAME_TOKEN_RE = re.compile(r"\b(8|9|10)\s*-?\s*ball\b", re.IGNORECASE)
 _DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _INT_RE = re.compile(r"\d+")
+_DIVISION_LINK_RE = re.compile(r"division\.php\?did=(\d+)")
 
 
 @dataclass
@@ -39,6 +40,7 @@ class Profile:
     as_of: str | None = None
     current_csr: dict[int, int] = field(default_factory=dict)   # {8:.,9:.,10:.}
     highest_csr: dict[int, int] = field(default_factory=dict)
+    divisions: list[int] = field(default_factory=list)  # Active Divisions: dids
 
 
 def _labeled(lines: list[str], *labels: str) -> str | None:
@@ -92,6 +94,22 @@ def _parse_csr_rows(soup: BeautifulSoup) -> tuple[dict[int, int], dict[int, int]
     return current, highest, as_of
 
 
+def _parse_divisions(soup: BeautifulSoup) -> list[int]:
+    """'Active Divisions:' anchors — one division.php?did=N link per current
+    division. De-duplicated, document order preserved."""
+    seen: set[int] = set()
+    divisions: list[int] = []
+    for a in soup.find_all("a", href=True):
+        m = _DIVISION_LINK_RE.search(a["href"])
+        if not m:
+            continue
+        did = int(m.group(1))
+        if did not in seen:
+            seen.add(did)
+            divisions.append(did)
+    return divisions
+
+
 def parse_profile(html: str) -> Profile:
     soup = BeautifulSoup(html, "lxml")
     lines = [re.sub(r"\s+", " ", l.strip()) for l in soup.get_text("\n").splitlines() if l.strip()]
@@ -122,6 +140,7 @@ def parse_profile(html: str) -> Profile:
         as_of=as_of,
         current_csr=current,
         highest_csr=highest,
+        divisions=_parse_divisions(soup),
     )
 
 
