@@ -74,6 +74,11 @@ gh run watch $(gh run list --workflow=backfill.yml --limit 1 --json databaseId -
 
 ## 4. Harvest profiles — tabs-only, ALWAYS via the workflow
 
+NEVER dispatch the harvest while a backfill is running (or vice versa): both
+hit poolshooters.com, and a concurrent pair starves the other into 30s nav
+timeouts (observed 2026-06-11, 13881 — backfill aborted twice until run
+sequentially). Backfill first, then harvest.
+
 ```
 gh workflow run harvest-profiles.yml -f did=<did> -f drill=0
 ```
