@@ -8,12 +8,15 @@ name: harvest-profiles
 on:
   workflow_dispatch:
     inputs:
+      did:
+        description: "Division id whose roster to harvest"
+        default: "13077"
       tabs:
         description: "Tabs to harvest (comma)"
         default: "rivals,h2h,trends,main"
       drill:
         description: "Drill each rival for per-game H2H (1) or tabs only (0)"
-        default: "1"
+        default: "0"
 
 permissions:
   contents: write
@@ -36,7 +39,7 @@ jobs:
           pip install -r requirements.txt -r requirements-browser.txt
           python -m playwright install --with-deps chromium
       - name: Harvest profiles
-        run: python -m src.browser_fetch --harvest --harvest-tabs "${{ inputs.tabs }}" --harvest-drill "${{ inputs.drill }}"
+        run: python -m src.browser_fetch --harvest --did "${{ inputs.did }}" --harvest-tabs "${{ inputs.tabs }}" --harvest-drill "${{ inputs.drill }}"
       - name: Commit profiles
         if: always()        # commit whatever was captured even if the step times out
         run: |
