@@ -1,53 +1,55 @@
 {
-  "updated_utc": "2026-06-11T14:33:57+00:00",
+  "updated_utc": "2026-06-11T15:20:20+00:00",
   "mode": "browser",
   "run_date": "2026-06-11",
   "divisions": {
     "13077": {
       "captured": [
-        "division",
-        "roster_grid",
-        "scratch"
+        "division"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule"
+        "roster_grid",
+        "schedule",
+        "scratch"
       ]
     },
     "13985": {
       "captured": [
-        "division",
-        "roster_grid"
+        "division"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
+        "roster_grid",
         "schedule",
         "scratch"
       ]
     },
     "14022": {
       "captured": [
-        "division",
+        "division"
+      ],
+      "unchanged": [
         "leaderboard",
         "live_scores",
         "roster_grid",
         "schedule",
         "scratch"
-      ],
-      "unchanged": []
+      ]
     },
     "13986": {
       "captured": [
-        "division",
+        "division"
+      ],
+      "unchanged": [
         "leaderboard",
         "live_scores",
         "roster_grid",
         "schedule",
         "scratch"
-      ],
-      "unchanged": []
+      ]
     }
   }
 }
