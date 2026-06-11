@@ -152,7 +152,8 @@ CREATE TABLE IF NOT EXISTS games (
     away_player_id   TEXT,
     home_player_name TEXT,
     away_player_name TEXT,
-    game_type        INTEGER,           -- 8 / 9 / 10 (None from the live board)
+    game_type        INTEGER,           -- 8 / 9 / 10 ints; '10BP' text for the BP
+                                        -- variant (None from the live board)
     home_race        INTEGER,           -- race target (for censored-count handling)
     away_race        INTEGER,
     home_won         INTEGER,
