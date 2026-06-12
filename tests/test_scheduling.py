@@ -151,3 +151,38 @@ def test_reconcile_preserves_since_across_runs():
     prev = {str(did): {"reason": "scrape-skipped", "since": "2026-06-01"}}
     q = catchup.reconcile([did], {}, {}, prev, "2026-06-12")
     assert q[str(did)]["since"] == "2026-06-01"  # waiting since the first miss
+
+
+# --------------------------------------------------------------------------- #
+# db.pending_matches — the BYE placeholder must never count as an owed makeup
+# (its stored name carries the division suffix: "Bye Zoosters Team #6").
+# --------------------------------------------------------------------------- #
+
+def test_pending_matches_excludes_bye_placeholder():
+    from src import db
+    conn = db.connect(":memory:")
+    db.init_db(conn)
+    did, season = 13986, "2026-06-02"
+
+    def team(name: str) -> int:
+        conn.execute("INSERT INTO teams (division_id, name, season) VALUES (?,?,?)",
+                     (did, name, season))
+        return conn.execute("SELECT team_id FROM teams WHERE division_id=? AND name=?",
+                            (did, name)).fetchone()["team_id"]
+
+    real_a = team("Sons of Shanarchy Zoosters Team #1")
+    bye = team("Bye Zoosters Team #6")          # the placeholder (suffix included)
+    real_b = team("Choke on This Zoosters Team #2")
+
+    def match(rnd, date, home, away):
+        conn.execute("INSERT INTO matches (division_id, season, round, date, "
+                     "home_team_id, away_team_id) VALUES (?,?,?,?,?,?)",
+                     (did, season, rnd, date, home, away))
+
+    match(1, "2026-06-02", real_a, bye)         # a bye round — not a real makeup
+    match(2, "2026-06-09", bye, real_b)         # bye on the home side too
+    match(3, "2026-06-09", real_a, real_b)      # a genuine unplayed makeup
+
+    pend = db.pending_matches(conn, "2026-06-12", season=season, division_id=did)
+    assert {r["round"] for r in pend} == {3}    # only the real one survives
+    conn.close()
