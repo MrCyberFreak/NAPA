@@ -870,7 +870,8 @@ def _archived_dids() -> list[int]:
     return [d for d in config.DIVISIONS if config.division_root(d).is_dir()]
 
 
-def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None) -> dict:
+def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
+            profiles: bool = True) -> dict:
     """Rebuild the DB from the raw archive, pass-ordered so the master player
     list exists before any score sheet resolves names (loading one division's
     sheets before all rosters would miss cross-division id resolutions):
@@ -879,7 +880,13 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None)
       pass 3: every score sheet, per division
       pass 4: profiles (league-wide: demographics, divisions, peaks, rivals,
               drill-downs, trends)
-    Returns a per-pass report keyed for the load-report gates."""
+    Returns a per-pass report keyed for the load-report gates.
+
+    profiles=False skips pass 4 — by far the slowest pass (thousands of
+    per-player HTML files, I/O-bound on a slow disk). Every PASS/FAIL onboarding
+    gate is sourced from passes 1–3; only the profile-sourced multi-division
+    ENUMERATION (player_divisions) is informational, so onboarding can gate fast
+    and leave the full profile load for the final verification rebuild."""
     from .parse.profile import (parse_cuespeed, parse_profile_file,
                                 parse_profile_rivals, parse_rival_h2h, parse_trends)
     from .parse.schedule import parse_schedule_file
@@ -926,10 +933,12 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None)
             report["divisions"][did]["sheets"] = load_score_sheets(
                 conn, sheets, season=seasons[did], division_id=did)
 
-    # pass 4: profiles — league-wide, after every roster so ids all exist
+    # pass 4: profiles — league-wide, after every roster so ids all exist.
+    # Skipped when profiles=False (the slow, I/O-bound pass; not needed for the
+    # PASS/FAIL onboarding gates — see rebuild() docstring).
     profiles_root = Path("data/raw/profiles")
     loaded = failed = 0
-    if profiles_root.is_dir():
+    if profiles and profiles_root.is_dir():
         for pdir in sorted(profiles_root.iterdir()):
             main_f = pdir / "main.html"
             if not main_f.exists():
@@ -959,7 +968,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None)
                 failed += 1
                 print(f"[rebuild] profile {pdir.name} failed: {exc}")
     conn.commit()
-    report["profiles"] = {"loaded": loaded, "failed": failed}
+    report["profiles"] = {"loaded": loaded, "failed": failed, "skipped": not profiles}
 
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
               for t in ("players", "skill_snapshots", "teams", "matches", "games",
