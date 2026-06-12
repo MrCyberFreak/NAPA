@@ -1,22 +1,29 @@
 name: scrape-archive
 
-# Cloud-first automation for the NAPA raw archive (all active divisions).
-# - Nightly league-night capture (across the NoCo divisions every weekday has a
-#   league night) + a daily write-on-change pass.
+# Cloud-first automation for the NAPA raw archive — DAY-AFTER-PLAY scheduling.
+# - ONE daily run (~09:00 MT). It scrapes + auto-backfills only the divisions
+#   whose league night was YESTERDAY (config.divisions_due), instead of sweeping
+#   all 14 divisions twice a day. Far less Actions time now that the league has
+#   a division almost every weeknight.
+# - A persistent catch-up queue (data/raw/_catchup.json) carries forward any
+#   piece that slipped through — a division skipped by a host-wide bot-challenge
+#   abort, or a makeup played off-schedule — and folds it into the next run ON
+#   TOP of that day's due set, so nothing is dropped just because its division
+#   didn't play last night.
 # - Host-agnostic, config-driven fetcher; a connectivity probe logs each host's
-#   reachability FROM THE RUNNER so we learn what is actually blocked vs assumed.
+#   reachability FROM THE RUNNER.
 # - Fail-soft: the fetcher logs and STOPS on error (never retry-hammers); a
 #   heartbeat file makes a missed/failed run visible.
-# - The scraped archive is committed back to the repo as the durable record.
+# - The scraped archive (+ the catch-up queue) is committed back as the record.
 #
-# Cron is UTC and not DST-aware. Division time zone is America/Denver
-# (MDT = UTC-6 in season). 04:00 UTC ~= 22:00 MDT the previous evening
-# (league-night capture); 14:00 UTC ~= 08:00 MDT (daily pass).
+# Cron is UTC and not DST-aware. Division time zone is America/Denver. 15:00 UTC
+# is 09:00 MDT / 08:00 MST — both the morning AFTER the league night, and both
+# the same calendar date as UTC, so "yesterday's league night" is unambiguous
+# (the run reckons the due set in America/Denver regardless).
 
 on:
   schedule:
-    - cron: "0 4 * * *"    # nightly ~22:00 MDT — league-night capture
-    - cron: "0 14 * * *"   # daily ~08:00 MDT — write-on-change pass
+    - cron: "0 15 * * *"   # daily ~09:00 MT — day-after-play capture + backfill
   workflow_dispatch:
     inputs:
       probe_only:
@@ -34,7 +41,7 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -60,16 +67,13 @@ jobs:
           pip install -r requirements-browser.txt
           python -m playwright install --with-deps chromium
 
-      - name: Browser scrape (fail-soft, clears JS challenge)
+      # Day-after-play: scrape + auto-backfill the divisions that played
+      # yesterday plus the catch-up carryover, then re-derive the queue. The
+      # run reckons "yesterday" in America/Denver itself; --date is only for
+      # backfilled/manual runs.
+      - name: Scheduled scrape (day-after-play + catch-up)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
-        run: python -m src.browser_fetch --all-divisions --date "$(date -u +%F)"
-
-      # DB load parses the archive; keep it best-effort so a parser issue never
-      # blocks committing the raw archive (the durable, replayable record).
-      - name: Load DB (best-effort)
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
-        continue-on-error: true
-        run: python -m src.db --load --all-divisions --date "$(date -u +%F)"
+        run: python -m src.browser_fetch --scheduled
 
       - name: Commit archive back
         run: |
