@@ -4,17 +4,26 @@ Personal pipeline: scrape NoCo divisions -> archive raw HTML -> parse -> SQLite 
 playerID); divisions and teams are routing — everything known about a player
 (skill drift, form, pairings, per-rack results) accrues to one player row.
 
-## Status (as of 2026-06-11)
+## Status (as of 2026-06-12)
 - Phases 0–5 DONE for division 13077 (full 2025-26 season: 27 weeks of score
   sheets, snapshots, pairing graph, form layers).
 - Multi-division FOUNDATION DONE (MULTIDIVISION_PLAN.md): registry of all 14
   NoCo divisions, per-division archive layout, division-scoped events schema,
   header-driven roster parsing, multi-division fetch loop, --rebuild.
-- Division rollout: 13077 active. The other 13 onboard ONE AT A TIME (flip the
-  registry `scrape` flag -> daily scrape -> backfill `auto` -> harvest tabs-only
-  -> rebuild -> gates -> STOP for approval). Never batch-activate.
+- Division rollout COMPLETE — all 14 NoCo divisions active (scrape=True), each
+  onboarded one at a time (flag -> scrape -> backfill auto -> rebuild -> gates).
+  Rebuild across all 14: ~707 players, ~1,164 skill_snapshots, 135 teams,
+  ~1,634 matches, ~3,667 games (profiles pass excluded). Known-pending pieces,
+  all self-healing via the day-after-play cron + catch-up queue (see Open data
+  threads): 13722 score sheets (host bot-challenge was escalated during rollout
+  — roster/schedule loaded, sheets owed); 14022 R1 results (season started
+  2026-06-10, not yet posted); profile harvests for the 6 newly-onboarded
+  divisions (deferred — Phase-6 densification, not gate-critical; run when the
+  host is unescalated).
+- The scrape cron is now DAY-AFTER-PLAY with a catch-up queue (Open data
+  threads). --all-divisions stays for onboarding/manual sweeps.
 - Phase 6 (forecasting) NOT started — deliberate. PHASE6_READINESS.md numbers
-  are 13077-only and must be recomputed once multi-division data lands.
+  are 13077-only and must be recomputed now that multi-division data has landed.
 
 ## Commands
 - Scheduled day-after-play scrape (the cron entry point):  python -m src.browser_fetch --scheduled
