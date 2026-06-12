@@ -273,22 +273,38 @@ def backfill_score_sheets(weeks, out_root: str | Path | None = None,
 
     out_root = Path(out_root) if out_root is not None else config.division_root(did) / "scores"
     saved: list[str] = []
+    cookie_landed = False  # context has cleared the poolshooters challenge at least once
 
-    def cleared(page, url: str) -> str:
-        try:
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
-        except Exception as exc:  # noqa: BLE001
-            print(f"[backfill] nav failed {url}: {exc}")
-            return ""
-        for _ in range(6):
-            if not fetch.is_challenge(page.content()):
-                break
-            page.wait_for_timeout(6000)
-        return page.content()
+    def cleared(page, url: str, attempts: int = 1) -> str:
+        """Navigate + clear the JS challenge, retrying the WHOLE goto up to
+        `attempts` times. The first index fetch on a fresh runner may need
+        several tries to land the poolshooters challenge cookie — the goto
+        itself can time out while the host slow-walks the interstitial. Without
+        this, a single slow nav aborted the entire backfill (observed 2026-06-12,
+        13205). Mirrors the harvest first-fetch retry (PR #19)."""
+        for _ in range(attempts):
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=45000)
+            except Exception as exc:  # noqa: BLE001 — slow challenge / transient nav; retry
+                print(f"[backfill] nav {url}: {exc} (retry)")
+                continue
+            for _ in range(6):
+                html = page.content()
+                if not fetch.is_challenge(html):
+                    return html
+                page.wait_for_timeout(6000)
+        return ""  # every attempt failed or stayed challenged — caller aborts fail-soft
 
     with _browser_page(headless) as page:
         def fetch_index(wk: int) -> str:
-            return cleared(page, config.url("weekly_scores", week=wk, did=did))
+            # Hard-retry the FIRST fetch (cookie not yet landed) to clear the
+            # challenge; once any page clears, the context cookie un-gates the rest.
+            nonlocal cookie_landed
+            html = cleared(page, config.url("weekly_scores", week=wk, did=did),
+                           attempts=8 if not cookie_landed else 1)
+            if html and not fetch.is_challenge(html):
+                cookie_landed = True
+            return html
 
         for wk, idx_html in _walk_weeks(weeks, fetch_index):
             wkdir = out_root / f"week_{wk:02d}"
