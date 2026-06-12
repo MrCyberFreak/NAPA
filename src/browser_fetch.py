@@ -489,13 +489,132 @@ def _parse_weeks(spec: str) -> list[int] | str:
     return [int(x) for x in spec.split(",") if x]
 
 
+# --------------------------------------------------------------------------- #
+# Scheduled (day-after-play) run — the post-rollout cron entry point
+# --------------------------------------------------------------------------- #
+
+def _denver_today() -> dt.date:
+    """Today's date in the divisions' timezone (America/Denver). The league
+    operates in MT; "yesterday's league night" must be reckoned locally, not in
+    UTC. Falls back to the UTC date if tz data is unavailable (the cron fires at
+    15:00 UTC ≈ 09:00 MT, so the UTC and Denver calendar dates agree anyway)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return dt.datetime.now(ZoneInfo("America/Denver")).date()
+    except Exception:  # noqa: BLE001 — no tz database (bare Windows); see docstring
+        return dt.datetime.now(dt.timezone.utc).date()
+
+
+def _pending_for_divisions(dids: Iterable[int], as_of: str) -> dict[int, list[dict]]:
+    """Profile-free pending-makeup probe: load each division's newest roster +
+    schedule + score sheets into an IN-MEMORY DB and run db.pending_matches.
+    Skips the slow league-wide profile pass of a full rebuild — the catch-up
+    queue only needs matches-vs-games per division. Never raises (the raw
+    archive is the durable record; this only enriches the queue with makeups).
+    Rows are materialized to plain dicts so they outlive the connection."""
+    from . import db
+    from .parse.roster import parse_roster_file
+    from .parse.schedule import parse_schedule_file
+    from .parse.weekly_scores import parse_score_sheet_file
+
+    pending: dict[int, list[dict]] = {}
+    try:
+        conn = db.connect(":memory:")
+        db.init_db(conn)
+        for did in dids:
+            root = config.division_root(did)
+            grids = sorted(root.glob("*/roster_grid.html"))
+            scheds = sorted(root.glob("*/schedule.html"))
+            if not grids or not scheds:
+                continue
+            fixtures = parse_schedule_file(scheds[-1])
+            season = db._division_season(did, fixtures)
+            db.load_roster(conn, parse_roster_file(grids[-1]),
+                           captured_date=grids[-1].parent.name, season=season,
+                           division_id=did)
+            db.load_schedule(conn, fixtures, season=season, division_id=did)
+            sheets = [parse_score_sheet_file(f)
+                      for f in sorted(root.glob("scores/week_*/*.html"))
+                      if f.name != "_index.html"]
+            if sheets:
+                db.load_score_sheets(conn, sheets, season=season, division_id=did)
+            pending[did] = [dict(r) for r in
+                            db.pending_matches(conn, as_of, season=season, division_id=did)]
+        conn.close()
+    except Exception as exc:  # noqa: BLE001 — best-effort; queue still carries skips
+        print(f"[scheduled] pending probe failed ({exc}); queue carries skips only.")
+    return pending
+
+
+def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
+                  backfill: bool = True) -> dict:
+    """Day-after-play scrape + catch-up — replaces the twice-daily
+    --all-divisions sweep.
+
+    Pulls the divisions whose league night was yesterday (config.divisions_due)
+    PLUS the catch-up queue carryover (src.catchup: divisions skipped by a prior
+    abort, or owed a makeup), captures their pages and auto-backfills their new
+    score sheets in one pass, then re-derives the queue for next time. So every
+    onboarded division is refreshed the morning after it plays, and any piece
+    missed for ANY reason — a host abort, a makeup played off-schedule — is
+    carried forward and retried on the next run regardless of which division
+    that run is otherwise for."""
+    from . import catchup
+
+    run_date = run_date or _denver_today()
+    date_str = run_date.isoformat()
+    queue = catchup.load_queue()
+    due = config.divisions_due(run_date)
+    dids = catchup.run_set(due, queue)
+    carry = sorted(int(d) for d in queue)
+    print(f"[scheduled] {date_str}: due={due or []} + carryover={carry or []} "
+          f"-> {dids or []}")
+    if not dids:
+        print("[scheduled] nothing due and queue empty — no-op.")
+        return {"due": due, "scraped": [], "results": {}, "queue": {}}
+
+    # Page scrape (one shared browser context across divisions).
+    results = fetch_divisions_browser(dids, date=date_str, headless=headless)
+    aborted = len(results) < len(dids)  # a host-wide challenge cut the run short
+
+    # Auto-backfill each division actually reached — but not if the host just
+    # aborted on us (don't hammer a challenging host; the queue retries it next
+    # run). Backfill clears already-on-disk sheets and only fetches new ones,
+    # which is how an off-schedule makeup logged under an earlier week gets
+    # picked up the morning after it's played.
+    if backfill and not aborted:
+        for did in dids:
+            if str(did) in results:
+                backfill_score_sheets("auto", headless=headless, did=did)
+    elif aborted:
+        print("[scheduled] host aborted page scrape — skipping backfill this run "
+              "(carried divisions retry next run).")
+
+    fetch.write_heartbeat(fetch.ARCHIVE_ROOT, {
+        "mode": "scheduled", "run_date": date_str, "due": due, "carryover": carry,
+        "divisions": results,
+    })
+
+    pending = _pending_for_divisions([d for d in dids if str(d) in results], date_str)
+    new_queue = catchup.reconcile(dids, results, pending, queue, date_str)
+    catchup.save_queue(new_queue, run_date=date_str)
+    print(f"[scheduled] catch-up queue now: {sorted(int(d) for d in new_queue) or []}")
+    return {"due": due, "scraped": dids, "results": results, "queue": new_queue}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA browser fetcher (Chromium)")
-    parser.add_argument("--date", default=dt.date.today().isoformat())
+    parser.add_argument("--date", default=None,
+                        help="archive date (YYYY-MM-DD); default today, or the "
+                             "Denver-local date under --scheduled")
     parser.add_argument("--did", type=int, default=config.DID,
                         help="division id (default: %(default)s)")
     parser.add_argument("--all-divisions", action="store_true",
                         help="daily scrape: loop every registry division with scrape=True")
+    parser.add_argument("--scheduled", action="store_true",
+                        help="day-after-play run: scrape + auto-backfill only the "
+                             "divisions that played yesterday plus the catch-up "
+                             "queue carryover (the post-rollout cron entry point)")
     parser.add_argument("--root", default=None,
                         help="override archive root (single-division daily scrape only; "
                              "default: data/raw/<did>)")
@@ -531,19 +650,26 @@ def main() -> None:
                               did=args.did)
         return
 
+    if args.scheduled:
+        # --date overrides the computed Denver-local date (testing/backfilled runs).
+        rd = dt.date.fromisoformat(args.date) if args.date else None
+        scheduled_run(run_date=rd, headless=not args.headed)
+        return
+
     # Daily scrape: the chosen divisions, one shared browser page.
+    date_str = args.date or dt.date.today().isoformat()
     dids = config.active_dids() if args.all_divisions else [args.did]
     root_for: Callable[[int], Path] = config.division_root
     if args.root and not args.all_divisions:
         root_for = lambda _did: Path(args.root)  # noqa: E731 — CLI override
-    results = fetch_divisions_browser(dids, date=args.date, headless=not args.headed,
+    results = fetch_divisions_browser(dids, date=date_str, headless=not args.headed,
                                       root_for=root_for)
 
     # Heartbeat: ONE write after the loop, at the archive top level,
     # independent of division roots.
     hb = fetch.write_heartbeat(fetch.ARCHIVE_ROOT, {
         "mode": "browser",
-        "run_date": args.date,
+        "run_date": date_str,
         "divisions": results,
     })
     print(f"[heartbeat] {hb}")
