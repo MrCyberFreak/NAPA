@@ -747,7 +747,13 @@ def pending_matches(conn: sqlite3.Connection, as_of: str, season: str = config.S
     """Scheduled matches whose date has passed (<= as_of) but have NO loaded
     games — i.e. not-yet-played makeups. Structured for re-pull: the match row
     (teams + round + date) persists; re-fetching its score sheet later fills it
-    in and it drops off this list. Missing games are PENDING, never an error."""
+    in and it drops off this list. Missing games are PENDING, never an error.
+
+    BYE rounds are excluded: the site schedules an odd team out against a
+    placeholder team literally named "Bye" (seen in 13986/13299), which has no
+    roster and never produces a real score sheet — so it would otherwise sit
+    here as an eternal phantom and (post-redesign) pin its division to a daily
+    catch-up re-pull. A bye is not missing data; it is the absence of a match."""
     return conn.execute(
         """
         SELECT m.round, m.date, h.name AS home_team, a.name AS away_team
@@ -755,6 +761,7 @@ def pending_matches(conn: sqlite3.Connection, as_of: str, season: str = config.S
         JOIN teams h ON h.team_id = m.home_team_id
         JOIN teams a ON a.team_id = m.away_team_id
         WHERE m.division_id = ? AND m.season = ? AND m.date <= ?
+          AND LOWER(h.name) != 'bye' AND LOWER(a.name) != 'bye'
           AND NOT EXISTS (SELECT 1 FROM games g WHERE g.match_id = m.match_id)
         ORDER BY m.round, home_team
         """,
