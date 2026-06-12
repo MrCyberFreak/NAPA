@@ -17,13 +17,15 @@ playerID); divisions and teams are routing — everything known about a player
   are 13077-only and must be recomputed once multi-division data lands.
 
 ## Commands
-- Fetch all active divisions (browser):  python -m src.browser_fetch --all-divisions   (cron: scrape.yml)
+- Scheduled day-after-play scrape (the cron entry point):  python -m src.browser_fetch --scheduled
+  (scrapes + auto-backfills only the divisions that played yesterday + the catch-up carryover; cron: scrape.yml)
+- Fetch ALL active divisions (onboarding / manual full sweep):  python -m src.browser_fetch --all-divisions
 - Fetch one division:  python -m src.browser_fetch --did 13985
 - Backfill score sheets:  python -m src.browser_fetch --backfill-weeks auto --did 13985   (auto stops after 2 empty weeks)
 - Harvest profiles (tabs-only):  python -m src.browser_fetch --harvest --did 13985 --harvest-drill 0
 - Load newest grids:  python -m src.db --load --all-divisions
-- Rebuild DB from archive:  python -m src.db --rebuild   (rosters -> schedules -> sheets -> profiles)
-- Test:   pytest        (108 tests, pinned to fixtures/)
+- Rebuild DB from archive:  python -m src.db --rebuild   (rosters -> schedules -> sheets -> profiles; --no-profiles via run_gates skips the slow profile pass for fast onboarding gates)
+- Test:   pytest        (pinned to fixtures/)
 - Run app / scout grid:  python -m src.app --scout "<team>" "<opp>"  [--division N]   (default 13077)
 
 ## Hard rules
@@ -85,6 +87,23 @@ playerID); divisions and teams are routing — everything known about a player
   Never finalize a division's standings while its makeups are pending.
 - Each onboarded division arrives with its own pending set — the onboarding gate
   surfaces it.
-- The daily scrape cron (scrape.yml, league-night 04:00 UTC + daily 14:00 UTC)
-  loops all ACTIVE divisions: roster/schedule/scratch/division/leaderboard/
-  live_scores, write-on-change per division, commits the archive back.
+- The scrape cron (scrape.yml) is DAY-AFTER-PLAY: ONE daily run (15:00 UTC ~=
+  09:00 MT) that scrapes + auto-backfills only the divisions whose league night
+  was YESTERDAY (config.divisions_due, reckoned in America/Denver) instead of
+  sweeping all 14 twice a day. Registry weekdays were verified against every
+  division's real schedule (modal fixture weekday, 0 off-day) before relying on
+  them. `python -m src.browser_fetch --scheduled` is the entry point;
+  --all-divisions stays for onboarding / manual full sweeps.
+- Catch-up queue (data/raw/_catchup.json, src/catchup.py): anything that slips
+  through a run is carried forward and folded into the NEXT run ON TOP of that
+  day's due set, regardless of division — a capture SKIPPED by a host-wide
+  challenge abort or left only partial, and any division still owed a makeup.
+  It clears itself once a division captures cleanly with nothing pending; a
+  stale phantom fixture ages out (catchup.MAKEUP_WINDOW_DAYS=56). BYE rounds are
+  NOT makeups — db.pending_matches filters the "Bye" placeholder team (its
+  stored name carries the division suffix, e.g. "Bye Zoosters Team #6").
+- Backfill + scrape first-fetch hard-retry: poolshooters/paper can slow-walk the
+  "One moment" JS challenge; the backfill retries the first goto up to 8x to land
+  the challenge cookie (like the harvest, PR #19). An uncleared challenge still
+  aborts host-wide — re-dispatch ONCE on a fresh runner (new IP usually clears),
+  then wait; never loop.
