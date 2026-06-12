@@ -94,7 +94,7 @@ def gate_heartbeat(did: int) -> None:
                    "cron; re-check after it fires")
 
 
-def gate_rebuild_report(did: int, do_rebuild: bool) -> None:
+def gate_rebuild_report(did: int, do_rebuild: bool, profiles: bool = True) -> None:
     """Load-report gates: CSR-disagreement warn silent league-wide; the
     division's schedule loads with 0 unresolved teams."""
     if not do_rebuild:
@@ -102,9 +102,14 @@ def gate_rebuild_report(did: int, do_rebuild: bool) -> None:
         emit(SKIP, f"division {did} unresolved schedule teams -- load-report-only; "
                    "rerun without --no-rebuild")
         return
+    passes = "rosters -> schedules -> sheets" + (" -> profiles" if profiles else "")
     print(f"-- rebuilding {config.DB_PATH} from the raw archive (pass-ordered: "
-          "rosters -> schedules -> sheets -> profiles) --")
-    report = db.rebuild(config.DB_PATH)
+          f"{passes}) --")
+    report = db.rebuild(config.DB_PATH, profiles=profiles)
+    if not profiles:
+        emit(INFO, "profiles pass SKIPPED (--no-profiles): faster onboarding gate; "
+                   "the multi-division enumeration line below reads 0 until a full "
+                   "rebuild -- run final verification WITH profiles")
 
     conflicts = sum(rep.get("csr_conflicts", 0) for rep in report["divisions"].values())
     emit(PASS if conflicts == 0 else FAIL,
@@ -248,6 +253,10 @@ def main() -> None:
     ap.add_argument("--no-rebuild", action="store_true",
                     help="gate the existing data/napa.db; SKIPs the two "
                          "load-report-only gates (CSR warn, unresolved teams)")
+    ap.add_argument("--no-profiles", action="store_true",
+                    help="skip the slow profile pass in the rebuild (faster "
+                         "onboarding gate; multi-division enumeration reads 0). "
+                         "Use a full rebuild for final verification.")
     ap.add_argument("--baseline-null-slots", type=int, default=99,
                     help="13077 pre-expansion NULL-id slot baseline (default 99, "
                          "the 2026-06-10 foundation measurement)")
@@ -269,7 +278,8 @@ def main() -> None:
 
     has_sheets = gate_archive(args.did)
     gate_heartbeat(args.did)
-    gate_rebuild_report(args.did, do_rebuild=not args.no_rebuild)
+    gate_rebuild_report(args.did, do_rebuild=not args.no_rebuild,
+                        profiles=not args.no_profiles)
     if not Path(config.DB_PATH).exists():
         emit(FAIL, f"{config.DB_PATH} missing -- run: python -m src.db --rebuild")
     else:
