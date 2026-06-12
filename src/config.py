@@ -8,6 +8,7 @@ one config value — retargeting is still a one-line change.
 
 from __future__ import annotations
 
+import datetime as dt
 import pathlib
 from dataclasses import dataclass
 
@@ -69,6 +70,30 @@ DIVISIONS: dict[int, Division] = {
 def active_dids() -> list[int]:
     """Dids flagged scrape=True, in registry order."""
     return [did for did, d in DIVISIONS.items() if d.scrape]
+
+
+# League nights run Sun–Fri across the NoCo divisions (no division plays
+# Saturday). `weekday` strings match datetime.strftime("%A") verbatim, which is
+# what divisions_due() keys on — keep them spelled "Monday".."Sunday".
+def divisions_playing_on(weekday: str, active_only: bool = True) -> list[int]:
+    """Dids whose league night is `weekday` ("Monday".."Sunday"), registry
+    order. active_only restricts to scrape=True (the daily run never touches a
+    not-yet-onboarded division)."""
+    return [did for did, d in DIVISIONS.items()
+            if d.weekday == weekday and (not active_only or d.scrape)]
+
+
+def divisions_due(run_date: dt.date, active_only: bool = True) -> list[int]:
+    """Day-after-play capture set: the divisions whose league night was the day
+    BEFORE run_date — their results have just posted. The scheduled scrape runs
+    once each morning (America/Denver) and pulls only these, instead of
+    re-sweeping all 14 divisions twice a day. `run_date` is the LOCAL date of
+    the run; caller is responsible for passing the Denver-local date (see
+    browser_fetch scheduled mode). Carryover from the catch-up queue is added
+    ON TOP of this set, so a missed or makeup-bearing division is still pulled
+    even when it didn't play last night (see src/catchup.py)."""
+    yesterday = (run_date - dt.timedelta(days=1)).strftime("%A")
+    return divisions_playing_on(yesterday, active_only=active_only)
 
 
 def division_root(did: int) -> pathlib.Path:
