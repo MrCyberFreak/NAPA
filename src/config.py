@@ -57,7 +57,7 @@ DIVISIONS: dict[int, Division] = {
         Division(13711, "Wreckroom Sunday", "Sunday", "LC", scrape=True),
         Division(13299, "Piazzas Tuesday", "Tuesday", "LC", scrape=True),
         Division(13205, "Greeley", "Monday", "LC", scrape=True),
-        Division(13744, "DP Broomfield Westminster LC", "Friday", "LC"),
+        Division(13744, "DP Broomfield Westminster LC", "Friday", "LC", scrape=True),
         Division(13723, "Piazza Friday DP LC", "Friday", "LC"),
         Division(13743, "DP Broomfield Westminster 8-ball", "Friday", "8"),
         Division(13722, "Piazza Friday DP 8-ball", "Friday", "8"),
