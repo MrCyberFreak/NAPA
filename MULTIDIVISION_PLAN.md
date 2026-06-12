@@ -208,6 +208,15 @@ default everywhere; add `active_dids()` and `division_root(did) -> data/raw/<did
 
 ## Rollout — foundation once, then ONE division at a time
 
+> **ROLLOUT COMPLETE (2026-06-12): all 14 NoCo divisions are active (scrape=True).**
+> Onboarded one at a time per the playbook below. Post-rollout the twice-daily
+> all-division scrape was replaced by a DAY-AFTER-PLAY cron + catch-up queue
+> (config.divisions_due, src/catchup.py, scrape.yml). Remaining tails, all
+> self-healing via that cron: 13722 score sheets (host challenge escalated mid-
+> rollout), 14022 R1 results (not yet posted), and profile harvests for the 6
+> new divisions (deferred Phase-6 densification). PHASE6_READINESS.md numbers
+> must now be recomputed (still 13077-only).
+
 **Foundation (once):** B1 recon → B2 registry → B3 archive migration → B4 schema/loaders +
 A1 resolution + A2 `player_divisions` + A3 `--rebuild` + B5 fetch/workflows → 13077
 regression gate (pytest 59+new green; rebuild explainable-delta vs DATA.md; two consecutive

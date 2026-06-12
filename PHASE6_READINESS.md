@@ -1,11 +1,13 @@
 # PHASE6_READINESS.md — empirical groundwork for the forecasting model
 
-> **STALE once multi-division data lands (2026-06-11):** every per-player rack
-> count, coverage figure, and curve fit below is computed from division 13077
-> ONLY. The multi-division expansion (MULTIDIVISION_PLAN.md) pools racks across
-> all NoCo divisions per player, which raises rack counts for multi-division
-> players and changes the shrinkage picture (esp. 9/10-ball sparsity, §1).
-> Recompute before locking the Phase 6 estimator. The DESIGN decisions in
+> **STALE — multi-division data HAS LANDED (2026-06-12):** every per-player
+> rack count, coverage figure, and curve fit below is computed from division
+> 13077 ONLY. The rollout is now complete (all 14 NoCo divisions active; a
+> league-wide rebuild holds ~707 players and ~3,667 games vs the 85/657 here),
+> which pools racks across divisions per player and changes the shrinkage
+> picture (esp. 9/10-ball sparsity, §1). These numbers MUST be recomputed
+> before locking the Phase 6 estimator — that recompute is the immediate next
+> Phase-6 step and has NOT been done yet. The DESIGN decisions in
 > PHASE6_DESIGN.md (base+adj, shrink-to-prior, per game type) are unaffected.
 
 **Scope:** analysis only. No model was built, fit, or trained; no schema changed.
