@@ -48,7 +48,7 @@ def test_schedule_url_weekday_override_and_unknown_did_fallback():
 def test_active_divisions_match_rollout():
     # Deliberate tripwire: each onboarding flips ONE flag and extends this
     # list in the same PR (MULTIDIVISION_PLAN.md rollout, one at a time).
-    assert config.active_dids() == [13077, 13985, 14022, 13986, 13937, 13881, 13711, 13299, 13205, 13298, 13744]
+    assert config.active_dids() == [13077, 13985, 14022, 13986, 13937, 13881, 13711, 13299, 13205, 13298, 13744, 13723]
 
 
 def test_division_root_is_per_did():
