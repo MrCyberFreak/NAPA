@@ -20,6 +20,25 @@ a model.
 
 ---
 
+## 0. Selection scope — division → team (the app is multi-division)
+
+The app is **division-agnostic**. The user first selects **which division** they
+are in or want to see, then selects **which team** within that division; every
+view downstream (skill estimates, matchup grids, edge, Lagger's-Choice picks) is
+**scoped to that division + team selection**. Nothing is hardcoded to one
+division.
+
+- **13077 is only the current build/test target.** The final rollout must work
+  for ANY of the 14 NoCo divisions for any user.
+- This is a UI/parameterization requirement, not a schema change: the data model
+  already tracks players league-wide (8-digit playerID master list; divisions and
+  teams are routing). Parameterize on the selected division + team — never on a
+  13077 constant.
+- The selection is the entry point for §5 (the schedule it auto-populates is the
+  *selected* division's schedule, the upcoming fixtures are the *selected* team's).
+
+---
+
 ## 1. Skill representation
 
 Each player has, **per game type (8 / 9 / 10 separately)**:
@@ -122,6 +141,21 @@ week") and expands the scheduled team matchups into the per-player, per-game
 pairing grid automatically. This keeps the app reading **only** from `data/napa.db`
 (the hard rule) and means the weekly scrape that refreshes the schedule also
 refreshes the matchup views with zero manual steps.
+
+**Forecast UPCOMING fixtures, not just played games (FIRM).** For ongoing
+(mid-season) divisions the entire forward schedule — who each team plays every
+week through season's end — is already captured in `matches` (verified: a
+mid-season division carried 85 future fixtures, every one with both teams
+assigned, 0 TBD). The app must let the user scout **upcoming** opponents — "this
+week", any future round, or the rest of the season — expanding each scheduled
+team-vs-team fixture into the full player-vs-player scout grid (the cross-product
+of both teams' rosters, since exact weekly lineups aren't known in advance), each
+cell carrying the §3 edge and §4 Lagger's-Choice best game. This is where the
+tool earns its keep: preparing for who you actually play next. It applies to the
+12 mid-season divisions (the 2 finished seasons have no future fixtures to scout),
+and forecasts **sharpen as the season runs** — every week of new rack data feeds
+the §1 `adj` adjustments, so re-forecasting upcoming fixtures with the latest
+snapshots gets more confident over time.
 
 ---
 
