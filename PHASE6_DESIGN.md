@@ -20,6 +20,33 @@ a model.
 
 ---
 
+## 0. Scope selection — division → team (the entry point)
+
+The app is **division-agnostic**. Nothing is hard-coded to 13077. The first
+interaction is a **division selector**; the user then picks a **team within that
+division** (the team they play on, or any team they want to analyse), and *every*
+screen after that — the §1 skill estimates, §3 matchup grid, §4 Lagger's-Choice
+optimizer, §5 schedule expansion — is scoped to that (division, team) selection.
+
+- **Testing vs rollout.** Development is exercised against **13077 only** (the
+  division with the richest, fully-validated data), but the shipped build must
+  let a user pick **any** active division and get the same analysis. 13077 is the
+  test fixture, not a hard dependency.
+- **Already supported by the data layer — this is a UI/entry-point change, not a
+  re-architecture.** The `players` table is league-wide and `divisions`/`teams`
+  are routing (CLAUDE.md); events are division-scoped; and `src/app.py --scout`
+  already accepts `--division N` (currently defaulting to 13077). The selector
+  replaces that hard-coded default with an explicit, user-driven choice.
+- **What scopes vs what stays league-wide.** The selected division governs the
+  **fixtures, opponents, teams, and standings** shown — all read from that
+  division's `matches`/`teams`/`games` in `data/napa.db`. But **skill/CSR
+  estimates remain league-wide**: a player carries one per-game skill profile
+  (`skill_snapshots` are PK `player_id+captured_date`, merged across divisions),
+  so a player is equally strong wherever they appear. The division/team choice is
+  a lens over who-plays-whom, not over how good a player is.
+
+---
+
 ## 1. Skill representation
 
 Each player has, **per game type (8 / 9 / 10 separately)**:
