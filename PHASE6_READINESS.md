@@ -8,10 +8,10 @@
 > `skill_snapshots.csr_10bp`). One completeness caveat remains, self-healing (see
 > §5): **14022's R1 results are not yet posted** (season started 2026-06-10), so
 > it carries 0 games. The profile pass is now INCLUDED — `pairing_history` is
-> loaded at **645/708 players** (§5); the only profile gap left is ~58 shared
-> Piazza-Friday players in 13722/13723, owed a future manual re-harvest (the
-> poolshooters challenge was escalated during the sweep — two aborts; the
-> day-after-play cron does not harvest profiles). The DESIGN decisions in
+> loaded at **703/708 players** (§5); the 13722/13723 shared Piazza-Friday
+> profile gap (~58 players) was **closed by a 2026-06-14 manual re-harvest**
+> (both divisions now ≥99% profile coverage). The day-after-play cron does not
+> harvest profiles — this was a manual densification sweep. The DESIGN decisions in
 > PHASE6_DESIGN.md (base+adj,
 > shrink-to-prior, per game type) are unaffected — and are reinforced (§1, §3a).
 
@@ -287,22 +287,21 @@ anticipated.
   These are not missing data to impute — they are unplayed or not-yet-captured.
   Any train/test split or as-of evaluation must treat them as absent; a re-pull
   by actual play-date adds their score sheets later (and drops 14022 in).
-- **`pairing_history` IS loaded — the lifetime H2H layer, now near-complete.**
-  The profiles pass landed for all but two divisions: **45,166 directed RIVALS
-  edges** over **645 of 708 players** (the 63 missing are the ~58 shared
-  Piazza-Friday players in `13722 / 13723`, whose harvest twice hit a host
-  challenge — owed a future re-harvest when the host is unescalated), collapsing
-  to **34,364 distinct unordered
-  pairings** (31% reciprocal). This is a lifetime aggregate W-L / RIVALS layer —
+- **`pairing_history` IS loaded — the lifetime H2H layer, now essentially complete.**
+  The profiles pass has landed for all 14 divisions (the 13722/13723 gap closed by
+  the 2026-06-14 re-harvest): **47,959 directed RIVALS edges** over **703 of 708
+  players** (the 5 without a RIVALS row are subs / new players with no reachable
+  profile), collapsing to **35,946 distinct unordered
+  pairings** (33% reciprocal). This is a lifetime aggregate W-L / RIVALS layer —
   a prior on pairings, never rack-level, never in `games`. Its value as a prior
-  is the overlap: it **covers 2,870 of this rebuild's 3,067 id-resolved game
-  pairs (94%)** — nearly every matchup the model will see carries a lifetime
-  prior — with a further **31,494 pairings** seen historically but not this
-  season. Depth is still thin on *direction*: only **7,731 edges (17%) carry W-L
+  is the overlap: it **covers 3,066 of this rebuild's 3,067 id-resolved game
+  pairs (100%)** — essentially every matchup the model will see carries a lifetime
+  prior — with a further **32,880 pairings** seen historically but not this
+  season. Depth is still thin on *direction*: only **7,731 edges (16%) carry W-L
   totals** (and per-game 8/9/10 splits wherever a total exists); the rest are
-  tabs-only existence rows until per-rival drill-downs run. Re-run
-  `python tools/phase6_readiness.py` §5 once 13722/13723 capture to lift coverage
-  past 645/708.
+  tabs-only existence rows until per-rival drill-downs run — the one remaining
+  densification lever, deliberately not pulled (≈5,200 pages/division, unused by
+  Phase 6).
 - **Snapshots span seven dates (2026-06-04 … 06-13), not one** — staggered
   season-ends across divisions. As-of CSR is effectively each division's
   end-of-season rating, not a true time-of-match value. The mid-season drift the
@@ -330,11 +329,11 @@ anticipated.
    structure** fits the evidence: clean curve shape across all four game types,
    thin per-pair data (median 1 meeting) ruling out empirical H2H, slopes too
    close to separate (partial pooling), and a now-loaded pairing-history prior
-   (94% of game pairs covered, 645/708 players — completes when 13722/13723 capture).
+   (100% of game pairs covered, 703/708 players — the 13722/13723 re-harvest completed it).
 4. **The handicap balances the whole mid-range and leaks only at the tail** — the
    edge metric ("your P minus matrix-implied P") will be largest in the 46+
    CSR-gap region, where the race matrix under-compensates (68.2% match WR).
 5. **Honour the caveats:** exclude the 32 pending matches (now mostly genuine
    makeups; only 14022's R1 is capture lag), use `pairing_history` as a prior now
-   (loaded at 645/708-player coverage; capture 13722/13723 to top it up), and
+   (loaded at 703/708-player coverage; the 13722/13723 re-harvest completed it), and
    treat CSR as static-per-season until drift snapshots densify.
