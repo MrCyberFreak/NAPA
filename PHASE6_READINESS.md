@@ -7,8 +7,12 @@
 > (the 4-game divisions 13986/14022, keyed to `skill_snapshots.csr_10bp`).
 > Two caveats on completeness, both self-healing (see §5): 13722's score sheets
 > and 14022's R1 results are not yet captured, so those divisions contribute no
-> games; and the profile pass is excluded (`profiles=False`, deferred harvests),
-> so `pairing_history`/`player_form` are empty. The DESIGN decisions in
+> games. The §1–§4 body counts are the **2026-06-12 `profiles=False` rebuild**
+> (`pairing_history`/`player_form` empty then); the profile pass has since landed
+> for 10 of 14 divisions, so **§5 now reports a loaded `pairing_history`**
+> (595/708 players, computed on the later rebuild) — the four deferred harvests
+> (13722/13723/13743/13744) top it up, after which §1–§4 are owed a refresh too.
+> The DESIGN decisions in
 > PHASE6_DESIGN.md (base+adj, shrink-to-prior, per game type) are unaffected —
 > and are reinforced (§1, §3a).
 
@@ -286,10 +290,22 @@ anticipated.
   These are not missing data to impute — they are unplayed or not-yet-captured.
   Any train/test split or as-of evaluation must treat them as absent; a re-pull
   by actual play-date adds their score sheets later (and drops 13722/14022 in).
-- **`pairing_history` is NOT loaded in this DB** (profiles pass excluded — the 6
-  newly-onboarded divisions' harvests are deferred). The lifetime aggregate
-  W-L / RIVALS layer (a prior on pairings, never rack-level, never in `games`)
-  must be recomputed once the harvests land before it can feed the skill prior.
+- **`pairing_history` IS now loaded — the lifetime H2H layer, at partial
+  coverage.** The profiles pass landed for all but four divisions: **40,413
+  directed RIVALS edges** over **595 of 708 players** (the 113 missing are the
+  deferred `13722 / 13723 / 13743 / 13744` harvests), collapsing to **31,214
+  distinct unordered pairings** (29% reciprocal). This is a lifetime aggregate
+  W-L / RIVALS layer — a prior on pairings, never rack-level, never in `games`.
+  Its value as a prior is the overlap: it **covers 2,730 of the current rebuild's
+  3,067 id-resolved game pairs (89%)** — nearly every matchup the model will see
+  carries a lifetime prior — with a further **28,484 pairings** seen historically
+  but not this season. Depth is still thin on *direction*: only **7,731 edges
+  (19%) carry W-L totals** (and per-game 8/9/10 splits wherever a total exists);
+  the rest are tabs-only existence rows until per-rival drill-downs run. Re-run
+  `python tools/phase6_readiness.py` §5 after the four deferred harvests land to
+  lift coverage past 595/708. (NB: §4's 2,907 id-resolved / 3,122 by-name pair
+  counts predate this rebuild — they recompute to 3,067 / 3,122 now; the §4 table
+  is owed its own multi-division refresh.)
 - **Snapshots span six dates (2026-06-04 … 06-12), not one** — staggered
   season-ends across divisions. As-of CSR is effectively each division's
   end-of-season rating, not a true time-of-match value. The mid-season drift the
@@ -316,10 +332,12 @@ anticipated.
 3. **A latent-skill / logistic-in-CSR-difference rack model with per-game-type
    structure** fits the evidence: clean curve shape across all four game types,
    thin per-pair data (median 1 meeting) ruling out empirical H2H, slopes too
-   close to separate (partial pooling), and a (pending) pairing-history prior.
+   close to separate (partial pooling), and a now-loaded pairing-history prior
+   (89% of game pairs covered, 595/708 players — completes with the last 4 harvests).
 4. **The handicap balances the whole mid-range and leaks only at the tail** — the
    edge metric ("your P minus matrix-implied P") will be largest in the 46+
    CSR-gap region, where the race matrix under-compensates (68.6% match WR).
 5. **Honour the caveats:** exclude the 80 pending matches (mostly 13722/14022
-   capture lag), load `pairing_history` only after the deferred harvests, and
-   treat CSR as static-per-season until drift snapshots densify.
+   capture lag), use `pairing_history` as a prior now (loaded at 595/708-player
+   coverage; finish the four deferred harvests to top it up), and treat CSR as
+   static-per-season until drift snapshots densify.
