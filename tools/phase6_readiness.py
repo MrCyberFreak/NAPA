@@ -313,9 +313,52 @@ def main():
             print(f"  {did}: {len(pend)} -> " +
                   "; ".join(f"R{p['round']} {p['home_team']} vs {p['away_team']}" for p in pend))
     print(f"  TOTAL pending: {total_pending}")
-    print("pairing_history rows:",
-          c.execute("SELECT COUNT(*) FROM pairing_history").fetchone()[0],
-          "(0 => profiles pass deferred)")
+    # ---- §5 pairing_history (lifetime H2H layer) ---------------------------
+    # Profile RIVALS-sourced and DISTINCT from `games`: aggregate lifetime W-L,
+    # no rack detail, no opponent-skill-at-time. Tabs-only harvests record only
+    # existence rows (player_id, rival_id, rival_name); per-game W-L splits are
+    # filled later by rival drill-downs (xTab=5&rival=). Report depth, split
+    # availability, and overlap with this season's game pairs (§4 by_id).
+    ph = c.execute(
+        "SELECT player_id, rival_id, total_matches, "
+        "g8_w, g8_l, g9_w, g9_l, g10_w, g10_l FROM pairing_history"
+    ).fetchall()
+    print("\n--- §5 pairing_history (lifetime H2H) ---")
+    print(f"directed edges: {len(ph)}")
+    if ph:
+        subjects = {r["player_id"] for r in ph}
+        undirected = defaultdict(int)          # frozenset{a,b} -> #directed rows
+        for r in ph:
+            undirected[frozenset((r["player_id"], r["rival_id"]))] += 1
+        recip = sum(1 for v in undirected.values() if v >= 2)
+        print(f"subjects (distinct player_id): {len(subjects)}")
+        print(f"distinct unordered pairings: {len(undirected)}  "
+              f"(both-sided/reciprocal: {recip}, {100*recip/len(undirected):.0f}%)")
+
+        # per-game-split availability (NULL until a rival drill-down runs)
+        split_cols = ("g8_w", "g8_l", "g9_w", "g9_l", "g10_w", "g10_l")
+        with_wl = sum(1 for r in ph if r["total_matches"] is not None)
+        with_split = sum(1 for r in ph
+                         if any(r[k] is not None for k in split_cols))
+        print(f"edges with W-L totals: {with_wl} ({100*with_wl/len(ph):.0f}%)  "
+              f"with per-game splits: {with_split} ({100*with_split/len(ph):.0f}%)")
+        if with_wl == 0:
+            print("  -> all tabs-only (existence only); drill-downs "
+                  "(stats.php xTab=5&rival=<id>) needed for W-L depth")
+
+        # overlap with this season's game pairs (§4 by_id) — densification value
+        ph_pairs = {frozenset((str(r["player_id"]), str(r["rival_id"]))) for r in ph}
+        game_pairs = {frozenset(str(x) for x in p) for p in by_id}
+        both = ph_pairs & game_pairs
+        print(f"distinct lifetime pairs: {len(ph_pairs)}")
+        if game_pairs:
+            print(f"this-season game pairs (§4 by_id): {len(game_pairs)}  "
+                  f"with lifetime H2H: {len(both)} "
+                  f"({100*len(both)/len(game_pairs):.0f}% of game pairs)")
+        print(f"lifetime pairs not in this season's games: "
+              f"{len(ph_pairs - game_pairs)}")
+    else:
+        print("(0 rows => profiles pass deferred / no RIVALS harvested)")
 
 
 if __name__ == "__main__":
