@@ -1,26 +1,55 @@
 {
-  "updated_utc": "2026-06-14T15:58:17+00:00",
-  "run_date": "2026-06-14",
+  "updated_utc": "2026-06-15T16:43:13+00:00",
+  "run_date": "2026-06-15",
   "divisions": {
     "13077": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-12"
+      "reason": "pending-makeups",
+      "since": "2026-06-12",
+      "rounds": [
+        25,
+        26,
+        27
+      ]
+    },
+    "13711": {
+      "reason": "pending-makeups",
+      "since": "2026-06-15",
+      "rounds": [
+        6,
+        11
+      ]
     },
     "13722": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        9,
+        10
+      ]
     },
     "13723": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        9,
+        10
+      ]
     },
     "13743": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        5,
+        11
+      ]
     },
     "13744": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        5,
+        11
+      ]
     }
   }
 }
