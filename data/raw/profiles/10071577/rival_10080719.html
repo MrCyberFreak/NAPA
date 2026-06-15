@@ -1,0 +1,599 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="google-site-verification" content="zOdhWUXW7rHW00rvhjMUI636TfPs7T9OMZ0whgmYhTk">
+    <meta name="ROBOTS" content="INDEX,NOFOLLOW">
+    <meta http-equiv="content-type" content="text/html; charset=WINDOWS-1250">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="facebook-domain-verification" content="m7hkhpkk3qoxjimfy3luxsrs977wym">
+    <meta name="copyright" content="North American Poolshooters Association">
+    <meta name="description" content="NAPA - North American Poolshooters Association">
+    <meta name="keywords" content="pool league, billiard league, billiard association, pool association, nationwide pool, amateur pool, united states pool, nationwide billiard, united states billiard, billiards, combo shot, cue stick, bank shot, nine-ball, eight-ball, snooker, break, jump shot, pool table">
+	<link rel="shortcut icon" href="../logo.ico" type="image/x-icon">
+    <title>NAPA - North American Poolshooters Association</title>
+    <!-- Bootstrap core CSS -->
+
+<link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<style type="text/css">
+.navy-background {background-color:#002664;}
+.white {color:#ffffff;}
+.vipresponsive {
+  max-width: 100%;
+  height: auto;
+}
+.navbar-brand, .nav > li > a {
+  padding: 1px 1px;
+}
+
+.btn-circle.btn-xl {
+    width: 200px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 200px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}	           
+
+
+.timeline {
+    border-left: 3px solid #727cf5;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    background: rgba(114, 124, 245, 0.09);
+    margin: 0 auto;
+    letter-spacing: 0.2px;
+    position: relative;
+    line-height: 1.4em;
+    font-size: 1.03em;
+    padding: 50px;
+    list-style: none;
+    text-align: left;
+    max-width: 70%;
+}
+
+@media (max-width: 767px) {
+    .timeline {
+        max-width: 98%;
+        padding: 25px;
+    }
+}
+
+.timeline h1 {
+    font-weight: 300;
+    font-size: 1.4em;
+}
+
+.timeline h2,
+.timeline h3 {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.timeline .event {
+    border-bottom: 1px dashed #e8ebf1;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .timeline .event {
+        padding-top: 30px;
+    }
+}
+
+.timeline .event:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border: none;
+}
+
+.timeline .event:before,
+.timeline .event:after {
+    position: absolute;
+    display: block;
+    top: 0;
+}
+
+.timeline .event:before {
+    left: -207px;
+    content: attr(data-date);
+    text-align: right;
+    font-weight: 100;
+    font-size: 0.9em;
+    min-width: 120px;
+}
+
+@media (max-width: 767px) {
+    .timeline .event:before {
+        left: 0px;
+        text-align: left;
+    }
+}
+
+.timeline .event:after {
+    -webkit-box-shadow: 0 0 0 3px #727cf5;
+    box-shadow: 0 0 0 3px #727cf5;
+    left: -55.8px;
+    background: #fff;
+    border-radius: 50%;
+    height: 9px;
+    width: 9px;
+    content: "";
+    top: 5px;
+}
+
+@media (max-width: 767px) {
+    .timeline .event:after {
+        left: -31.8px;
+    }
+}
+
+.rtl .timeline {
+    border-left: 0;
+    text-align: right;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    border-right: 3px solid #727cf5;
+}
+
+.rtl .timeline .event::before {
+    left: 0;
+    right: -170px;
+}
+
+.rtl .timeline .event::after {
+    left: 0;
+    right: -55.8px;
+}
+
+.event-schedule-area .section-title .title-text {
+    margin-bottom: 50px;
+}
+
+.event-schedule-area .tab-area .nav-tabs {
+    border-bottom: inherit;
+}
+
+.event-schedule-area .tab-area .nav {
+    border-bottom: inherit;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    margin-top: 80px;
+}
+
+.event-schedule-area .tab-area .nav-item {
+    margin-bottom: 75px;
+}
+.event-schedule-area .tab-area .nav-item .nav-link {
+    text-align: center;
+    font-size: 22px;
+    color: #333;
+    font-weight: 600;
+    border-radius: inherit;
+    border: inherit;
+    padding: 0px;
+    text-transform: capitalize !important;
+}
+.event-schedule-area .tab-area .nav-item .nav-link.active {
+    color: #4125dd;
+    background-color: transparent;
+}
+
+.event-schedule-area .tab-area .tab-content .table {
+    margin-bottom: 0;
+    width: 80%;
+}
+.event-schedule-area .tab-area .tab-content .table thead td,
+.event-schedule-area .tab-area .tab-content .table thead th {
+    border-bottom-width: 1px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #252525;
+}
+.event-schedule-area .tab-area .tab-content .table td,
+.event-schedule-area .tab-area .tab-content .table th {
+    border: 1px solid #b7b7b7;
+    padding-left: 30px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th .heading,
+.event-schedule-area .tab-area .tab-content .table tbody td .heading {
+    font-size: 16px;
+    text-transform: capitalize;
+    margin-bottom: 16px;
+    font-weight: 500;
+    color: #252525;
+    margin-bottom: 6px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th span,
+.event-schedule-area .tab-area .tab-content .table tbody td span {
+    color: #4125dd;
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th span.date,
+.event-schedule-area .tab-area .tab-content .table tbody td span.date {
+    color: #656565;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 15px;
+}
+.event-schedule-area .tab-area .tab-content .table tbody th p {
+    font-size: 14px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.event-schedule-area-two .section-title .title-text h2 {
+    margin: 0px 0 15px;
+}
+
+.event-schedule-area-two ul.custom-tab {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 30px;
+}
+.event-schedule-area-two ul.custom-tab li {
+    margin-right: 70px;
+    position: relative;
+}
+.event-schedule-area-two ul.custom-tab li a {
+    color: #252525;
+    font-size: 25px;
+    line-height: 25px;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 35px 0;
+    position: relative;
+}
+.event-schedule-area-two ul.custom-tab li a:hover:before {
+    width: 100%;
+}
+.event-schedule-area-two ul.custom-tab li a:before {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    content: "";
+    background: #4125dd;
+    width: 0;
+    height: 2px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two ul.custom-tab li a.active {
+    color: #4125dd;
+}
+
+.event-schedule-area-two .primary-btn {
+    margin-top: 40px;
+}
+
+.event-schedule-area-two .tab-content .table {
+    -webkit-box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+.event-schedule-area-two .tab-content .table thead {
+    background-color: #007bff;
+    color: #fff;
+    font-size: 20px;
+}
+.event-schedule-area-two .tab-content .table thead tr th {
+    padding: 20px;
+    border: 0;
+}
+.event-schedule-area-two .tab-content .table tbody {
+    background: #fff;
+}
+.event-schedule-area-two .tab-content .table tbody tr.inner-box {
+    border-bottom: 1px solid #dee2e6;
+}
+.event-schedule-area-two .tab-content .table tbody tr th {
+    border: 0;
+    padding: 30px 20px;
+    vertical-align: middle;
+}
+.event-schedule-area-two .tab-content .table tbody tr th .event-date {
+    color: #252525;
+    text-align: center;
+}
+.event-schedule-area-two .tab-content .table tbody tr th .event-date span {
+    font-size: 50px;
+    line-height: 50px;
+    font-weight: normal;
+}
+.event-schedule-area-two .tab-content .table tbody tr td {
+    padding: 30px 20px;
+    vertical-align: middle;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .r-no span {
+    color: #252525;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap h3 a {
+    font-size: 20px;
+    line-height: 20px;
+    color: #cf057c;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap h3 a:hover {
+    color: #4125dd;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    margin: 10px 0;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories a {
+    color: #252525;
+    font-size: 16px;
+    margin-left: 10px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .categories a:before {
+    content: "\f07b";
+    font-family: fontawesome;
+    padding-right: 5px;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .time span {
+    color: #252525;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    margin: 10px 0;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a {
+    color: #4125dd;
+    font-size: 16px;
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    transition: all 0.4s;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a:hover {
+    color: #4125dd;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-wrap .organizers a:before {
+    content: "\f007";
+    font-family: fontawesome;
+    padding-right: 5px;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .primary-btn {
+    margin-top: 0;
+    text-align: center;
+}
+.event-schedule-area-two .tab-content .table tbody tr td .event-img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+}
+
+@media (min-width:1920px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+@media (min-width:1024px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+@media (min-width:768px) {
+    .playersandgrowing {
+        font-size: 25px;
+    }
+}
+
+	</style>
+	<!-- Custom styles for this template -->
+    <link href="css/4-col-portfolio.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <!-- <a class="navbar-brand" href="/">N.A. Poolshooters Assoc.</a> -->
+        <a class="navbar-brand" href="/">NAPA</a> 
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+<!--
+<li class="nav-item active">
+  <a class="nav-link" href="https://www.napaleagues.com/">Home
+	<span class="sr-only">(current)</span>
+  </a>
+</li>
+-->			
+<li class="nav-item">
+<!--
+  <form class="form-inline" method="post" action='searchBox.php'>
+
+  <input type="text" name="playerSearch" value="" class="form-control" id="search_text" placeholder="Player Last Name" tabindex="0" size="13" required>
+<input type="hidden" name="submitted" value="Y">
+<script language="javascript">document.getElementById("search_text").focus(); </script>
+</form>
+-->
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/brackets.php">Brackets</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://scores.playpool.io/" target="_blank">NAPA Play</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://naparaces.com" target="_blank">Race Calc</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://cuespeed.io" target="_blank">CueSpeed</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://billiardlife.com/" target="_blank">Gear</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/start.php">Start A League!</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://loco.napaleagues.com/" target="_blank">LO Login</a>
+            </li>
+
+<!--				 
+<li class="nav-item">
+<form class="form-inline" method="post" action='states.php'>
+
+<input type="hidden" name="submitted" value="Y">
+<input value="" class="form-control" placeholder="Division ID..." autocomplete="off" id="q_header" name="did" type="text" size="10" onkeyup="this.value=this.value.replace(/[^0-9]/g, '');if(this.value==0){this.value='';}"/>
+</form>
+-->
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<div align="CENTER" style="color: #002664">&nbsp;</div>
+
+
+<!-- Page Content -->
+<div class="container">
+<h4 class="my-4">Player Stats</h4>
+  <div class="card mt-4">
+    <div class="card-body">
+      
+    <meta property="og:image" content="images/shooters/no_photo_male.jpg"><!--
+Insert page content
+<div class="container">
+<div class="row">
+<div class="col-md-12">
+-->
+<br><table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+<tbody><tr><td valign="top" width="100%" colspan="2" align="center"><img src="https://playpool.io/images/shooters/no_photo_male.jpg" width="180" height="180" border="1" class="img-responsive"> </td></tr>
+<tr><td valign="top" colspan="2" align="center">
+<h2><a href="stats.php?playerSelected=Y&amp;playerID=10071577" class="text-danger">
+Kennyth Juarez</a></h2></td></tr>
+	<tr><td valign="top" align="right" width="50%"><strong>Shooter's ID: </strong> </td>
+	<td valign="top">10071577
+    
+    </td>
+</tr>
+<tr>
+<td valign="top" align="right"><strong>Gender:</strong> </td>
+<td valign="top">Male</td></tr>
+
+	<tr><td valign="top" align="right"><strong>League:</strong> </td>
+    
+	<td valign="top">NAPA of Northern Colorado
+    </td>
+    </tr>
+
+<tr>
+	<td valign="top" align="right"><strong>Home Base: </strong> </td>
+	<td valign="top">Broomfield, Colorado</td>
+</tr>
+    <tr>
+	<td valign="top" align="right"><strong>NAPA Player Since:</strong> </td>
+	<td valign="top">Apr 04, 2022</td>
+</tr>
+
+<tr>
+	<td valign="top" align="right"><strong><a href="nrp.php" class="text-danger">1-Year NRP:</a></strong><br><small>Since Jun 15, 2025</small></td>
+	<td valign="top" bgcolor="SILVER" class="text-white">78 Regular Matches <br>0 Scotch Doubles<br>0 Scotch Triples<br> 78 Total - Level Silver</td>
+</tr>
+
+<tr>
+	<td valign="top" align="right"><strong>Active Divisions:</strong></td><td valign="top"><a href="division.php?did=13723" class="text-danger">13723</a> &nbsp;&nbsp; <a href="division.php?did=13722" class="text-danger">13722</a> &nbsp;&nbsp; <a href="division.php?did=13299" class="text-danger">13299</a> &nbsp;&nbsp; <a href="division.php?did=13298" class="text-danger">13298</a> &nbsp;&nbsp; 
+  </td>
+</tr>
+<tr><td colspan="2" align="center"><a href="stats.php?playerSelected=Y&amp;playerID=10071577"><span style="color:#BB133E">MAIN</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=33"><span style="color:blue">TRENDS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=20"><span style="color:blue">RANKINGS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=1"><span style="color:#BB133E">BONUS PLAY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=12"><span style="color:#BB133E">H2H</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=18"><span style="color:#BB133E">GENDER</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=19"><span style="color:#BB133E">SEASONS</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=21"><span style="color:#BB133E">MONTHLY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=22"><span style="color:#BB133E">YEARLY</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=6"><span style="color:#BB133E">VENUES</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=5"><span style="color:#BB133E"><strong>RIVALS</strong></span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=15"><span style="color:#BB133E">RACE BIN</span></a> | <a href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=26"><span style="color:#BB133E">QUALIFICATIONS</span></a></td>
+</tr>
+
+<tr><td align="center" bgcolor="#BB133E" colspan="2"><h5 class="text-white">MATCH HISTORY</h5></td></tr>
+<tr><td align="center" bgcolor="#FFFFFF" colspan="2">
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Leagues
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=2">8-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=3">9-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=4">10-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=777">7-ball</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=17">Fast 8</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=9BP">9-ball Pro</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=10BP">10-ball Pro</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=RR9">Rack Royal 9</a>
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=RR10">Rack Royal 10</a>
+  </div>
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Tournaments
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=24">View All</a>
+  </div>
+</div>
+
+<div class="btn-group">
+  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Local Duels
+  </button>
+  <div class="dropdown-menu">
+        <a class="dropdown-item" href="stats.php?playerSelected=Y&amp;playerID=10071577&amp;xTab=25">View All</a>
+  </div>
+</div>
+</td></tr>
+</tbody></table>  <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered"><tbody><tr><td valign="top" colspan="2" align="center" bgcolor="BB133E"><h5 class="text-white">RIVAL RECORDS</h5></td></tr><tr><td valign="top" colspan="2" align="center" bgcolor="EEEEEE"><h4>Record vs. Holly Figueroa</h4></td></tr><tr><td valign="top" colspan="2"><table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">	<tbody><tr>	<td align="center" bgcolor="#EEEEEE" colspan="2"><strong>8-BALL MATCHES</strong></td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC" width="50%"><strong>Played</strong></td>				<td align="center" bgcolor="#FFFFFF">1 matches</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Won the lag:</strong></td>				<td align="center" bgcolor="#FFFFFF">1 time</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Record</strong></td>								<td align="center" bgcolor="#FFFFFF">0 wins - 1 loss</td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Win Perc:</strong></td>								<td align="center" bgcolor="#FFFFFF"><font color="red">0%</font></td>				</tr>					<tr>	<td align="center" bgcolor="#EEEEEE" colspan="2"><strong>9-BALL MATCHES</strong></td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Played</strong></td>				<td align="center" bgcolor="#FFFFFF">0 matches</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Won the lag:</strong></td>				<td align="center" bgcolor="#FFFFFF">0 times</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Record</strong></td>								<td align="center" bgcolor="#FFFFFF">0 wins - 0 losses</td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Win Perc:</strong></td>								<td align="center" bgcolor="#FFFFFF">N/A</td>				</tr>					<tr>	<td align="center" bgcolor="#EEEEEE" colspan="2"><strong>10-BALL MATCHES</strong></td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Played</strong></td>				<td align="center" bgcolor="#FFFFFF">0 matches</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Won the lag:</strong></td>				<td align="center" bgcolor="#FFFFFF">0 times</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Record</strong></td>								<td align="center" bgcolor="#FFFFFF">0 wins - 0 losses</td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Win Perc:</strong></td>								<td align="center" bgcolor="#FFFFFF">N/A</td>				</tr>					<tr>	<td align="center" bgcolor="#EEEEEE" colspan="2"><strong>F8 MATCHES</strong></td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Played</strong></td>				<td align="center" bgcolor="#FFFFFF">0 matches</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Won the lag:</strong></td>				<td align="center" bgcolor="#FFFFFF">0 times</td>								</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Record</strong></td>								<td align="center" bgcolor="#FFFFFF">0 wins - 0 losses</td>				</tr>				<tr>				<td align="center" bgcolor="#FFFFCC"><strong>Win Perc:</strong></td>								<td align="center" bgcolor="#FFFFFF">N/A</td>				</tr>						</tbody></table></td></tr></tbody></table>    </div>
+  </div>
+</div>
+    <!-- /.container -->
+<p>
+    <!-- Footer -->
+    </p><footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">© North American Poolshooters Association</p>
+        <a href="terms.php"><p class="m-0 text-center text-white">Terms and Conditions</p></a>
+        <a href="privacy.php"><p class="m-0 text-center text-white">Privacy Policy</p></a>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://playnapa.io/vendor/jquery/jquery.min.js"></script>
+    <script src="https://playnapa.io/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>	
+
+  
+</body></html>
