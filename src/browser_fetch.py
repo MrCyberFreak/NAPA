@@ -480,6 +480,106 @@ def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path =
     return saved
 
 
+def harvest_match_history(player_ids: list[str] | None = None,
+                          out_root: str | Path = "data/raw/profiles",
+                          tabs: tuple[int, ...] = (2, 3, 4), max_pages: int = 200,
+                          headless: bool = True, did: int = config.DID) -> int:
+    """Harvest per-player career MATCH HISTORY (xTab=2/3/4 = league 8/9/10-ball).
+
+    For each player x tab, walk the &start= pagination (10 matches/page) following
+    the NEXT>>> link, archiving each page RAW to
+    data/raw/profiles/<id>/match_<tab>_<start>.html BEFORE parsing (hard rule).
+    Player-keyed + division-independent, same dir as the other profile tabs.
+
+    Reuses the harvest's challenge discipline (cleared()/cookie_landed/_ChallengeStuck):
+    the first goto retries hard to land the challenge cookie, then one cookie un-gates
+    the rest; an uncleared challenge ABORTS the run loudly (never grinds). Resumable
+    (skips pages already >500B on disk), polite waits, fail-soft per page.
+
+    The next &start is READ from the NEXT>>> link (not blindly +10); the walk stops
+    when no NEXT link is present or start fails to strictly increase (loop guard),
+    capped at max_pages."""
+    from playwright.sync_api import sync_playwright
+
+    from .parse.match_history import parse_match_history
+
+    out_root = Path(out_root)
+    player_ids = player_ids or _roster_player_ids(did)
+    base = lambda pid: f"{config.HOST_POOLSHOOTERS}/stats.php?playerSelected=Y&playerID={pid}"
+    saved = 0
+    cookie_landed = False
+    challenged = 0
+    streak = 0
+
+    class _ChallengeStuck(Exception):
+        """Uncleared bot-challenge — abort the whole run, never grind."""
+
+    def cleared(page, url: str, attempts: int = 1) -> str:
+        html = ""
+        for _ in range(attempts):
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[match-history] nav {url}: {exc}")
+                return ""
+            for _ in range(6):
+                html = page.content()
+                if not fetch.is_challenge(html):
+                    return html
+                page.wait_for_timeout(6000)
+        return html
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=headless)
+        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+
+        def get(url: str, path: Path) -> str:
+            nonlocal saved, cookie_landed, challenged, streak
+            if path.exists() and path.stat().st_size > 500:
+                return path.read_text(encoding="utf-8", errors="replace")
+            html = cleared(page, url, attempts=8 if not cookie_landed else 1)
+            if html and not fetch.is_challenge(html):
+                cookie_landed = True
+                streak = 0
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(html, encoding="utf-8")
+                saved += 1
+                page.wait_for_timeout(1500)  # polite
+            elif html:
+                challenged += 1
+                streak += 1
+                if not cookie_landed or streak >= 8:
+                    raise _ChallengeStuck(url)
+            return html
+
+        try:
+            for pid in player_ids:
+                pdir = out_root / pid
+                for tab in tabs:
+                    start = 0
+                    seen_starts: set[int] = set()
+                    for _ in range(max_pages):
+                        if start in seen_starts:  # loop guard
+                            break
+                        seen_starts.add(start)
+                        url = f"{base(pid)}&xTab={tab}&start={start}"
+                        html = get(url, pdir / f"match_{tab}_{start}.html")
+                        if not html or fetch.is_challenge(html):
+                            break  # nav error / challenge — fail-soft, resume later
+                        _, mhpage = parse_match_history(html, source_tab=tab, source_start=start)
+                        nxt = mhpage.next_start
+                        if nxt is None or nxt <= start:  # last page / no progress
+                            break
+                        start = nxt
+        except _ChallengeStuck as exc:
+            print(f"[match-history] uncleared bot-challenge — aborting the run ({exc}); "
+                  f"re-dispatch resumes from disk")
+        finally:
+            browser.close()
+    print(f"[match-history] saved {saved} new pages ({challenged} challenged skip(s))")
+    return saved
+
+
 def _parse_weeks(spec: str) -> list[int] | str:
     if spec.strip().lower() == "auto":
         return "auto"
@@ -628,7 +728,17 @@ def main() -> None:
     parser.add_argument("--harvest-tabs", default="rivals,h2h,trends,main",
                         help="comma tabs to harvest")
     parser.add_argument("--harvest-drill", default="1", help="1=drill rivals, 0=tabs only")
+    parser.add_argument("--harvest-match-history", action="store_true",
+                        help="harvest per-player career match history (xTab 2/3/4 "
+                             "= 8/9/10-ball), following &start= pagination")
+    parser.add_argument("--match-history-tabs", default="2,3,4",
+                        help="comma xTabs for --harvest-match-history (2=8b,3=9b,4=10b)")
     args = parser.parse_args()
+
+    if args.harvest_match_history:
+        harvest_match_history(tabs=tuple(int(t) for t in args.match_history_tabs.split(",") if t),
+                              headless=not args.headed, did=args.did)
+        return
 
     if args.harvest:
         harvest_profiles(tabs=tuple(args.harvest_tabs.split(",")),
