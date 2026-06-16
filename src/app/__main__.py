@@ -15,6 +15,7 @@ import argparse
 
 from .. import config
 from ..db import connect, team_depth
+from ..model import Model
 from .scout import build_grid, render_cell, render_grid
 
 
@@ -35,6 +36,8 @@ def main() -> None:
                         help="opponent scout grid (your roster x theirs)")
     parser.add_argument("--cell", nargs=2, metavar=("MY_PLAYER", "OPP_PLAYER"),
                         help="drill into one pairing of the --scout grid")
+    parser.add_argument("--no-forecast", action="store_true",
+                        help="Phase-5 CSR-edge-only grid (skip the Phase-6 win-prob model)")
     args = parser.parse_args()
 
     conn = connect(args.db)
@@ -48,8 +51,9 @@ def main() -> None:
             _print_depth(conn, args.season, args.division)
             print()
         if args.scout:
+            model = None if args.no_forecast else Model.fit(conn)
             grid = build_grid(conn, args.scout[0], args.scout[1], season=args.season,
-                              division_id=args.division)
+                              division_id=args.division, model=model)
             print(render_grid(grid))
             if args.cell:
                 my_name, opp_name = args.cell
