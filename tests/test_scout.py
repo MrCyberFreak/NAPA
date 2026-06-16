@@ -6,9 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from src.app.scout import Cell, GameEdge, build_grid, render_cell, render_grid
-from src.db import connect, load_roster
+from src.app.scout import Cell, GameEdge, build_grid, render_cell, render_grid, render_schedule
+from src.db import connect, init_db, load_roster, upcoming_fixtures
 from src.parse.roster import parse_roster_file
+from src import config
 
 REPO = Path(__file__).resolve().parents[1]
 SYNTHETIC = REPO / "tests" / "data" / "synthetic_roster_grid.html"
@@ -90,3 +91,58 @@ def test_cell_carries_real_race_lengths(conn):
             assert my_race >= opp_race
     # drill-down shows the race column
     assert "race" in render_cell(cell)
+
+
+# --------------------------------------------------------------------------- #
+# Phase 6 §5 — upcoming-fixture schedule (auto-expanded into scout grids)
+# --------------------------------------------------------------------------- #
+
+def _schedule_db():
+    """A bare division schedule: team ME plays others on staggered dates, plus a
+    BYE round and one already-played (past) fixture."""
+    c = connect(":memory:")
+    init_db(c)
+    did = config.DID
+    teams = {"ME": 1, "Opp A": 2, "Opp B": 3, "Bye Felt Billiards Team #9": 4}
+    for name, tid in teams.items():
+        c.execute("INSERT INTO teams (team_id, division_id, name, season) VALUES (?,?,?,?)",
+                  (tid, did, name, "test"))
+    # (round, date, home, away)
+    rows = [
+        (1, "2026-06-01", 1, 2),   # past — ME (home) vs Opp A
+        (2, "2026-06-20", 3, 1),   # future — ME is AWAY vs Opp B
+        (3, "2026-06-27", 1, 4),   # future — ME vs a BYE (must be excluded)
+        (4, "2026-07-04", 2, 1),   # future — ME is AWAY vs Opp A
+    ]
+    for i, (rnd, dt, h, a) in enumerate(rows, start=1):
+        c.execute("INSERT INTO matches (match_id, division_id, season, round, date, "
+                  "home_team_id, away_team_id) VALUES (?,?,?,?,?,?,?)",
+                  (i, did, "test", rnd, dt, h, a))
+    c.commit()
+    return c
+
+
+def test_upcoming_fixtures_filters_dates_resolves_opponent_and_excludes_bye():
+    c = _schedule_db()
+    fx = upcoming_fixtures(c, "ME", as_of="2026-06-16", season="test", division_id=config.DID)
+    # past fixture (06-01) dropped; bye fixture dropped -> 2 remain, chronological
+    assert [r["round"] for r in fx] == [2, 4]
+    assert fx[0]["opponent"] == "Opp B" and fx[0]["venue"] == "away"   # ME was away
+    assert fx[1]["opponent"] == "Opp A" and fx[1]["venue"] == "away"
+    # none of the returned opponents is the bye
+    assert all("Bye" not in r["opponent"] for r in fx)
+
+
+def test_upcoming_fixtures_empty_for_finished_season():
+    c = _schedule_db()
+    fx = upcoming_fixtures(c, "ME", as_of="2027-01-01", season="test", division_id=config.DID)
+    assert fx == []
+
+
+def test_render_schedule_lists_each_remaining_fixture():
+    c = _schedule_db()
+    fx = upcoming_fixtures(c, "ME", as_of="2026-06-16", season="test", division_id=config.DID)
+    text = render_schedule("ME", fx)
+    assert "2 remaining" in text
+    assert "Opp B" in text and "Opp A" in text
+    assert "Bye" not in text
