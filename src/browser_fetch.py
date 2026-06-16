@@ -736,8 +736,21 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.harvest_match_history:
-        harvest_match_history(tabs=tuple(int(t) for t in args.match_history_tabs.split(",") if t),
-                              headless=not args.headed, did=args.did)
+        tabs = tuple(int(t) for t in args.match_history_tabs.split(",") if t)
+        if args.all_divisions:
+            # Union of every active division's roster -> all NoCo players, once each
+            # (a player rostered in >1 division is harvested a single time).
+            seen: set[str] = set()
+            ids: list[str] = []
+            for d in config.active_dids():
+                for pid in _roster_player_ids(d):
+                    if pid not in seen:
+                        seen.add(pid)
+                        ids.append(pid)
+            print(f"[match-history] {len(ids)} players across {len(config.active_dids())} divisions")
+            harvest_match_history(player_ids=ids, tabs=tabs, headless=not args.headed)
+        else:
+            harvest_match_history(tabs=tabs, headless=not args.headed, did=args.did)
         return
 
     if args.harvest:
