@@ -1128,9 +1128,10 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
                 # pages (a no-op when none exist). Tab/start are recovered from the
                 # filename; game_type comes from the tab, not the page body.
                 for mf in sorted(pdir.glob("match_*.html")):
-                    tab = int(mf.stem.split("_")[1])
+                    tok = mf.stem.split("_")[1]
+                    tab = int(tok) if tok.isdigit() else tok
                     if tab not in TAB_GAME_TYPE:
-                        continue
+                        continue  # Tournaments/Local-Duels: archived raw, parsed elsewhere
                     sid, page = parse_match_history_file(mf)
                     load_match_history(conn, sid or prof.player_id, page.game_type,
                                        page.matches, captured)

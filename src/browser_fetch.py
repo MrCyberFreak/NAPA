@@ -501,7 +501,7 @@ def harvest_match_history(player_ids: list[str] | None = None,
     capped at max_pages."""
     from playwright.sync_api import sync_playwright
 
-    from .parse.match_history import parse_match_history
+    from .parse.match_history import next_start_from_html
 
     out_root = Path(out_root)
     player_ids = player_ids or _roster_player_ids(did)
@@ -575,8 +575,10 @@ def harvest_match_history(player_ids: list[str] | None = None,
                         html = get(url, pdir / f"match_{tab}_{start}.html")
                         if not html or fetch.is_challenge(html):
                             break  # nav error / challenge — fail-soft, resume later
-                        _, mhpage = parse_match_history(html, source_tab=tab, source_start=start)
-                        nxt = mhpage.next_start
+                        # Pagination is the same NEXT>>> mechanism on every tab, so
+                        # page generically — capture is decoupled from league parsing
+                        # (Tournaments/Local-Duels archive raw here, parse later).
+                        nxt = next_start_from_html(html)
                         if nxt is None or nxt <= start:  # last page / no progress
                             break
                         start = nxt
@@ -745,7 +747,8 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.harvest_match_history:
-        tabs = tuple(int(t) for t in args.match_history_tabs.split(",") if t)
+        tabs = tuple(int(t) if t.isdigit() else t
+                     for t in args.match_history_tabs.split(",") if t)
         if args.all_divisions:
             # Union of every active division's roster -> all NoCo players, once each
             # (a player rostered in >1 division is harvested a single time).

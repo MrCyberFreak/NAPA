@@ -33,8 +33,21 @@ from dataclasses import dataclass, field
 
 from bs4 import BeautifulSoup
 
-# game_type per source tab — authoritative, NOT inferred from the page body.
-TAB_GAME_TYPE = {2: 8, 3: 9, 4: 10}
+# game_type per LEAGUE source tab — authoritative, NOT inferred from the page body.
+# All league tabs share the same per-match table format, so one parser handles
+# them; game_type mirrors the `games`/`skill_snapshots` convention (ints for plain
+# ball games, text tokens for variants). Non-league tabs (24 Tournaments, 25 Local
+# Duels) are a DIFFERENT structure and are deliberately ABSENT here — they are
+# archived raw and parsed by their own loader, never by this league parser.
+TAB_GAME_TYPE = {
+    2: 8, 3: 9, 4: 10,
+    "10BP": "10BP",   # 10-Ball Pro (break-pot) — the 4-game divisions' 4th game
+    777: 7,           # 7-ball
+    17: "Fast8",      # Fast 8
+    "9BP": "9BP",     # 9-Ball Pro
+    "RR9": "RR9",     # Rack Royal 9
+    "RR10": "RR10",   # Rack Royal 10
+}
 
 _PLAYER_ID_RE = re.compile(r"playerID=(\d{8})")
 _DIVISION_DID_RE = re.compile(r"division\.php\?did=(\d+)")
@@ -164,6 +177,13 @@ def _next_start(soup: BeautifulSoup) -> int | None:
     return None
 
 
+def next_start_from_html(html: str) -> int | None:
+    """The NEXT>>> &start on ANY stats.php tab (league, Tournaments, or Local
+    Duels) — pagination is the same mechanism across tabs, so the harvester can
+    page any tab without league-parsing it (capture is decoupled from parsing)."""
+    return _next_start(BeautifulSoup(html, "lxml"))
+
+
 def _parse_match_table(table, subject_id: str | None, subject_name: str | None,
                        game_type: int, source_tab: int, source_start: int,
                        page_index: int) -> MatchRow:
@@ -273,16 +293,16 @@ def parse_match_history(html: str, *, game_type: int | None = None,
     &start, or None on the last page).
     """
     if source_tab is None and game_type is None:
-        raise ValueError("pass game_type (8/9/10) or source_tab (2/3/4)")
+        raise ValueError("pass a league game_type or source_tab (see TAB_GAME_TYPE)")
     if source_tab is None:
-        # invert TAB_GAME_TYPE
         inv = {v: k for k, v in TAB_GAME_TYPE.items()}
         if game_type not in inv:
-            raise ValueError(f"unsupported game_type {game_type!r}; scope is 8/9/10")
+            raise ValueError(f"unsupported game_type {game_type!r}; not a league tab")
         source_tab = inv[game_type]
     if game_type is None:
         if source_tab not in TAB_GAME_TYPE:
-            raise ValueError(f"unsupported source_tab {source_tab!r}; scope is 2/3/4")
+            raise ValueError(f"unsupported source_tab {source_tab!r}; not a league tab "
+                             "(Tournaments/Local-Duels use their own parser)")
         game_type = TAB_GAME_TYPE[source_tab]
 
     soup = BeautifulSoup(html, "lxml")
@@ -313,9 +333,11 @@ def parse_match_history_file(path, *, game_type: int | None = None,
 
     p = Path(path)
     if source_tab is None or source_start is None:
-        m = re.match(r"match_(\d+)_(\d+)", p.stem)
+        m = re.match(r"match_([0-9A-Za-z]+)_(\d+)$", p.stem)
         if m:
-            source_tab = source_tab if source_tab is not None else int(m.group(1))
+            tok = m.group(1)
+            if source_tab is None:
+                source_tab = int(tok) if tok.isdigit() else tok
             source_start = source_start if source_start is not None else int(m.group(2))
     if source_start is None:
         source_start = 0
