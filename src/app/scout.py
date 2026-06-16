@@ -292,6 +292,16 @@ def render_cell(cell: Cell) -> str:
     return "\n".join(lines)
 
 
+def render_schedule(team: str, fixtures) -> str:
+    """The §5 season-ahead list: a team's remaining fixtures, chronological. Each
+    expands into a full scout grid on demand (the cross-product of both rosters,
+    since weekly lineups aren't known in advance)."""
+    lines = [f"Upcoming fixtures - {team}  ({len(fixtures)} remaining)"]
+    for f in fixtures:
+        lines.append(f"  R{f['round']:>2}  {f['date']}  {f['venue']:>4}  vs  {f['opponent']}")
+    return "\n".join(lines)
+
+
 def _swing_marker(swing_pp: float) -> str:
     """Win-prob analogue of _vol_marker: more bars = the lag is worth more here."""
     if swing_pp >= 20:
