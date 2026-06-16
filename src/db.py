@@ -811,6 +811,35 @@ def matches_for_round(conn: sqlite3.Connection, round_: int, season: str = confi
         (division_id, season, round_),
     ).fetchall()
 
+
+def upcoming_fixtures(conn: sqlite3.Connection, team: str, as_of: str,
+                      season: str = config.SEASON, division_id: int = config.DID):
+    """A team's NOT-YET-PLAYED fixtures (date >= as_of), opponent resolved, in
+    chronological order — the entry point for the Phase-6 §5 "scout who you play
+    next" forecast. Match-level points are not stored (NULL across the board), so
+    the date is the discriminator: a finished season has none, a mid-season one
+    carries its whole forward schedule (verified: 13985 has its full slate to
+    2026-09-29). Rows: round, date, opponent (the OTHER team), venue ('home'/
+    'away'). BYE fixtures are excluded — a bye is the absence of a match, not an
+    opponent to scout (same placeholder-name rule as pending_matches)."""
+    return conn.execute(
+        """
+        SELECT m.round, m.date,
+               CASE WHEN h.name = ?3 THEN a.name ELSE h.name END AS opponent,
+               CASE WHEN h.name = ?3 THEN 'home' ELSE 'away' END AS venue
+        FROM matches m
+        JOIN teams h ON h.team_id = m.home_team_id
+        JOIN teams a ON a.team_id = m.away_team_id
+        WHERE m.division_id = ?1 AND m.season = ?2
+          AND (h.name = ?3 OR a.name = ?3)
+          AND m.date >= ?4
+          AND LOWER(h.name) != 'bye' AND LOWER(h.name) NOT LIKE 'bye %'
+          AND LOWER(a.name) != 'bye' AND LOWER(a.name) NOT LIKE 'bye %'
+        ORDER BY m.date, m.round
+        """,
+        (division_id, season, team, as_of),
+    ).fetchall()
+
 def csr_history(conn: sqlite3.Connection, player_id: str) -> list[sqlite3.Row]:
     """A player's per-game CSR over time — the drift the live site overwrites."""
     return conn.execute(
