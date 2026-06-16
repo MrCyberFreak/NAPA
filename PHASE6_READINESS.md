@@ -2,10 +2,13 @@
 
 > **RECOMPUTED 2026-06-14 against the full multi-division archive, WITH the
 > profile pass; §5 H2H + headline counts refreshed 2026-06-15 after the full
-> per-rival DRILL** (the lifetime per-game W-L layer is now complete league-wide —
-> see §5). §1–§4 are from the 2026-06-14 build; a same-day scrape on 06-15 nudged
-> a few §3 CSR bins by ≤3 games and the §3a slopes by ≤0.04 pp (within their CIs)
-> — no finding changes; these true up at the next full recompute. Every number
+> per-rival DRILL; headline counts, §3a slopes, and §5 CSR `n=` trued up
+> 2026-06-16 to the 06-15 DB** (the lifetime per-game W-L layer is now complete
+> league-wide — see §5). The §1–§3 bin tables and §2/§4 stay from the 2026-06-14
+> build: the daily cron added snapshot dates through 06-15 (skill_snapshots
+> 1,693 → 2,098), shifting a few as-of CSRs and nudging a few §3 bins by ≤3 games
+> (games unchanged at 3,906) and the §3a slopes by ≤0.04 pp — within their CIs,
+> no finding changes. Every number
 > below pools across the league (13 of the 14
 > divisions carry games) instead of division 13077 alone — this supersedes the
 > original 13077-only analysis (which held 85 players / 657 games). A **fourth
@@ -13,7 +16,7 @@
 > `skill_snapshots.csr_10bp`). One completeness caveat remains, self-healing (see
 > §5): **14022's R1 results are not yet posted** (season started 2026-06-10), so
 > it carries 0 games. The profile pass is now INCLUDED **and fully drilled** —
-> `pairing_history` is loaded at **704/709 players** with **100% of edges carrying
+> `pairing_history` is loaded at **704/710 players** with **100% of edges carrying
 > lifetime per-game W-L** (§5); the 2026-06-15 all-divisions per-rival drill (~40k
 > pages) lifted W-L depth from the prior 16% / 85-player (13077-only) coverage to
 > complete. The day-after-play cron does not harvest profiles — this was a manual
@@ -26,7 +29,7 @@ This is the input to the Phase 6 estimator-design decision.
 
 **Source:** `data/napa.db`, rebuilt from the committed raw archive in the DATA.md
 pass order (roster grids → schedules → score sheets → profiles), all 14 registry
-divisions. Row counts: **709 players, 1,693 skill snapshots, 135 teams, 1,634
+divisions. Row counts: **710 players, 2,098 skill snapshots, 135 teams, 1,634
 matches, 3,906 games** (8 / 9 / 10 / 10BP = 2,142 / 812 / 864 / 88), spanning
 **13 divisions** with games. Regenerate deterministically (seeded bootstrap) with
 `python tools/phase6_readiness.py`.
@@ -214,9 +217,9 @@ observed racks — *not* a fitted forecasting model):
 
 | Game | small gap ≤10 (racks) | large gap ≥20 (racks) | **rise** |
 |------|----------------------:|----------------------:|---------:|
-| 8-ball  | 52.3% (3,179) | 73.3% (7,208) | **+21.0 pp** |
-| 9-ball  | 53.7% (1,504) | 70.1% (2,175) | **+16.4 pp** |
-| 10-ball | 53.7% (1,563) | 69.8% (2,100) | **+16.0 pp** |
+| 8-ball  | 52.2% (3,179) | 73.4% (7,219) | **+21.1 pp** |
+| 9-ball  | 53.7% (1,502) | 70.1% (2,175) | **+16.4 pp** |
+| 10-ball | 53.9% (1,572) | 69.8% (2,103) | **+15.8 pp** |
 | 10BP    | 52.1% (144)   | 74.4% (324)   | **+22.3 pp** |
 
 **(b) Slope of a rack-weighted linear-probability fit** (pp of rack-WR per +10
@@ -225,22 +228,22 @@ whole races so correlated racks-within-a-race don't inflate precision):
 
 | Game | slope (pp / +10 CSR) | 95% CI | races | racks |
 |------|---------------------:|:------:|------:|------:|
-| 8-ball  | +5.08 | [4.76, 5.40] | 1,990 | 12,677 |
-| 9-ball  | +5.11 | [4.37, 5.89] |   756 |  4,536 |
-| 10-ball | +5.22 | [4.51, 5.96] |   811 |  4,769 |
+| 8-ball  | +5.10 | [4.77, 5.42] | 1,990 | 12,677 |
+| 9-ball  | +5.11 | [4.37, 5.88] |   756 |  4,536 |
+| 10-ball | +5.18 | [4.46, 5.92] |   811 |  4,769 |
 | 10BP    | +7.04 | [5.27, 9.10] |    86 |    586 |
 
-Pairwise (independent bootstrap): P(slope₈ > slope₉) = **0.47**, P(slope₉ >
-slope₁₀) = **0.42** (both coin flips), P(slope₈ > slope₁₀) = 0.36. 10BP looks steepest
+Pairwise (independent bootstrap): P(slope₈ > slope₉) = **0.49**, P(slope₉ >
+slope₁₀) = **0.45** (both coin flips), P(slope₈ > slope₁₀) = 0.42. 10BP looks steepest
 (P(·>10BP) ≈ 0.02–0.03) but rests on 86 races with a huge CI [5.27, 9.10].
 
 **Verdict: no — 9-ball is NOT flatter.** Its slope point estimate (5.11) sits in
-the *middle* of the three core games (8-ball 5.08, 10-ball 5.22), not at the
-bottom — and the differences are not significant: P(slope₈ > slope₉) = 0.47 and
-P(slope₉ > slope₁₀) = 0.42 are both coin flips. **The 8/9/10 CIs overlap heavily
+the *middle* of the three core games (8-ball 5.10, 10-ball 5.18), not at the
+bottom — and the differences are not significant: P(slope₈ > slope₉) = 0.49 and
+P(slope₉ > slope₁₀) = 0.45 are both coin flips. **The 8/9/10 CIs overlap heavily
 (all within ~4.4–6.0); the per-rack slopes are statistically indistinguishable
 (~5.1–5.2 pp / +10 CSR).** If anything the *flattest* point estimate is 8-ball
-(5.08) — the opposite of the hypothesis singling out 9-ball. The called-9 slop
+(5.10) — the opposite of the hypothesis singling out 9-ball. The called-9 slop
 mechanism remains plausible but **unconfirmed and contradicted in direction**;
 the data cannot detect it.
 
@@ -295,7 +298,7 @@ anticipated.
   by actual play-date adds their score sheets later (and drops 14022 in).
 - **`pairing_history` IS loaded AND fully drilled — the lifetime H2H layer is now complete.**
   The profile pass + the all-divisions per-rival drill landed for all 14 divisions:
-  **48,076 directed RIVALS edges** over **704 of 709 players** (the 5 without a
+  **48,076 directed RIVALS edges** over **704 of 710 players** (the 6 without a
   RIVALS row are new players with no lifetime H2H), collapsing to **36,022 distinct
   unordered pairings** (33% reciprocal). This is a lifetime aggregate W-L / RIVALS
   layer — a prior on pairings, never rack-level, never in `games`. Its value as a
@@ -311,8 +314,8 @@ anticipated.
   end-of-season rating, not a true time-of-match value. The mid-season drift the
   schema captures is not yet dense enough to give each game its contemporaneous
   CSR; treat the skill term as static-per-season for now.
-- **CSR scale (latest snapshot, per game type):** 8-ball 0–138 (n=706), 9-ball
-  6–130 (n=709), 10-ball 10–120 (n=709), 10BP 17–113 (n=169). Three players carry
+- **CSR scale (latest snapshot, per game type):** 8-ball 0–138 (n=707), 9-ball
+  6–130 (n=710), 10-ball 10–120 (n=710), 10BP 17–113 (n=169). Three players carry
   no `csr_8` (9/10-only "DP LC" divisions); 10BP exists only for the 4-game
   divisions' 169 players — wide enough that the §3 difference bins are well
   populated across the range.
@@ -333,11 +336,11 @@ anticipated.
    structure** fits the evidence: clean curve shape across all four game types,
    thin per-pair data (median 1 meeting) ruling out empirical H2H, slopes too
    close to separate (partial pooling), and a now-complete pairing-history prior
-   (100% of game pairs covered, 704/709 players, fully drilled to lifetime per-game W-L).
+   (100% of game pairs covered, 704/710 players, fully drilled to lifetime per-game W-L).
 4. **The handicap balances the whole mid-range and leaks only at the tail** — the
    edge metric ("your P minus matrix-implied P") will be largest in the 46+
    CSR-gap region, where the race matrix under-compensates (68.2% match WR).
 5. **Honour the caveats:** exclude the 32 pending matches (now mostly genuine
    makeups; only 14022's R1 is capture lag), use `pairing_history` as a prior now
-   (loaded at 704/709-player coverage, fully drilled to lifetime per-game W-L), and
+   (loaded at 704/710-player coverage, fully drilled to lifetime per-game W-L), and
    treat CSR as static-per-season until drift snapshots densify.
