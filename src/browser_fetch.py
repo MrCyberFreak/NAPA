@@ -531,7 +531,16 @@ def harvest_match_history(player_ids: list[str] | None = None,
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
-        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+        context = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US")
+        # Throughput trim: abort non-essential resources. The match HTML is
+        # server-rendered in the document, so CSS/images/fonts/media are pure
+        # overhead. JS is KEPT (the "One moment" bot-challenge needs it to clear);
+        # the document and XHR are KEPT. Single-context — no extra host concurrency,
+        # so the host-friendly rule still holds.
+        context.route("**/*", lambda route: (
+            route.abort() if route.request.resource_type in
+            ("stylesheet", "image", "font", "media") else route.continue_()))
+        page = context.new_page()
 
         def get(url: str, path: Path) -> str:
             nonlocal saved, cookie_landed, challenged, streak
@@ -544,7 +553,7 @@ def harvest_match_history(player_ids: list[str] | None = None,
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(html, encoding="utf-8")
                 saved += 1
-                page.wait_for_timeout(1500)  # polite
+                page.wait_for_timeout(400)  # polite
             elif html:
                 challenged += 1
                 streak += 1
