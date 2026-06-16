@@ -177,12 +177,63 @@ CREATE TABLE IF NOT EXISTS pairing_history (
     PRIMARY KEY (player_id, rival_id)
 );
 
+-- Per-player career MATCH HISTORY (profile tab xTab=2/3/4: league 8/9/10-ball).
+-- RICHER than `games` (this-season, score-sheet grain): it carries the subject's
+-- CSR-at-match-time, the makeup flag, venue, and spans a player's WHOLE career
+-- across divisions (incl. prior-season / non-NoCo dids the scrape set never sees).
+-- Distinct provenance + grain from `games`, so it is its OWN table (like
+-- pairing_history is kept separate from games). Player ids are NOT FK'd: the
+-- subject is the profile owner (always known); the opponent is a raw NAME that
+-- may be a sub / out-of-scope player with no row in `players`. Names are stored
+-- raw; id-resolution is OPTIONAL (subject_player_id is the only id v1 needs).
+CREATE TABLE IF NOT EXISTS match_history (
+    subject_player_id TEXT NOT NULL,        -- profile owner = the 8-digit id in the URL
+    game_type         INTEGER NOT NULL,     -- 8 / 9 / 10  (tab 2/3/4); INTs like games.game_type
+    played_date       TEXT NOT NULL,        -- ISO yyyy-mm-dd, parsed from "Apr. 30 '26"
+    division_id       INTEGER,              -- leading int of the DIVISION row (may be off-scrape, e.g. 12399); NULL if unparseable
+    division_name     TEXT,                 -- remainder of the DIVISION row
+    result            TEXT,                 -- 'W' / 'L' from the SUBJECT's perspective (row0)
+    subject_csr       INTEGER,              -- subject's CSR at match time ("CSR: 95")
+    venue             TEXT,                 -- VENUE row
+    subject_side      TEXT,                 -- 'home'/'away'; NULL when the owner name matches neither side (name variant / sub) — the match is still kept, not dropped
+    home_player_name  TEXT,                 -- MATCH row, raw "First Last" (left col)
+    away_player_name  TEXT,                 -- MATCH row, raw (right col)
+    home_race         INTEGER,              -- RACE row
+    away_race         INTEGER,
+    home_wins         INTEGER,              -- "# WINS" row = racks won
+    away_wins         INTEGER,
+    home_score        INTEGER,              -- SCORE row = match points
+    away_score        INTEGER,
+    is_makeup         INTEGER NOT NULL DEFAULT 0,  -- 1 when MATCH label carries "(mm)"
+    source_tab        INTEGER,              -- provenance: xTab the row came from (2/3/4)
+    source_start      INTEGER,              -- provenance: pagination &start of the page it was harvested on
+    page_index        INTEGER,              -- provenance: 0-based position of the match table WITHIN that page
+    captured_date     TEXT,                 -- harvest date (provenance)
+    -- Keyed on the natural match identity, MIRRORING `games`
+    -- (ON CONFLICT(division_id, played_date, home_player_name, away_player_name)).
+    -- The source exposes NO stable per-match id, and the page lists matches
+    -- newest-first, so a newly-played match shifts every (source_start,page_index)
+    -- — a stream-position key would DUPLICATE every prior match on the next
+    -- harvest. The content key is stable, so re-harvesting (paginating
+    -- start=0,10,20… AND re-runs after new matches) upserts in place — idempotent
+    -- and correctly incremental. game_type is in the key because tabs 2/3/4
+    -- paginate independently. KNOWN LIMITATION (identical to `games`): two matches
+    -- vs the SAME opponent on the SAME date with the SAME home/away orientation
+    -- collapse to one row — the source gives nothing to disambiguate them. Rare (a
+    -- same-night makeup doubleheader); the daily score-sheet `games` table is the
+    -- authoritative rack-level record for the current season regardless.
+    PRIMARY KEY (subject_player_id, game_type, played_date, home_player_name, away_player_name)
+);
+
 CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
 CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_match_unique
     ON matches(season, round, home_team_id, away_team_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_game_unique
     ON games(division_id, played_date, home_player_name, away_player_name);
+CREATE INDEX IF NOT EXISTS idx_mh_subject   ON match_history(subject_player_id);
+CREATE INDEX IF NOT EXISTS idx_mh_division  ON match_history(division_id);
+CREATE INDEX IF NOT EXISTS idx_mh_opponent  ON match_history(home_player_name, away_player_name);
 """
 
 
@@ -732,6 +783,76 @@ def update_pairing_h2h(conn: sqlite3.Connection, player_id: str, rival_id: str,
     )
 
 
+def load_match_history(conn: sqlite3.Connection, subject_id: str, game_type: int,
+                       rows, captured_date: str | None = None) -> dict:
+    """Load one harvested match-history page's rows for ONE subject + game_type.
+
+    Idempotent on the natural match key (subject_player_id, game_type,
+    played_date, home_player_name, away_player_name) — mirroring how `games` keys
+    a match. Re-harvesting (paginating start=0,10,20… AND re-runs after new matches
+    have been played) upserts in place: the content key is stable even though the
+    source lists matches newest-first and a new match shifts every page position.
+    A stream-position key would instead duplicate every prior match on the next
+    harvest. KNOWN LIMITATION (identical to `games`): two matches vs the same
+    opponent on the same date with the same home/away orientation collapse to one
+    row (the source exposes no per-match id to tell them apart) — rare, and `games`
+    is authoritative at rack level for the current season regardless.
+
+    Distinct provenance + grain from `games` — never folded into it. Opponent ids
+    are NOT resolved here (names may be subs / out-of-scope players); the subject
+    id is the profile owner, passed in. Rows missing a key column (played_date /
+    either name) are skipped + counted, never guessed; a name-variant subject_side
+    or an unparseable division_id is kept (those columns are nullable). Returns a
+    load-report dict for the rebuild/gate consumers."""
+    init_db(conn)
+    loaded = skipped = 0
+    if not subject_id:
+        return {"loaded": 0, "skipped": 0, "subject": subject_id}
+    for r in rows:
+        # The row-level key columns must be present (subject_id + game_type are args).
+        if not r.played_date or not r.home_player_name or not r.away_player_name:
+            skipped += 1
+            continue
+        conn.execute(
+            """INSERT INTO match_history
+                   (subject_player_id, game_type, played_date, division_id,
+                    division_name, result, subject_csr, venue, subject_side,
+                    home_player_name, away_player_name, home_race, away_race,
+                    home_wins, away_wins, home_score, away_score, is_makeup,
+                    source_tab, source_start, page_index, captured_date)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+               ON CONFLICT(subject_player_id, game_type, played_date,
+                           home_player_name, away_player_name)
+                   DO UPDATE SET
+                   division_id   = COALESCE(excluded.division_id, match_history.division_id),
+                   division_name = COALESCE(excluded.division_name, match_history.division_name),
+                   result        = COALESCE(excluded.result, match_history.result),
+                   subject_csr   = COALESCE(excluded.subject_csr, match_history.subject_csr),
+                   venue         = COALESCE(excluded.venue, match_history.venue),
+                   subject_side  = COALESCE(excluded.subject_side, match_history.subject_side),
+                   home_race     = COALESCE(excluded.home_race, match_history.home_race),
+                   away_race     = COALESCE(excluded.away_race, match_history.away_race),
+                   home_wins     = COALESCE(excluded.home_wins, match_history.home_wins),
+                   away_wins     = COALESCE(excluded.away_wins, match_history.away_wins),
+                   home_score    = COALESCE(excluded.home_score, match_history.home_score),
+                   away_score    = COALESCE(excluded.away_score, match_history.away_score),
+                   is_makeup     = excluded.is_makeup,
+                   source_tab    = excluded.source_tab,
+                   source_start  = excluded.source_start,
+                   page_index    = excluded.page_index,
+                   captured_date = COALESCE(excluded.captured_date, match_history.captured_date)""",
+            (subject_id, game_type, r.played_date, r.division_id, r.division_name,
+             r.result, r.subject_csr, r.venue, r.subject_side,
+             r.home_player_name, r.away_player_name, r.home_race, r.away_race,
+             r.home_wins, r.away_wins, r.home_score, r.away_score,
+             1 if r.is_makeup else 0, r.source_tab, r.source_start, r.page_index,
+             captured_date),
+        )
+        loaded += 1
+    conn.commit()
+    return {"loaded": loaded, "skipped": skipped, "subject": subject_id}
+
+
 def pairing_coverage(conn: sqlite3.Connection) -> dict:
     """Densification metric: distinct UNORDERED player pairs with lifetime history
     (from pairing_history) — to compare against the single-session game pairings."""
@@ -926,6 +1047,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     gate is sourced from passes 1–3; only the profile-sourced multi-division
     ENUMERATION (player_divisions) is informational, so onboarding can gate fast
     and leave the full profile load for the final verification rebuild."""
+    from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
     from .parse.profile import (parse_cuespeed, parse_profile_file,
                                 parse_profile_rivals, parse_rival_h2h, parse_trends)
     from .parse.schedule import parse_schedule_file
@@ -1002,6 +1124,16 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
                 if trends_f.exists():
                     form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
                     load_trends(conn, prof.player_id, form, captured)
+                # Optional: career match history, any archived match_<tab>_<start>.html
+                # pages (a no-op when none exist). Tab/start are recovered from the
+                # filename; game_type comes from the tab, not the page body.
+                for mf in sorted(pdir.glob("match_*.html")):
+                    tab = int(mf.stem.split("_")[1])
+                    if tab not in TAB_GAME_TYPE:
+                        continue
+                    sid, page = parse_match_history_file(mf)
+                    load_match_history(conn, sid or prof.player_id, page.game_type,
+                                       page.matches, captured)
                 loaded += 1
             except Exception as exc:  # noqa: BLE001 — one bad capture must not kill a rebuild
                 failed += 1
