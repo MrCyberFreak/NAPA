@@ -57,6 +57,9 @@ from .match_history import (_clean, _subject_id_from_page,
 _EVENT_GAME_TYPE: dict[str, int | str] = {
     "8-BALL": 8, "9-BALL": 9, "10-BALL": 10, "7-BALL": 7,
     "FAST 8": "Fast8", "LAGGER'S CHOICE": "LC",
+    # Pro variants — keep the same text tokens as match_history's TAB_GAME_TYPE
+    # ("9BP" = 9-Ball Pro, "10BP" = 10-Ball Pro) so the schema stays consistent.
+    "9-BALL PRO": "9BP", "10-BALL PRO": "10BP",
 }
 
 # Long tournament date: "Played: Saturday, Aug 09, 2025" -> month abbrev, day,
