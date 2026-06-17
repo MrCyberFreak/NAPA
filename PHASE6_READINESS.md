@@ -3,7 +3,11 @@
 > **RECOMPUTED 2026-06-14 against the full multi-division archive, WITH the
 > profile pass; §5 H2H + headline counts refreshed 2026-06-15 after the full
 > per-rival DRILL; headline counts, §3a slopes, and §5 CSR `n=` trued up
-> 2026-06-16 to the 06-15 DB** (the lifetime per-game W-L layer is now complete
+> 2026-06-16 to the 06-15 DB; headline skill_snapshots (2,098 → 2,403) and the
+> §3a 8-ball slope (+5.09) refreshed 2026-06-17 against the post-capture rebuild
+> — `match_history`/`tournament_matches` tables loaded, games unchanged at 3,906,
+> §1–§4 bins from the prior build (negligible drift, no finding changes)**
+> (the lifetime per-game W-L layer is now complete
 > league-wide — see §5). The §1–§3 bin tables and §2/§4 stay from the 2026-06-14
 > build: the daily cron added snapshot dates through 06-15 (skill_snapshots
 > 1,693 → 2,098), shifting a few as-of CSRs and nudging a few §3 bins by ≤3 games
@@ -29,7 +33,7 @@ This is the input to the Phase 6 estimator-design decision.
 
 **Source:** `data/napa.db`, rebuilt from the committed raw archive in the DATA.md
 pass order (roster grids → schedules → score sheets → profiles), all 14 registry
-divisions. Row counts: **710 players, 2,098 skill snapshots, 135 teams, 1,634
+divisions. Row counts: **710 players, 2,403 skill snapshots, 135 teams, 1,634
 matches, 3,906 games** (8 / 9 / 10 / 10BP = 2,142 / 812 / 864 / 88), spanning
 **13 divisions** with games. Regenerate deterministically (seeded bootstrap) with
 `python tools/phase6_readiness.py`.
@@ -228,7 +232,7 @@ whole races so correlated racks-within-a-race don't inflate precision):
 
 | Game | slope (pp / +10 CSR) | 95% CI | races | racks |
 |------|---------------------:|:------:|------:|------:|
-| 8-ball  | +5.10 | [4.77, 5.42] | 1,990 | 12,677 |
+| 8-ball  | +5.09 | [4.77, 5.42] | 1,990 | 12,677 |
 | 9-ball  | +5.11 | [4.37, 5.88] |   756 |  4,536 |
 | 10-ball | +5.18 | [4.46, 5.92] |   811 |  4,769 |
 | 10BP    | +7.04 | [5.27, 9.10] |    86 |    586 |
@@ -238,7 +242,7 @@ slope₁₀) = **0.45** (both coin flips), P(slope₈ > slope₁₀) = 0.42. 10B
 (P(·>10BP) ≈ 0.02–0.03) but rests on 86 races with a huge CI [5.27, 9.10].
 
 **Verdict: no — 9-ball is NOT flatter.** Its slope point estimate (5.11) sits in
-the *middle* of the three core games (8-ball 5.10, 10-ball 5.18), not at the
+the *middle* of the three core games (8-ball 5.09, 10-ball 5.18), not at the
 bottom — and the differences are not significant: P(slope₈ > slope₉) = 0.49 and
 P(slope₉ > slope₁₀) = 0.45 are both coin flips. **The 8/9/10 CIs overlap heavily
 (all within ~4.4–6.0); the per-rack slopes are statistically indistinguishable
