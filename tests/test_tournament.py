@@ -112,6 +112,9 @@ def test_game_type_from_event_vocabulary():
     assert _game_type_from_event("OPEN 7-BALL CHAMPIONSHIP") == 7
     assert _game_type_from_event("OPEN FAST 8 CHAMPIONSHIP") == "Fast8"
     assert _game_type_from_event("OPEN LAGGER'S CHOICE CHAMPIONSHIP") == "LC"
+    # Pro variants map to the same tokens match_history uses (9BP / 10BP).
+    assert _game_type_from_event("OPEN 9-BALL PRO CHAMPIONSHIP") == "9BP"
+    assert _game_type_from_event("OPEN 10-BALL PRO CHAMPIONSHIP") == "10BP"
     # Table-size qualifiers strip to the same game type.
     assert _game_type_from_event("OPEN BAR BOX 10-BALL CHAMPIONSHIP") == 10
     assert _game_type_from_event("OPEN BIG TABLE 10-BALL CHAMPIONSHIP") == 10
