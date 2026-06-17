@@ -501,7 +501,7 @@ def harvest_match_history(player_ids: list[str] | None = None,
     capped at max_pages."""
     from playwright.sync_api import sync_playwright
 
-    from .parse.match_history import parse_match_history
+    from .parse.match_history import next_start_from_html
 
     out_root = Path(out_root)
     player_ids = player_ids or _roster_player_ids(did)
@@ -531,7 +531,16 @@ def harvest_match_history(player_ids: list[str] | None = None,
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
-        page = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US").new_page()
+        context = browser.new_context(user_agent=fetch.DEFAULT_UA, locale="en-US")
+        # Throughput trim: abort non-essential resources. The match HTML is
+        # server-rendered in the document, so CSS/images/fonts/media are pure
+        # overhead. JS is KEPT (the "One moment" bot-challenge needs it to clear);
+        # the document and XHR are KEPT. Single-context — no extra host concurrency,
+        # so the host-friendly rule still holds.
+        context.route("**/*", lambda route: (
+            route.abort() if route.request.resource_type in
+            ("stylesheet", "image", "font", "media") else route.continue_()))
+        page = context.new_page()
 
         def get(url: str, path: Path) -> str:
             nonlocal saved, cookie_landed, challenged, streak
@@ -544,7 +553,7 @@ def harvest_match_history(player_ids: list[str] | None = None,
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(html, encoding="utf-8")
                 saved += 1
-                page.wait_for_timeout(1500)  # polite
+                page.wait_for_timeout(400)  # polite
             elif html:
                 challenged += 1
                 streak += 1
@@ -566,8 +575,10 @@ def harvest_match_history(player_ids: list[str] | None = None,
                         html = get(url, pdir / f"match_{tab}_{start}.html")
                         if not html or fetch.is_challenge(html):
                             break  # nav error / challenge — fail-soft, resume later
-                        _, mhpage = parse_match_history(html, source_tab=tab, source_start=start)
-                        nxt = mhpage.next_start
+                        # Pagination is the same NEXT>>> mechanism on every tab, so
+                        # page generically — capture is decoupled from league parsing
+                        # (Tournaments/Local-Duels archive raw here, parse later).
+                        nxt = next_start_from_html(html)
                         if nxt is None or nxt <= start:  # last page / no progress
                             break
                         start = nxt
@@ -736,8 +747,22 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.harvest_match_history:
-        harvest_match_history(tabs=tuple(int(t) for t in args.match_history_tabs.split(",") if t),
-                              headless=not args.headed, did=args.did)
+        tabs = tuple(int(t) if t.isdigit() else t
+                     for t in args.match_history_tabs.split(",") if t)
+        if args.all_divisions:
+            # Union of every active division's roster -> all NoCo players, once each
+            # (a player rostered in >1 division is harvested a single time).
+            seen: set[str] = set()
+            ids: list[str] = []
+            for d in config.active_dids():
+                for pid in _roster_player_ids(d):
+                    if pid not in seen:
+                        seen.add(pid)
+                        ids.append(pid)
+            print(f"[match-history] {len(ids)} players across {len(config.active_dids())} divisions")
+            harvest_match_history(player_ids=ids, tabs=tabs, headless=not args.headed)
+        else:
+            harvest_match_history(tabs=tabs, headless=not args.headed, did=args.did)
         return
 
     if args.harvest:

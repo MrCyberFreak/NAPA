@@ -116,7 +116,11 @@ def test_game_type_from_tab_not_label():
     assert page.game_type == 9
     _, page = parse_match_history("<html></html>", game_type=10)
     assert page.source_tab == 4
-    assert TAB_GAME_TYPE == {2: 8, 3: 9, 4: 10}
+    # All league tabs map to a game_type; the 4-game divisions' 10BP is in scope.
+    assert (TAB_GAME_TYPE[2], TAB_GAME_TYPE[3], TAB_GAME_TYPE[4]) == (8, 9, 10)
+    assert TAB_GAME_TYPE["10BP"] == "10BP"
+    # Tournaments (24) / Local Duels (25) are NOT league tabs — different parser.
+    assert 24 not in TAB_GAME_TYPE and 25 not in TAB_GAME_TYPE
 
 
 def test_no_match_tables_yields_zero_rows_and_no_next():
