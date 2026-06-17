@@ -234,6 +234,56 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_game_unique
 CREATE INDEX IF NOT EXISTS idx_mh_subject   ON match_history(subject_player_id);
 CREATE INDEX IF NOT EXISTS idx_mh_division  ON match_history(division_id);
 CREATE INDEX IF NOT EXISTS idx_mh_opponent  ON match_history(home_player_name, away_player_name);
+
+-- Per-player career TOURNAMENT MATCHES (profile tab xTab=24, "Tournaments >
+-- View All"). A DIFFERENT structure from the league match_history tabs (2/3/4)
+-- and from `games` (this-season score-sheet grain): tournament bracket matches,
+-- league-wide, spanning a player's WHOLE career across NAPA national/regional
+-- events (many off-NoCo, never seen by the division scrape), carrying hometowns +
+-- tournament_name/event the league grain lacks and lacking division_id/venue/
+-- CSR-at-time. Its OWN table, like match_history / pairing_history. The SUBJECT
+-- is the profile owner (the playerID anchor / <h2> name); it may be the LEFT or
+-- the RIGHT side — match the owner name to a side like match_history does, never
+-- assume left=subject. result/scores/race are stored from the SUBJECT's
+-- perspective. Player ids are NOT FK'd: subject is the only known id; the
+-- opponent is a raw NAME (an out-of-scope tournament player with no `players`
+-- row). subject_player_id + the natural-key columns are the only NOT NULL fields;
+-- every other column is NULLABLE so a name-variant / partial row is KEPT.
+CREATE TABLE IF NOT EXISTS tournament_matches (
+    subject_player_id TEXT NOT NULL,        -- profile owner = the 8-digit playerID on the page
+    played_date       TEXT NOT NULL,        -- ISO yyyy-mm-dd, from "Played: Saturday, Aug 09, 2025"
+    tournament_name   TEXT NOT NULL,        -- row0, e.g. "2025 NAPA CUESPEED MILE HIGH TRIFECTA"
+    opponent_name     TEXT NOT NULL,        -- the NON-subject side's name (key column)
+    event_name        TEXT NOT NULL DEFAULT '',  -- row1 lead, e.g. "OPEN 8-BALL CHAMPIONSHIP"; '' (not NULL) so it keys cleanly
+    game_type         TEXT,                 -- 8/9/10/7 or "Fast8"/"LC" parsed from the event text
+    subject_name      TEXT,                 -- subject side display name (row2)
+    subject_location  TEXT,                 -- subject side "City, State" (<small>)
+    opponent_location TEXT,                 -- opponent side "City, State" (<small>)
+    subject_side      TEXT,                 -- 'home'(left)/'away'(right); NULL when owner matches neither
+    result            TEXT,                 -- 'W'/'L' from the SUBJECT's perspective (red=lost/green=won)
+    subject_race      INTEGER,              -- RACE row, subject side
+    opp_race          INTEGER,              -- RACE row, opponent side
+    subject_score     INTEGER,              -- SCORE row, subject side
+    opp_score         INTEGER,              -- SCORE row, opponent side
+    source_tab        INTEGER,              -- provenance: xTab the row came from (24)
+    source_start      INTEGER,              -- provenance: pagination &start of the harvested page
+    page_index        INTEGER,              -- provenance: 0-based position of the match table WITHIN the page
+    captured_date     TEXT,                 -- harvest date (provenance)
+    -- NATURAL CONTENT KEY (NOT stream position). The source lists newest-first
+    -- with NO per-match id, so a newly-played match PREPENDS and shifts every
+    -- (source_start, page_index) — a stream-position key would DUPLICATE every
+    -- prior match on re-harvest (the league match_history regression we must not
+    -- repeat). The content key upserts in place: idempotent + correctly
+    -- incremental. event_name is IN the key (coalesced to '' when unread) so a
+    -- single tournament+date holding matches in different events (8/9/10-ball) vs
+    -- the same opponent does not collapse. KNOWN, ACCEPTED limitation (same as
+    -- match_history/games): two identical-natural-key matches collapse to one row
+    -- — rare, and the source gives nothing to disambiguate them.
+    PRIMARY KEY (subject_player_id, played_date, tournament_name, opponent_name, event_name)
+);
+CREATE INDEX IF NOT EXISTS idx_tm_subject    ON tournament_matches(subject_player_id);
+CREATE INDEX IF NOT EXISTS idx_tm_tournament ON tournament_matches(tournament_name, played_date);
+CREATE INDEX IF NOT EXISTS idx_tm_opponent   ON tournament_matches(opponent_name);
 """
 
 
@@ -853,6 +903,75 @@ def load_match_history(conn: sqlite3.Connection, subject_id: str, game_type: int
     return {"loaded": loaded, "skipped": skipped, "subject": subject_id}
 
 
+def load_tournament_matches(conn: sqlite3.Connection, subject_id: str, rows,
+                            captured_date: str | None = None) -> dict:
+    """Load one harvested tournaments (xTab=24) page's rows for ONE subject.
+
+    Idempotent on the natural content key (subject_player_id, played_date,
+    tournament_name, opponent_name, event_name) — MIRRORING how match_history /
+    `games` key a match. Re-harvesting (paginating start=0,10,20… AND re-runs
+    after new tournament matches have been played) upserts in place: the content
+    key is stable even though the source lists matches newest-first and a new
+    match shifts every page position. A stream-position key would instead
+    duplicate every prior match on the next harvest (the league match_history
+    regression we must not repeat). KNOWN LIMITATION (identical to
+    match_history/games): two matches with the same natural key collapse to one
+    row (the source exposes no per-match id) — rare.
+
+    Distinct provenance + grain from match_history (tournament bracket matches,
+    league-wide career, no division/venue/CSR-at-time) — never folded into it.
+    Opponent ids are NOT resolved here (out-of-scope tournament players with no
+    `players` row); the subject id is the profile owner, passed in. Rows missing a
+    key column (played_date / tournament_name / opponent_name) are skipped +
+    counted, never guessed; event_name is coalesced to '' so it keys cleanly. A
+    name-variant subject_side (NULL) is kept. Returns a load-report dict."""
+    init_db(conn)
+    loaded = skipped = 0
+    if not subject_id:
+        return {"loaded": 0, "skipped": 0, "subject": subject_id}
+    for r in rows:
+        # The row-level key columns must be present (subject_id is the arg).
+        if not r.played_date or not r.tournament_name or not r.opponent_name:
+            skipped += 1
+            continue
+        event_name = r.event_name or ""  # '' (not NULL) so it participates in the key
+        game_type = None if r.game_type is None else str(r.game_type)
+        conn.execute(
+            """INSERT INTO tournament_matches
+                   (subject_player_id, played_date, tournament_name, opponent_name,
+                    event_name, game_type, subject_name, subject_location,
+                    opponent_location, subject_side, result, subject_race, opp_race,
+                    subject_score, opp_score, source_tab, source_start, page_index,
+                    captured_date)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+               ON CONFLICT(subject_player_id, played_date, tournament_name,
+                           opponent_name, event_name)
+                   DO UPDATE SET
+                   game_type         = COALESCE(excluded.game_type, tournament_matches.game_type),
+                   subject_name      = COALESCE(excluded.subject_name, tournament_matches.subject_name),
+                   subject_location  = COALESCE(excluded.subject_location, tournament_matches.subject_location),
+                   opponent_location = COALESCE(excluded.opponent_location, tournament_matches.opponent_location),
+                   subject_side      = COALESCE(excluded.subject_side, tournament_matches.subject_side),
+                   result            = COALESCE(excluded.result, tournament_matches.result),
+                   subject_race      = COALESCE(excluded.subject_race, tournament_matches.subject_race),
+                   opp_race          = COALESCE(excluded.opp_race, tournament_matches.opp_race),
+                   subject_score     = COALESCE(excluded.subject_score, tournament_matches.subject_score),
+                   opp_score         = COALESCE(excluded.opp_score, tournament_matches.opp_score),
+                   source_tab        = excluded.source_tab,
+                   source_start      = excluded.source_start,
+                   page_index        = excluded.page_index,
+                   captured_date     = COALESCE(excluded.captured_date, tournament_matches.captured_date)""",
+            (subject_id, r.played_date, r.tournament_name, r.opponent_name,
+             event_name, game_type, r.subject_name, r.subject_location,
+             r.opponent_location, r.subject_side, r.result, r.subject_race,
+             r.opp_race, r.subject_score, r.opp_score, r.source_tab,
+             r.source_start, r.page_index, captured_date),
+        )
+        loaded += 1
+    conn.commit()
+    return {"loaded": loaded, "skipped": skipped, "subject": subject_id}
+
+
 def pairing_coverage(conn: sqlite3.Connection) -> dict:
     """Densification metric: distinct UNORDERED player pairs with lifetime history
     (from pairing_history) — to compare against the single-session game pairings."""
@@ -1050,6 +1169,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
     from .parse.profile import (parse_cuespeed, parse_profile_file,
                                 parse_profile_rivals, parse_rival_h2h, parse_trends)
+    from .parse.tournament import parse_tournament_file
     from .parse.schedule import parse_schedule_file
     from .parse.weekly_scores import parse_score_sheet_file
 
@@ -1128,9 +1248,15 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
                 # pages (a no-op when none exist). Tab/start are recovered from the
                 # filename; game_type comes from the tab, not the page body.
                 for mf in sorted(pdir.glob("match_*.html")):
-                    tab = int(mf.stem.split("_")[1])
-                    if tab not in TAB_GAME_TYPE:
+                    tok = mf.stem.split("_")[1]
+                    tab = int(tok) if tok.isdigit() else tok
+                    if tab == 24:  # Tournaments — own parser + table (xTab=24)
+                        sid, tpage = parse_tournament_file(mf)
+                        load_tournament_matches(conn, sid or prof.player_id,
+                                                tpage.matches, captured)
                         continue
+                    if tab not in TAB_GAME_TYPE:
+                        continue  # Local-Duels (25): archived raw, parsed elsewhere
                     sid, page = parse_match_history_file(mf)
                     load_match_history(conn, sid or prof.player_id, page.game_type,
                                        page.matches, captured)
@@ -1143,7 +1269,8 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
 
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
               for t in ("players", "skill_snapshots", "teams", "matches", "games",
-                        "pairing_history", "player_form", "player_divisions")}
+                        "pairing_history", "player_form", "player_divisions",
+                        "tournament_matches")}
     report["counts"] = counts
     conn.close()
     return report
