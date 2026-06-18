@@ -70,7 +70,10 @@ def run_set(due: list[int], queue: dict[str, dict]) -> list[int]:
     (carryover), de-duped and returned in registry order so the shared browser
     context visits them deterministically."""
     want = set(due) | {int(d) for d in queue}
-    return [did for did in config.DIVISIONS if did in want]
+    # config.divisions() (NOT config.DIVISIONS) so a ROLLED predecessor that
+    # lives only in the discovered overlay — queued because it still owes a
+    # makeup — is in the iteration set and not silently dropped from the run.
+    return [did for did in config.divisions() if did in want]
 
 
 def _expected_pages(did: int) -> set[str]:

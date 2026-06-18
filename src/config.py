@@ -10,6 +10,7 @@ one config value — retargeting is still a one-line change.
 from __future__ import annotations
 
 import datetime as dt
+import json
 import pathlib
 from dataclasses import dataclass
 
@@ -83,9 +84,63 @@ DIVISIONS: dict[int, Division] = {
 }
 
 
+# --------------------------------------------------------------------------- #
+# Two-source registry: curated DIVISIONS (above) MERGED at runtime with the
+# discovered-rollover overlay below. NAPA mints a new did per season; the daily
+# states.php discovery job records rollovers into _registry.json, and
+# divisions() folds the active ones in WITHOUT a config edit. Curated always
+# wins (it is the tested, graduated truth); the overlay only ADDS rollover dids.
+# --------------------------------------------------------------------------- #
+
+# Discovered-rollover overlay, written by the discovery job (like _catchup.json).
+REGISTRY_PATH = pathlib.Path("data/raw") / "_registry.json"
+
+
+def _load_registry_overlay() -> dict[str, dict]:
+    """The overlay's "discovered" block (str(did) -> entry). Missing or
+    unreadable => empty: the overlay only ADDS rollover dids, never a
+    correctness dependency — curated DIVISIONS stands alone."""
+    try:
+        data = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    disc = data.get("discovered", {})
+    return disc if isinstance(disc, dict) else {}
+
+
+def divisions() -> dict[int, Division]:
+    """Curated DIVISIONS merged with the discovered-rollover overlay — THE
+    accessor every active-set reader routes through.
+
+    Curated entries always win. A discovered overlay did that is NOT curated is
+    synthesized from its recorded slug/weekday: status "active" => scrape=True
+    (it joins the daily weekday sweep); any other status (e.g. a "rolled"
+    predecessor still owed makeups) => scrape=False — present, so
+    catchup.run_set can still carry it, but excluded from the sweep. A slugless
+    overlay entry is malformed and skipped."""
+    merged = dict(DIVISIONS)
+    for did_str, e in _load_registry_overlay().items():
+        try:
+            did = int(did_str)
+        except (TypeError, ValueError):
+            continue
+        if did in merged or not e.get("slug"):
+            continue  # curated wins (graduated); slugless => malformed
+        merged[did] = Division(
+            did=did,
+            name=e.get("name", f"discovered-{did}"),
+            weekday=e.get("weekday", WEEK_DAY),
+            fmt=e.get("fmt", "LC"),
+            slug=e["slug"],
+            scrape=(e.get("status") == "active"),
+        )
+    return merged
+
+
 def active_dids() -> list[int]:
-    """Dids flagged scrape=True, in registry order."""
-    return [did for did, d in DIVISIONS.items() if d.scrape]
+    """Dids flagged scrape=True (curated + any discovered-active rollover), in
+    registry order."""
+    return [did for did, d in divisions().items() if d.scrape]
 
 
 # League nights run Sun–Fri across the NoCo divisions (no division plays
@@ -95,7 +150,7 @@ def divisions_playing_on(weekday: str, active_only: bool = True) -> list[int]:
     """Dids whose league night is `weekday` ("Monday".."Sunday"), registry
     order. active_only restricts to scrape=True (the daily run never touches a
     not-yet-onboarded division)."""
-    return [did for did, d in DIVISIONS.items()
+    return [did for did, d in divisions().items()
             if d.weekday == weekday and (not active_only or d.scrape)]
 
 
@@ -128,7 +183,15 @@ def url(name: str, **kw) -> str:
     week = kw.get("week")
     week_number = kw.get("week_number", SEASON_WEEKS)
     player_id = kw.get("player_id")
-    week_day = kw.get("week_day", DIVISIONS[did].weekday if did in DIVISIONS else WEEK_DAY)
+    # Weekday for the schedule URL: curated first (the common, cheap path), then
+    # the merged overlay for a discovered rollover did, else the module default.
+    if "week_day" in kw:
+        week_day = kw["week_day"]
+    elif did in DIVISIONS:
+        week_day = DIVISIONS[did].weekday
+    else:
+        _divs = divisions()
+        week_day = _divs[did].weekday if did in _divs else WEEK_DAY
 
     templates = {
         # Easy tier (paper.playpool.io)
@@ -139,6 +202,9 @@ def url(name: str, **kw) -> str:
         ),
         "scratch": f"{HOST_PAPER}/scratch.php?division={did}&mastersDivision=N&mastersRace=",
         # Medium tier (poolshooters.com static)
+        # League-discovery page (did-independent): lists every active division
+        # grouped by franchise — how we notice a season rollover / new league.
+        "states": f"{HOST_POOLSHOOTERS}/states.php?location=Colorado",
         "division": f"{HOST_POOLSHOOTERS}/division.php?did={did}",
         "leaderboard": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=leader&ver=detailed",
         "achievements": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=ach",
