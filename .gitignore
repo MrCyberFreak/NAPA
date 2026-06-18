@@ -16,3 +16,6 @@ data/napa.db
 .DS_Store
 data/*.db
 data/*.db-journal
+
+# generated dashboard output (regenerate via tools/dashboard.py)
+dashboard.html
