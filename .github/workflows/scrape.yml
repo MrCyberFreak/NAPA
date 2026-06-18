@@ -1,10 +1,12 @@
 name: scrape-archive
 
-# Cloud-first automation for the NAPA raw archive — DAY-AFTER-PLAY scheduling.
-# - ONE daily run (~09:00 MT). It scrapes + auto-backfills only the divisions
-#   whose league night was YESTERDAY (config.divisions_due), instead of sweeping
-#   all 14 divisions twice a day. Far less Actions time now that the league has
-#   a division almost every weeknight.
+# Cloud-first automation for the NAPA raw archive.
+# - ONE daily run (~09:00 MT). It SCRAPES every active division (rosters /
+#   standings / schedules) so all roster/skill/standings changes show up in the
+#   committed daily diff, and auto-BACKFILLS score sheets only for the divisions
+#   whose league night was YESTERDAY (config.divisions_due) + the catch-up queue
+#   — an all-division score-sheet walk is the sustained load that escalates the
+#   host bot-challenge into aborts, so backfill stays day-after-play.
 # - A persistent catch-up queue (data/raw/_catchup.json) carries forward any
 #   piece that slipped through — a division skipped by a host-wide bot-challenge
 #   abort, or a makeup played off-schedule — and folds it into the next run ON
@@ -71,9 +73,9 @@ jobs:
       # yesterday plus the catch-up carryover, then re-derive the queue. The
       # run reckons "yesterday" in America/Denver itself; --date is only for
       # backfilled/manual runs.
-      - name: Scheduled scrape (day-after-play + catch-up)
+      - name: Scheduled scrape (all-divisions daily + day-after-play backfill)
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
-        run: python -m src.browser_fetch --scheduled
+        run: python -m src.browser_fetch --scheduled --all-divisions
 
       # Surface what the daily states.php discovery found: active rollovers (now
       # auto-scraped), rolled predecessors (kept for makeups), and NEW LEAGUES

@@ -729,7 +729,7 @@ def _run_discovery(date_str: str, run_date_iso: str, page) -> set[int]:
 
 
 def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
-                  backfill: bool = True) -> dict:
+                  backfill: bool = True, all_divisions: bool = False) -> dict:
     """Day-after-play scrape + catch-up — replaces the twice-daily
     --all-divisions sweep.
 
@@ -740,13 +740,21 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     onboarded division is refreshed the morning after it plays, and any piece
     missed for ANY reason — a host abort, a makeup played off-schedule — is
     carried forward and retried on the next run regardless of which division
-    that run is otherwise for."""
+    that run is otherwise for.
+
+    all_divisions=True SCRAPES every active division daily (so all rosters /
+    standings / schedules refresh and every roster/skill/standings change shows
+    up in the committed daily diff) while keeping BACKFILL targeted to the
+    day-after-play + catch-up set — an all-division score-sheet walk is the
+    sustained load that escalates the host bot-challenge into aborts."""
     from . import catchup
 
     run_date = run_date or _denver_today()
     date_str = run_date.isoformat()
     queue = catchup.load_queue()
     due = config.divisions_due(run_date)
+    # Backfill set stays day-after-play (+ catch-up) even when scraping all.
+    backfill_dids = set(catchup.run_set(due, queue))
 
     # Discovery + the page scrape share ONE browser context (challenge cookies
     # amortize). Discovery runs FIRST and DAILY — even when nothing is due — so a
@@ -756,11 +764,16 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     # night is captured even off its weekday.
     with _browser_page(headless) as page:
         newly = _run_discovery(date_str, date_str, page)
-        dids = catchup.run_set(sorted(set(due) | newly), queue)
+        backfill_dids |= newly                       # a new rollover also backfills
+        # Scrape set: ALL active divisions daily (all_divisions) so every page
+        # refreshes; else just the day-after-play due set. Rollovers always fold in.
+        base = config.active_dids() if all_divisions else due
+        dids = catchup.run_set(sorted(set(base) | newly), queue)
         carry = sorted(int(d) for d in queue)
-        print(f"[scheduled] {date_str}: due={due or []} + carryover={carry or []}"
+        mode = "all-divisions scrape" if all_divisions else "day-after-play"
+        print(f"[scheduled] {date_str} ({mode}): due={due or []} + carryover={carry or []}"
               + (f" + rollovers={sorted(newly)}" if newly else "")
-              + f" -> {dids or []}")
+              + f" -> scrape {dids or []}")
         if not dids:
             print("[scheduled] nothing to scrape — discovery-only run.")
             return {"due": due, "scraped": [], "results": {}, "queue": {},
@@ -776,14 +789,16 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     # picked up the morning after it's played.
     if backfill and not aborted:
         for did in dids:
-            if str(did) in results:
+            if str(did) in results and did in backfill_dids:
                 backfill_score_sheets("auto", headless=headless, did=did)
     elif aborted:
         print("[scheduled] host aborted page scrape — skipping backfill this run "
               "(carried divisions retry next run).")
 
     fetch.write_heartbeat(fetch.ARCHIVE_ROOT, {
-        "mode": "scheduled", "run_date": date_str, "due": due, "carryover": carry,
+        "mode": "scheduled-all" if all_divisions else "scheduled",
+        "run_date": date_str, "due": due, "carryover": carry,
+        "backfilled": sorted(d for d in backfill_dids if str(d) in results),
         "divisions": results,
     })
 
@@ -869,8 +884,11 @@ def main() -> None:
 
     if args.scheduled:
         # --date overrides the computed Denver-local date (testing/backfilled runs).
+        # --all-divisions: scrape EVERY active division daily (backfill stays
+        # day-after-play + catch-up). Without it, scrape is day-after-play too.
         rd = dt.date.fromisoformat(args.date) if args.date else None
-        scheduled_run(run_date=rd, headless=not args.headed)
+        scheduled_run(run_date=rd, headless=not args.headed,
+                      all_divisions=args.all_divisions)
         return
 
     # Daily scrape: the chosen divisions, one shared browser page.

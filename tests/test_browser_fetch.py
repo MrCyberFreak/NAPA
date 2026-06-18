@@ -253,3 +253,22 @@ def test_scheduled_run_is_discovery_only_when_nothing_to_scrape(monkeypatch):
     monkeypatch.setattr(browser_fetch, "fetch_divisions_browser", fake_scrape)
     out = browser_fetch.scheduled_run(run_date=dt.date(2026, 6, 21))
     assert out["scraped"] == [] and scraped["called"] is False
+
+
+def test_scheduled_all_divisions_scrapes_all_but_backfills_due_only(monkeypatch):
+    # all_divisions=True must SCRAPE every active division (daily refresh) yet
+    # keep BACKFILL targeted to the day-after-play due set (host-friendly).
+    _stub_scheduled_io(monkeypatch)
+    monkeypatch.setattr(browser_fetch, "_run_discovery", lambda *a, **k: set())
+    scraped = {}
+    backfilled = []
+    monkeypatch.setattr(browser_fetch, "fetch_divisions_browser",
+                        lambda dids, **k: (scraped.update(dids=list(dids)),
+                                           {str(d): {"captured": ["roster_grid"],
+                                                     "unchanged": []} for d in dids})[1])
+    monkeypatch.setattr(browser_fetch, "backfill_score_sheets",
+                        lambda *a, **k: backfilled.append(k.get("did")))
+    # Friday run -> yesterday Thursday -> due = the Thursday divisions (13077, 14050).
+    browser_fetch.scheduled_run(run_date=dt.date(2026, 6, 19), all_divisions=True)
+    assert set(scraped["dids"]) == set(config.active_dids())   # scraped ALL active
+    assert set(backfilled) == {13077, 14050}                    # backfilled DUE only
