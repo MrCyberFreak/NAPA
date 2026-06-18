@@ -75,6 +75,46 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
         run: python -m src.browser_fetch --scheduled
 
+      # Surface what the daily states.php discovery found: active rollovers (now
+      # auto-scraped), rolled predecessors (kept for makeups), and NEW LEAGUES
+      # that need a human to onboard them. Reads the committed overlay/parsed
+      # files; a no-op when discovery was skipped (host challenge).
+      - name: Discovery summary (rollovers / new leagues)
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.probe_only == false }}
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob, json
+          print("## Season-rollover discovery")
+          try:
+              reg = json.load(open("data/raw/_registry.json"))
+          except OSError:
+              reg = {}
+          disc, unk = reg.get("discovered", {}), reg.get("unknown", {})
+          active = {d: e for d, e in disc.items() if e.get("status") == "active"}
+          rolled = {d: e for d, e in disc.items() if e.get("status") == "rolled"}
+          parsed = sorted(glob.glob("data/raw/_states/*/parsed.json"))
+          if parsed:
+              try:
+                  print(f"- states.php: **{len(json.load(open(parsed[-1])))}** NoCo "
+                        f"divisions seen ({parsed[-1].split('/')[-2]})")
+              except OSError:
+                  pass
+          for label, block in (("Active rollovers (now scraped)", active),
+                               ("Rolled predecessors (kept for makeups)", rolled)):
+              if block:
+                  print(f"\n**{label}:**")
+                  for d, e in sorted(block.items(), key=lambda kv: int(kv[0])):
+                      tail = (f"was {e.get('predecessor')}" if e.get("status") == "active"
+                              else f"-> {e.get('successor')}")
+                      print(f"- `{d}` {e.get('slug')} ({tail})")
+          if unk:
+              print("\n**NEW LEAGUES — onboard via napa-onboard-division:**")
+              for d, e in sorted(unk.items(), key=lambda kv: int(kv[0])):
+                  print(f"- `{d}` \"{e.get('name')}\" {e.get('slug')}")
+          if not (active or rolled or unk):
+              print("\n_No rollovers or new leagues detected._")
+          PY
+
       - name: Commit archive back
         run: |
           git config user.name  "napa-archive-bot"
