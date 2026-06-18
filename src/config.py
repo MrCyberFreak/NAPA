@@ -1,7 +1,8 @@
 """Single source of truth for the divisions and their URL patterns.
 
-All 14 NAPA of Northern Colorado divisions live in the DIVISIONS registry;
-flipping a division's `scrape` flag is the one-line per-division activation.
+All 14 NAPA of Northern Colorado divisions (plus 14050, the season-rollover of
+13077) live in the DIVISIONS registry; flipping a division's `scrape` flag is
+the one-line per-division activation.
 `DID = 13077` stays the app-wide default so every existing call site keys on
 one config value — retargeting is still a one-line change.
 """
@@ -44,8 +45,9 @@ class Division:
     scrape: bool = False
 
 
-# The 14 NoCo divisions. Only 13077 starts scrape=True — set a division's
-# `scrape` flag to activate it (see MULTIDIVISION_PLAN.md rollout).
+# The 14 NoCo divisions plus 14050 (the season-rollover of 13077). Rollout is
+# COMPLETE — every entry is scrape=True; set a division's `scrape` flag to
+# activate it (see MULTIDIVISION_PLAN.md rollout).
 DIVISIONS: dict[int, Division] = {
     d.did: d
     for d in (
@@ -63,6 +65,13 @@ DIVISIONS: dict[int, Division] = {
         Division(13743, "DP Broomfield Westminster 8-ball", "Friday", "8", scrape=True),
         Division(13722, "Piazza Friday DP 8-ball", "Friday", "8", scrape=True),
         Division(13298, "Piazzas Tuesday 8-ball", "Tuesday", "8", scrape=True),
+        # Season-rollover entry: 14050 is the NEW session of 13077 (NAPA mints a
+        # new did per session; this is the first rollover the multi-division
+        # foundation has hit). KEEP 13077 — it still has an R27 makeup pending
+        # 2026-07-09 and holds the 2025-26 season history. Switch the app-default
+        # DID (above) from 13077 to 14050 only AFTER 13077 fully closes. R1 = the
+        # division's first night, 2026-06-18 (the divisions.season key).
+        Division(14050, "Thursday Big Table Felt, No Limit LC (R1 2026-06-18)", "Thursday", "LC", scrape=True),
     )
 }
 
