@@ -3,17 +3,25 @@ the auto-week stop/abort classifier, and the per-division daily-scrape loop."""
 
 from __future__ import annotations
 
+import contextlib
+import datetime as dt
 from pathlib import Path
 
-from src import browser_fetch, config, fetch
+from src import browser_fetch, catchup, config, discovery, fetch
 from src.browser_fetch import (
     BotChallengeError,
     _parse_weeks,
+    _run_discovery,
     _walk_weeks,
     capture_clearing_challenge,
     classify_index,
     fetch_divisions_browser,
 )
+
+
+@contextlib.contextmanager
+def _fake_browser_page(headless=True):
+    yield object()
 
 CHALLENGE = (
     "<html><head><title>One moment, please...</title>"
@@ -166,3 +174,82 @@ def test_division_loop_aborts_whole_run_on_uncleared_challenge(monkeypatch):
     assert list(results) == ["13077", "13985"]  # 14022 skipped entirely
     # The aborted division's pre-abort partials still reach the heartbeat.
     assert results["13985"] == {"captured": ["roster_grid"], "unchanged": ["schedule"]}
+
+
+# --------------------------------------------------------------------------- #
+# Season-rollover discovery wired into scheduled_run (no real browser)
+# --------------------------------------------------------------------------- #
+
+
+def test_run_discovery_is_failsoft_on_a_states_challenge(monkeypatch):
+    # An uncleared states.php challenge must NEVER crash the run — _run_discovery
+    # swallows it and returns no rollovers (the page scrape still proceeds).
+    def boom(*a, **k):
+        raise BotChallengeError("states challenge")
+
+    monkeypatch.setattr(browser_fetch, "fetch_states", boom)
+    assert _run_discovery("2026-06-18", "2026-06-18", object()) == set()
+
+
+def test_run_discovery_alerts_and_skips_on_zero_noco_rows(monkeypatch, tmp_path, capsys):
+    # A challenge-free page with 0 NoCo rows means the group header changed —
+    # alert, don't silently reconcile it as "no rollovers".
+    monkeypatch.setattr(browser_fetch, "fetch_states", lambda *a, **k: None)
+    monkeypatch.setattr(browser_fetch, "_STATES_ROOT", tmp_path)
+    day = tmp_path / "2026-06-18"
+    day.mkdir()
+    (day / "states.html").write_text("<html><body>no group here</body></html>",
+                                     encoding="utf-8")
+    assert _run_discovery("2026-06-18", "2026-06-18", object()) == set()
+    assert "ALERT" in capsys.readouterr().out
+
+
+def _stub_scheduled_io(monkeypatch):
+    """Neutralize scheduled_run's disk/network side effects for wiring tests."""
+    monkeypatch.setattr(browser_fetch, "_browser_page", _fake_browser_page)
+    monkeypatch.setattr(browser_fetch, "backfill_score_sheets", lambda *a, **k: None)
+    monkeypatch.setattr(browser_fetch, "_pending_for_divisions", lambda *a, **k: {})
+    monkeypatch.setattr(catchup, "load_queue", lambda *a, **k: {})
+    monkeypatch.setattr(catchup, "save_queue", lambda *a, **k: None)
+    monkeypatch.setattr(fetch, "write_heartbeat", lambda *a, **k: None)
+
+
+def test_scheduled_run_folds_an_active_rollover_into_the_scrape_set(tmp_path, monkeypatch):
+    # Discovery registers an active rollover (off its weekday); scheduled_run
+    # must fold it into THIS run's scrape set via config.divisions().
+    monkeypatch.setattr(config, "REGISTRY_PATH", tmp_path / "_registry.json")
+    _stub_scheduled_io(monkeypatch)
+
+    def fake_discovery(date_str, run_date_iso, page):
+        discovery.save_registry({"discovered": {"99001": {
+            "slug": "wednesday-paradise-lc", "status": "active",
+            "weekday": "Wednesday", "predecessor": 14022}}, "unknown": {}})
+        return {99001}
+
+    monkeypatch.setattr(browser_fetch, "_run_discovery", fake_discovery)
+    seen = {}
+
+    def fake_scrape(dids, date=None, page=None, **k):
+        seen["dids"] = list(dids)
+        return {str(d): {"captured": [], "unchanged": []} for d in dids}
+
+    monkeypatch.setattr(browser_fetch, "fetch_divisions_browser", fake_scrape)
+    out = browser_fetch.scheduled_run(run_date=dt.date(2026, 6, 21))  # Sunday: due empty
+    assert 99001 in seen["dids"]
+    assert out["discovered"] == [99001]
+
+
+def test_scheduled_run_is_discovery_only_when_nothing_to_scrape(monkeypatch):
+    # Nothing due (Sunday => yesterday Saturday, no division plays), queue empty,
+    # no rollover -> discovery ran but no page scrape.
+    _stub_scheduled_io(monkeypatch)
+    monkeypatch.setattr(browser_fetch, "_run_discovery", lambda *a, **k: set())
+    scraped = {"called": False}
+
+    def fake_scrape(*a, **k):
+        scraped["called"] = True
+        return {}
+
+    monkeypatch.setattr(browser_fetch, "fetch_divisions_browser", fake_scrape)
+    out = browser_fetch.scheduled_run(run_date=dt.date(2026, 6, 21))
+    assert out["scraped"] == [] and scraped["called"] is False
