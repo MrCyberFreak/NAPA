@@ -14,7 +14,8 @@ onboard a division, never flips a `scrape` flag, never runs the rebuild.
 
 **Args:** a list of division ids (e.g. `13722 13723 13743 13744`); optional
 `--workflow harvest|backfill` (default `harvest`); optional `--drill` (harvest
-only, LOCKED at `0`).
+only, default `1` = full per-rival drill, the densification standard; `0` =
+tabs-only).
 
 ## 0. Preflight — refuse early
 
@@ -26,9 +27,12 @@ only, LOCKED at `0`).
 2. Never sweep a harvest and a backfill together: both hit poolshooters.com and a
    concurrent pair starves each into 30s nav timeouts (onboard skill §4). Pick
    ONE workflow per sweep.
-3. `--drill` stays `0` (tabs-only). The rivals drill is ~5,200 pages / ~3h45m per
-   division and Phase 6 doesn't use the per-game splits — a locked decision. A
-   non-zero drill is REFUSED.
+3. `--drill` defaults to `1` (full per-rival H2H drill) — the standard for the
+   densification sweep, so `pairing_history` lands per-game lifetime splits for
+   every division. The drill is ~5,200 pages / ~3h45m per division, which is why
+   it runs STRICTLY one division per dispatch (the workflow's 350-min timeout
+   covers one). Pass `--drill 0` for a fast tabs-only top-up; anything other than
+   0 or 1 is REFUSED.
 4. Confirm nothing is already in flight for these dids
    (`gh run list --workflow=harvest-profiles.yml --limit 5`, or `--workflow=backfill.yml`)
    — the workflows' `concurrency` groups (`cancel-in-progress: false`) queue, they
@@ -38,7 +42,7 @@ only, LOCKED at `0`).
 
 ```
 .claude/skills/napa-harvest-sweep/scripts/sweep.sh \
-    [--workflow harvest|backfill] [--drill 0] <did> [<did> ...]
+    [--workflow harvest|backfill] [--drill 1] <did> [<did> ...]
 ```
 
 The script encodes the host-friendly discipline (CLAUDE.md hard rules) — do NOT
@@ -78,6 +82,7 @@ The script ends with `git pull` (the workflows commit the archive / profiles to
 
 - Flipping a `scrape` flag / onboarding a not-yet-active division →
   `napa-onboard-division`.
-- The per-rival drill (`drill` stays `0`).
+- Onboarding decisions; the rebuild; flipping `scrape` flags (the drill itself
+  now runs by default — `--drill 1`).
 - Running `python -m src.db --rebuild`, or recomputing PHASE6_READINESS numbers.
 - Scrape-cron health verdicts → `napa-scrape-health`.
