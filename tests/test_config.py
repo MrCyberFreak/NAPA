@@ -1,7 +1,8 @@
 """Division registry tests — the DIVISIONS dict and URL templating.
 
-Verifies the 14-division registry, the per-division weekDay in the schedule
-URL, the scrape activation flag, and the per-division archive root.
+Verifies the 15-entry registry (14 NoCo divisions + the 14050 rollover of
+13077), the per-division weekDay in the schedule URL, the scrape activation
+flag, and the per-division archive root.
 """
 
 from __future__ import annotations
@@ -18,8 +19,10 @@ ALL_URL_NAMES = (
 )
 
 
-def test_registry_has_all_fourteen_divisions():
-    assert len(config.DIVISIONS) == 14
+def test_registry_has_all_divisions():
+    # 14 NoCo divisions + 14050 (the season-rollover of 13077, kept alongside it
+    # while 13077 still owes an R27 makeup and holds the 2025-26 history).
+    assert len(config.DIVISIONS) == 15
     assert all(did == d.did for did, d in config.DIVISIONS.items())
     assert all(d.fmt in ("LC", "8") for d in config.DIVISIONS.values())
 
@@ -46,12 +49,12 @@ def test_schedule_url_weekday_override_and_unknown_did_fallback():
 
 
 def test_active_divisions_match_rollout():
-    # Rollout COMPLETE: all 14 NoCo divisions active. active_dids() yields them
-    # in REGISTRY (dict insertion) order, not onboarding order — this list is
-    # the registry order.
+    # Rollout COMPLETE: all 14 NoCo divisions active, plus the 14050 rollover of
+    # 13077 (added last, so it lands at the tail). active_dids() yields them in
+    # REGISTRY (dict insertion) order, not onboarding order.
     assert config.active_dids() == [13077, 13985, 14022, 13986, 13937, 13881,
                                     13711, 13299, 13205, 13744, 13723, 13743,
-                                    13722, 13298]
+                                    13722, 13298, 14050]
     assert config.active_dids() == list(config.DIVISIONS)  # every division now active
 
 
