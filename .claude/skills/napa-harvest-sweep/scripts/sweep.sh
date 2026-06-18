@@ -13,16 +13,17 @@
 #   * never mix harvest + backfill in one sweep (both hit poolshooters.com).
 #
 # Usage:
-#   scripts/sweep.sh [--workflow harvest|backfill] [--drill 0] <did> [<did> ...]
+#   scripts/sweep.sh [--workflow harvest|backfill] [--drill 1] <did> [<did> ...]
 #     --workflow  harvest (default) -> harvest-profiles.yml  -f did -f drill=<drill>
 #                 backfill          -> backfill.yml          -f did -f weeks=auto
-#     --drill     harvest only; LOCKED at 0 (tabs-only). A non-zero value is refused.
+#     --drill     harvest only; 1 (default) = full per-rival H2H drill (the
+#                 standard for densification); 0 = tabs-only. Must be 0 or 1.
 set -u
 
 REPO_DIR="X:/Claude_Code/Projectes/NAPA"
 cd "$REPO_DIR" || { echo "cannot cd $REPO_DIR" >&2; exit 1; }
 
-WORKFLOW="harvest"; DRILL="0"; DIDS=()
+WORKFLOW="harvest"; DRILL="1"; DIDS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --workflow) WORKFLOW="${2:-}"; shift 2 ;;
@@ -39,8 +40,8 @@ case "$WORKFLOW" in
   backfill) WF="backfill.yml" ;;
   *) echo "--workflow must be harvest|backfill" >&2; exit 2 ;;
 esac
-if [ "$WORKFLOW" = "harvest" ] && [ "$DRILL" != "0" ]; then
-  echo "REFUSING --drill=$DRILL: rivals drill is locked off (tabs-only, drill=0)." >&2
+if [ "$WORKFLOW" = "harvest" ] && [ "$DRILL" != "0" ] && [ "$DRILL" != "1" ]; then
+  echo "REFUSING --drill=$DRILL: must be 1 (full per-rival drill, the standard) or 0 (tabs-only)." >&2
   exit 2
 fi
 
