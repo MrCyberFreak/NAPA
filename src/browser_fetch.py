@@ -657,6 +657,77 @@ def _pending_for_divisions(dids: Iterable[int], as_of: str) -> dict[int, list[di
     return pending
 
 
+# --------------------------------------------------------------------------- #
+# Season-rollover discovery (states.php) — runs daily inside scheduled_run
+# --------------------------------------------------------------------------- #
+
+_STATES_ROOT = fetch.ARCHIVE_ROOT / "_states"
+
+
+def fetch_states(date: str | None = None, headless: bool = True, page=None) -> Path | None:
+    """Capture the league-discovery page (states.php) into
+    data/raw/_states/<date>/states.html via write-on-change — it only commits
+    when a rollover / new league actually changes the page. Reuses the shared
+    browser `page` when given. Raises BotChallengeError on an uncleared
+    challenge; _run_discovery swallows it (discovery is fail-soft)."""
+    date = date or dt.date.today().isoformat()
+    written = fetch_pages_browser(pages=[("states", {})], date=date, root=_STATES_ROOT,
+                                  headless=headless, page=page, raise_on_challenge=True)
+    return written.get("states")
+
+
+def _latest_states_file() -> Path | None:
+    """Newest on-disk states.html (today's capture, or the last that changed
+    when today's was unchanged by write-on-change)."""
+    files = sorted(_STATES_ROOT.glob("*/states.html"))
+    return files[-1] if files else None
+
+
+def _write_states_parsed(date_dir: Path, rows) -> Path:
+    """Parsed NoCo rows next to states.html — the diffable record + the source
+    for the Actions discovery summary."""
+    out = date_dir / "parsed.json"
+    out.write_text(json.dumps([r.to_dict() for r in rows], indent=2) + "\n",
+                   encoding="utf-8")
+    return out
+
+
+def _run_discovery(date_str: str, run_date_iso: str, page) -> set[int]:
+    """Fetch + parse states.php, reconcile rollovers into the registry, and
+    return the rollover dids that became active THIS run (to fold into the
+    scrape set). Fail-soft: ANY failure — a host challenge, a parse error —
+    logs and returns an empty set; discovery NEVER crashes the scheduled run."""
+    from . import discovery
+    from .parse.states import parse_states_file
+    try:
+        fetch_states(date=date_str, page=page)
+    except Exception as exc:  # noqa: BLE001 — discovery must never crash the run
+        print(f"[discovery] states.php capture failed ({exc}); skipping discovery this run.")
+        return set()
+    latest = _latest_states_file()
+    if latest is None:
+        print("[discovery] no states.html on disk; skipping reconcile.")
+        return set()
+    rows = parse_states_file(latest)
+    if not rows:
+        # A challenge-free page with zero NoCo rows means the group header
+        # changed (NAPA renamed "NAPA of Northern Colorado") — ALERT, do NOT
+        # silently treat it as "no rollovers".
+        print("[discovery] ALERT: 0 NoCo rows on states.php — the league-group "
+              "header may have changed; not reconciling this run.")
+        return set()
+    res = discovery.reconcile_registry(rows, discovery.load_registry(), run_date_iso)
+    discovery.save_registry(res.registry, run_date=run_date_iso)
+    _write_states_parsed(latest.parent, rows)
+    for sdid, e in res.rollovers.items():
+        print(f"[discovery] ROLLOVER did={sdid} slug={e['slug']} "
+              f"predecessor={e['predecessor']} -> scraping on first appearance")
+    for sdid, e in res.unknown.items():
+        print(f"[discovery] NEW LEAGUE did={sdid} \"{e['name']}\" slug={e['slug']} "
+              "— onboard via napa-onboard-division (report-only, not scraped)")
+    return set(res.newly_activated)
+
+
 def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
                   backfill: bool = True) -> dict:
     """Day-after-play scrape + catch-up — replaces the twice-daily
@@ -676,16 +747,26 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     date_str = run_date.isoformat()
     queue = catchup.load_queue()
     due = config.divisions_due(run_date)
-    dids = catchup.run_set(due, queue)
-    carry = sorted(int(d) for d in queue)
-    print(f"[scheduled] {date_str}: due={due or []} + carryover={carry or []} "
-          f"-> {dids or []}")
-    if not dids:
-        print("[scheduled] nothing due and queue empty — no-op.")
-        return {"due": due, "scraped": [], "results": {}, "queue": {}}
 
-    # Page scrape (one shared browser context across divisions).
-    results = fetch_divisions_browser(dids, date=date_str, headless=headless)
+    # Discovery + the page scrape share ONE browser context (challenge cookies
+    # amortize). Discovery runs FIRST and DAILY — even when nothing is due — so a
+    # season rollover is caught the morning it appears; it is fail-soft (an
+    # uncleared states.php challenge skips discovery, never crashes the run) and
+    # folds any newly-active rollover did into THIS run's scrape set so its first
+    # night is captured even off its weekday.
+    with _browser_page(headless) as page:
+        newly = _run_discovery(date_str, date_str, page)
+        dids = catchup.run_set(sorted(set(due) | newly), queue)
+        carry = sorted(int(d) for d in queue)
+        print(f"[scheduled] {date_str}: due={due or []} + carryover={carry or []}"
+              + (f" + rollovers={sorted(newly)}" if newly else "")
+              + f" -> {dids or []}")
+        if not dids:
+            print("[scheduled] nothing to scrape — discovery-only run.")
+            return {"due": due, "scraped": [], "results": {}, "queue": {},
+                    "discovered": sorted(newly)}
+        # Page scrape (the same shared context, so the states.php clear carries).
+        results = fetch_divisions_browser(dids, date=date_str, page=page)
     aborted = len(results) < len(dids)  # a host-wide challenge cut the run short
 
     # Auto-backfill each division actually reached — but not if the host just
@@ -710,7 +791,8 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     new_queue = catchup.reconcile(dids, results, pending, queue, date_str)
     catchup.save_queue(new_queue, run_date=date_str)
     print(f"[scheduled] catch-up queue now: {sorted(int(d) for d in new_queue) or []}")
-    return {"due": due, "scraped": dids, "results": results, "queue": new_queue}
+    return {"due": due, "scraped": dids, "results": results, "queue": new_queue,
+            "discovered": sorted(newly)}
 
 
 def main() -> None:
