@@ -15,8 +15,8 @@ on:
         description: "Tabs to harvest (comma)"
         default: "rivals,h2h,trends,main"
       drill:
-        description: "Drill each rival for per-game H2H (1) or tabs only (0)"
-        default: "0"
+        description: "Drill each rival for per-game H2H (1, the densification standard) or tabs only (0)"
+        default: "1"
 
 permissions:
   contents: write
