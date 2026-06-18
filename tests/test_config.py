@@ -67,13 +67,16 @@ def test_schedule_url_weekday_override_and_unknown_did_fallback():
 
 
 def test_active_divisions_match_rollout():
-    # Rollout COMPLETE: all 14 NoCo divisions active, plus the 14050 rollover of
-    # 13077 (added last, so it lands at the tail). active_dids() yields them in
-    # REGISTRY (dict insertion) order, not onboarding order.
-    assert config.active_dids() == [13077, 13985, 14022, 13986, 13937, 13881,
-                                    13711, 13299, 13205, 13744, 13723, 13743,
-                                    13722, 13298, 14050]
-    assert config.active_dids() == list(config.DIVISIONS)  # every division now active
+    # The CURATED active set, asserted against config.DIVISIONS directly so a
+    # real discovered-rollover overlay can't perturb this list (the MERGED
+    # active_dids() behavior is covered in test_registry_overlay). Rollout
+    # COMPLETE: all 14 NoCo divisions active + the 14050 rollover (added last,
+    # so it lands at the tail), in REGISTRY (dict insertion) order.
+    curated_active = [did for did, d in config.DIVISIONS.items() if d.scrape]
+    assert curated_active == [13077, 13985, 14022, 13986, 13937, 13881,
+                              13711, 13299, 13205, 13744, 13723, 13743,
+                              13722, 13298, 14050]
+    assert curated_active == list(config.DIVISIONS)  # every curated division active
 
 
 def test_division_root_is_per_did():
