@@ -42,6 +42,11 @@ class Division:
     name: str
     weekday: str
     fmt: str
+    slug: str       # stable LOGICAL-league key (weekday-venue-gameset); survives
+                    # did rollovers — a league's session-ids SHARE one slug, so it
+                    # also groups the archive (data/raw/<slug>/<did>/). The gameset
+                    # token is load-bearing: it's the only thing keeping the three
+                    # shared-venue LC/8-ball division pairs from colliding.
     scrape: bool = False
 
 
@@ -51,27 +56,29 @@ class Division:
 DIVISIONS: dict[int, Division] = {
     d.did: d
     for d in (
-        Division(13077, "Thursday Big Table Felt, No Limit LC", "Thursday", "LC", scrape=True),
-        Division(13985, "Felt Laggers", "Tuesday", "LC", scrape=True),
-        Division(14022, "Paradise", "Wednesday", "LC", scrape=True),
-        Division(13986, "Zoosters Laggers", "Tuesday", "LC", scrape=True),
-        Division(13937, "Pharaoh's", "Wednesday", "LC", scrape=True),
-        Division(13881, "Broomfield Westminster Laggers", "Monday", "LC", scrape=True),
-        Division(13711, "Wreckroom Sunday", "Sunday", "LC", scrape=True),
-        Division(13299, "Piazzas Tuesday", "Tuesday", "LC", scrape=True),
-        Division(13205, "Greeley", "Monday", "LC", scrape=True),
-        Division(13744, "DP Broomfield Westminster LC", "Friday", "LC", scrape=True),
-        Division(13723, "Piazza Friday DP LC", "Friday", "LC", scrape=True),
-        Division(13743, "DP Broomfield Westminster 8-ball", "Friday", "8", scrape=True),
-        Division(13722, "Piazza Friday DP 8-ball", "Friday", "8", scrape=True),
-        Division(13298, "Piazzas Tuesday 8-ball", "Tuesday", "8", scrape=True),
+        Division(13077, "Thursday Big Table Felt, No Limit LC", "Thursday", "LC", "thursday-big-table-felt-lc", scrape=True),
+        Division(13985, "Felt Laggers", "Tuesday", "LC", "tuesday-felt-laggers-lc", scrape=True),
+        Division(14022, "Paradise", "Wednesday", "LC", "wednesday-paradise-lc", scrape=True),
+        Division(13986, "Zoosters Laggers", "Tuesday", "LC", "tuesday-zoosters-laggers-lc", scrape=True),
+        Division(13937, "Pharaoh's", "Wednesday", "LC", "wednesday-pharaohs-lc", scrape=True),
+        Division(13881, "Broomfield Westminster Laggers", "Monday", "LC", "monday-broomfield-westminster-laggers-lc", scrape=True),
+        Division(13711, "Wreckroom Sunday", "Sunday", "LC", "sunday-wreckroom-sunday-lc", scrape=True),
+        Division(13299, "Piazzas Tuesday", "Tuesday", "LC", "tuesday-piazzas-tuesday-lc", scrape=True),
+        Division(13205, "Greeley", "Monday", "LC", "monday-greeley-lc", scrape=True),
+        Division(13744, "DP Broomfield Westminster LC", "Friday", "LC", "friday-dp-broomfield-westminster-lc", scrape=True),
+        Division(13723, "Piazza Friday DP LC", "Friday", "LC", "friday-piazza-friday-dp-lc", scrape=True),
+        Division(13743, "DP Broomfield Westminster 8-ball", "Friday", "8", "friday-dp-broomfield-westminster-8ball", scrape=True),
+        Division(13722, "Piazza Friday DP 8-ball", "Friday", "8", "friday-piazza-friday-dp-8ball", scrape=True),
+        Division(13298, "Piazzas Tuesday 8-ball", "Tuesday", "8", "tuesday-piazzas-tuesday-8ball", scrape=True),
         # Season-rollover entry: 14050 is the NEW session of 13077 (NAPA mints a
         # new did per session; this is the first rollover the multi-division
         # foundation has hit). KEEP 13077 — it still has an R27 makeup pending
         # 2026-07-09 and holds the 2025-26 season history. Switch the app-default
         # DID (above) from 13077 to 14050 only AFTER 13077 fully closes. R1 = the
-        # division's first night, 2026-06-18 (the divisions.season key).
-        Division(14050, "Thursday Big Table Felt, No Limit LC (R1 2026-06-18)", "Thursday", "LC", scrape=True),
+        # division's first night, 2026-06-18 (the divisions.season key). It SHARES
+        # 13077's slug — same logical league, two session-ids — so both nest under
+        # data/raw/thursday-big-table-felt-lc/ once the archive is slug-grouped.
+        Division(14050, "Thursday Big Table Felt, No Limit LC (R1 2026-06-18)", "Thursday", "LC", "thursday-big-table-felt-lc", scrape=True),
     )
 }
 

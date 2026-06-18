@@ -27,6 +27,24 @@ def test_registry_has_all_divisions():
     assert all(d.fmt in ("LC", "8") for d in config.DIVISIONS.values())
 
 
+def test_every_division_has_a_slug():
+    assert all(d.slug for d in config.DIVISIONS.values())
+
+
+def test_slugs_unique_per_league_rollovers_share():
+    # The slug is the stable LOGICAL-league key: distinct leagues -> distinct
+    # slugs (esp. the three shared-venue LC/8-ball pairs, kept apart only by the
+    # gameset token), but the two session-ids of the SAME league (13077 and its
+    # rollover 14050) intentionally SHARE one slug.
+    from collections import Counter
+
+    shared = {slug for slug, n in Counter(
+        d.slug for d in config.DIVISIONS.values()).items() if n > 1}
+    assert shared == {"thursday-big-table-felt-lc"}
+    assert sorted(did for did, d in config.DIVISIONS.items()
+                  if d.slug == "thursday-big-table-felt-lc") == [13077, 14050]
+
+
 @pytest.mark.parametrize("did", list(config.DIVISIONS))
 def test_every_division_builds_every_url(did):
     for name in ALL_URL_NAMES:
