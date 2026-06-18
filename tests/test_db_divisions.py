@@ -154,6 +154,21 @@ def test_load_profile_records_player_divisions():
     assert [r["player_id"] for r in multi] == ["10000009"]
 
 
+def test_init_db_seeds_slug_and_rollover_status():
+    conn = connect(":memory:")
+    init_db(conn)
+    rows = {r["division_id"]: r for r in conn.execute(
+        "SELECT division_id, slug, status, successor_did FROM divisions")}
+    # 13077 rolled to 14050 (shared slug); the older did is 'rolled' with a
+    # successor, the newer is the 'active' session — derived, not hardcoded.
+    assert rows[13077]["slug"] == "thursday-big-table-felt-lc"
+    assert (rows[13077]["status"], rows[13077]["successor_did"]) == ("rolled", 14050)
+    assert (rows[14050]["status"], rows[14050]["successor_did"]) == ("active", None)
+    # A singleton league is just 'active'.
+    assert (rows[13985]["status"], rows[13985]["successor_did"]) == ("active", None)
+    assert all(r["slug"] for r in rows.values())
+
+
 def test_schedule_resolves_within_division_only():
     conn = connect(":memory:")
     load_roster(conn, [_rp("The Furies Felt Billiards Team #2", "Flo F", "10000010")],

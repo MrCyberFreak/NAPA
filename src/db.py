@@ -51,11 +51,14 @@ SCHEMA = """
 -- Division registry rows (seeded from config.DIVISIONS; season is set per
 -- division when its schedule loads — seasons are STAGGERED, see B1 recon).
 CREATE TABLE IF NOT EXISTS divisions (
-    division_id INTEGER PRIMARY KEY,
-    name        TEXT,
-    weekday     TEXT,
-    format      TEXT,
-    season      TEXT
+    division_id   INTEGER PRIMARY KEY,
+    name          TEXT,
+    weekday       TEXT,
+    format        TEXT,
+    season        TEXT,
+    slug          TEXT,       -- stable logical-league key (weekday-venue-gameset)
+    status        TEXT,       -- 'active' | 'rolled' (a newer session-id exists)
+    successor_did INTEGER     -- next session-id when this division has rolled
 );
 
 CREATE TABLE IF NOT EXISTS players (
@@ -298,16 +301,47 @@ def connect(path: str | Path = config.DB_PATH) -> sqlite3.Connection:
     return conn
 
 
+def _rollover_status(divs: dict) -> tuple[dict, dict]:
+    """Derive (status, successor_did) per did from slug grouping: within a
+    logical league (shared slug), the highest did is the current 'active'
+    session and any older session-id is 'rolled' with successor = the next did
+    up. Recovers the 13077 -> 14050 rollover with no hardcode."""
+    by_slug: dict[str, list[int]] = {}
+    for did, d in divs.items():
+        by_slug.setdefault(d.slug, []).append(did)
+    status: dict[int, str] = {}
+    succ: dict[int, int | None] = {}
+    for dids in by_slug.values():
+        order = sorted(dids)
+        for i, did in enumerate(order):
+            rolled = i < len(order) - 1
+            status[did] = "rolled" if rolled else "active"
+            succ[did] = order[i + 1] if rolled else None
+    return status, succ
+
+
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
-    for d in config.DIVISIONS.values():
+    # Column-tolerant: write slug/status/successor only if the columns exist, so
+    # init_db on a pre-rebuild (old-schema) DB during a daily db --load never
+    # breaks (a schema change otherwise implies a rebuild — project rule, no ALTER).
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(divisions)")}
+    extra = [c for c in ("slug", "status", "successor_did") if c in cols]
+    divs = config.divisions()                     # curated + any discovered rollover
+    status, succ = _rollover_status(divs)
+    for d in divs.values():
+        names = ["division_id", "name", "weekday", "format"]
+        vals = [d.did, d.name, d.weekday, d.fmt]
+        avail = {"slug": d.slug, "status": status.get(d.did),
+                 "successor_did": succ.get(d.did)}
+        names += extra
+        vals += [avail[c] for c in extra]
+        setters = ", ".join(f"{c} = excluded.{c}" for c in names if c != "division_id")
         conn.execute(
-            """INSERT INTO divisions (division_id, name, weekday, format)
-               VALUES (?, ?, ?, ?)
-               ON CONFLICT(division_id) DO UPDATE SET
-                   name = excluded.name, weekday = excluded.weekday,
-                   format = excluded.format""",
-            (d.did, d.name, d.weekday, d.fmt),
+            f"INSERT INTO divisions ({', '.join(names)}) "
+            f"VALUES ({', '.join('?' for _ in names)}) "
+            f"ON CONFLICT(division_id) DO UPDATE SET {setters}",
+            vals,
         )
     conn.commit()
 
