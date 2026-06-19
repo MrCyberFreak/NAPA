@@ -260,6 +260,19 @@ def _walk_weeks(weeks, fetch_index: Callable[[int], str]):
         yield wk, html
 
 
+def _sheet_captured(target: Path) -> bool:
+    """True only if `target` is an existing score sheet that actually holds
+    games. A pre-season / not-yet-played sheet is a "NO MATCH(ES) PLAYED" shell
+    — >500 bytes but ZERO game tables — so a size-only resume check treated it
+    as done and never re-fetched the populated sheet once the match was played.
+    A shell parses to games==[]; treat it as NOT captured so it is re-fetched
+    (observed 14050/14022: a whole season of shells pre-saved at onboarding
+    masked every real score sheet)."""
+    from .parse.weekly_scores import parse_score_sheet_file
+
+    return target.exists() and bool(parse_score_sheet_file(target).games)
+
+
 def backfill_score_sheets(weeks, out_root: str | Path | None = None,
                           headless: bool = True, did: int = config.DID) -> list[str]:
     """Walk standings_weekly_scores.php?week=N for each week (`weeks` is a list,
@@ -315,8 +328,8 @@ def backfill_score_sheets(weeks, out_root: str | Path | None = None,
             for url in urls:
                 tid = _re.search(r"tid=(\d+)", url)
                 target = wkdir / f"{tid.group(1) if tid else 'x'}.html"
-                if target.exists() and target.stat().st_size > 500:
-                    continue  # resume
+                if _sheet_captured(target):
+                    continue  # resume — a real, populated capture (not a shell)
                 html = cleared(page, url)
                 if html and not fetch.is_challenge(html):
                     target.write_text(html, encoding="utf-8")

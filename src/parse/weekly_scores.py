@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from bs4 import BeautifulSoup
 
 from .roster import read_source
+from .standings import MatchResult  # the official per-match result shape (reused)
 
 _MONTHS = {
     "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
@@ -247,3 +248,61 @@ def parse_week_index(html: str) -> list[str]:
             seen.add(href)
             urls.append(href)
     return urls
+
+
+_ROUND_RE = re.compile(r"Round\s+(\d+)\s+Scores", re.IGNORECASE)
+_MATCH_PTS_RE = re.compile(r"(\d+)\s*\(\s*match\s*points\s*\)", re.IGNORECASE)
+
+
+def parse_week_results(html: str) -> list[MatchResult]:
+    """The official match-POINT results printed on a standings_weekly_scores.php
+    page (the totals shown next to each team, e.g. "48 (match points)") — the
+    outcome layer that lives on the SAME page we already fetch for sheet URLs.
+
+    Each match is two consecutive team rows; we pair them in listed order and
+    leave home/away orientation to be resolved against the schedule at load
+    time. The page can carry more than one round (makeups land under their own
+    "Round N Scores" header on an off-schedule date), so the round/date are
+    tracked from the section headers as we walk, not assumed from the week.
+    A genuinely-unplayed match shows 0/0 here; that is faithfully parsed (the
+    load step decides 0-0 means "not played", not the parser)."""
+    soup = BeautifulSoup(html, "lxml")
+    results: list[MatchResult] = []
+    cur_round: int | None = None
+    cur_date: str | None = None
+    pair: list[tuple[str, int]] = []
+
+    def flush() -> None:
+        nonlocal pair
+        if len(pair) == 2 and cur_round is not None:
+            (t1, p1), (t2, p2) = pair
+            results.append(MatchResult(cur_round, cur_date, t1, p1, t2, p2))
+        pair = []
+
+    for tr in soup.find_all("tr"):
+        cells = tr.find_all(["td", "th"])
+        text = tr.get_text(" ", strip=True)
+        rm = _ROUND_RE.search(text)
+        if rm:                                   # "Round N Scores" section header
+            flush()
+            cur_round, cur_date = int(rm.group(1)), None
+            continue
+        if len(cells) == 1 and "match points" not in text.lower():
+            dm = _sheet_date(text)               # the section's play-date header
+            if dm:
+                cur_date = dm
+            continue
+        pm = _MATCH_PTS_RE.search(text)
+        if pm and tr.find("a", href=re.compile("scores.php")):
+            name = cells[0].get_text("|", strip=True).split("|")[0].strip()
+            pair.append((name, int(pm.group(1))))
+            if len(pair) == 2:
+                flush()
+            continue
+        flush()                                  # spacer / unrelated row = boundary
+    flush()
+    return results
+
+
+def parse_week_results_file(path) -> list[MatchResult]:
+    return parse_week_results(read_source(path))
