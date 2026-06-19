@@ -52,6 +52,7 @@ EASY_PAGES: list[tuple[str, dict]] = [
 ARCHIVE_PAGES: list[tuple[str, dict]] = EASY_PAGES + [
     ("division", {}),
     ("leaderboard", {}),
+    ("flex", {}),          # individual point standings (the division race)
     ("live_scores", {}),
 ]
 

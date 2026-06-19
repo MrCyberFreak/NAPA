@@ -103,6 +103,29 @@ CREATE TABLE IF NOT EXISTS skill_snapshots (
     PRIMARY KEY (player_id, captured_date)
 );
 
+-- Individual point standings (the division's FLEX race), one row per player per
+-- captured_date — a weekly drift record (the host overwrites the live page, so
+-- history accrues only from when we start capturing). player_id is the resolved
+-- name->id (A1), NULL for subs/ambiguous; ratings kept raw (game set NOT assumed
+-- here — it is division-specific; see roster.py). AP/MP and the forfeit-adjusted
+-- ADJ.* feed AVG PPM, the ranking key.
+CREATE TABLE IF NOT EXISTS flex_standings (
+    division_id   INTEGER NOT NULL REFERENCES divisions(division_id),
+    captured_date TEXT NOT NULL,
+    rank          INTEGER,
+    player_id     TEXT,            -- resolved name->id; NULL for subs/ambiguous
+    player_name   TEXT NOT NULL,
+    ratings_raw   TEXT,            -- "(77, 54, 49)" verbatim; not split to 8/9/10
+    ap            INTEGER,         -- actual points
+    mp            INTEGER,         -- matches played
+    ff_20         INTEGER,         -- forfeit credit @ race-to-20
+    ff_14         INTEGER,         -- forfeit credit @ race-to-14
+    adj_ap        INTEGER,         -- forfeit-adjusted actual points
+    adj_mp        INTEGER,         -- forfeit-adjusted matches played
+    avg_ppm       REAL,            -- adj_ap / adj_mp — the rank key
+    PRIMARY KEY (division_id, captured_date, player_name)
+);
+
 CREATE TABLE IF NOT EXISTS teams (
     team_id     INTEGER PRIMARY KEY,
     division_id INTEGER NOT NULL REFERENCES divisions(division_id),
@@ -229,6 +252,7 @@ CREATE TABLE IF NOT EXISTS match_history (
 );
 
 CREATE INDEX IF NOT EXISTS idx_snap_date ON skill_snapshots(captured_date);
+CREATE INDEX IF NOT EXISTS idx_flex_date ON flex_standings(division_id, captured_date);
 CREATE INDEX IF NOT EXISTS idx_member_team ON team_members(team_id, season);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_match_unique
     ON matches(season, round, home_team_id, away_team_id);
@@ -722,6 +746,39 @@ def load_score_sheets(conn: sqlite3.Connection, sheets: list[ScoreSheet],
     conn.commit()
     return {"sheets": len(sheets), "loaded": loaded, "deduped": skipped,
             "unresolved_player_slots": unresolved, "ambiguous_names": ambiguous_names}
+
+
+def load_flex(conn: sqlite3.Connection, standings, captured_date: str,
+              season: str = config.SEASON, division_id: int = config.DID) -> dict:
+    """Load one FLEX individual-point-standings snapshot into `flex_standings`.
+    Resolves player names -> 8-digit ids (division-first A1; NULL for subs /
+    ambiguous, counted). Keyed by (division, captured_date, player_name) so a
+    re-load of the same day upserts and distinct days accrue as a drift record."""
+    init_db(conn)
+    loaded = unresolved = ambiguous = 0
+    for r in standings.rows:
+        pid, amb = _resolve_player_id(conn, r.player, season, division_id)
+        unresolved += pid is None
+        ambiguous += amb
+        conn.execute(
+            """
+            INSERT INTO flex_standings
+                (division_id, captured_date, rank, player_id, player_name,
+                 ratings_raw, ap, mp, ff_20, ff_14, adj_ap, adj_mp, avg_ppm)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(division_id, captured_date, player_name) DO UPDATE SET
+                rank=excluded.rank, player_id=excluded.player_id,
+                ratings_raw=excluded.ratings_raw, ap=excluded.ap, mp=excluded.mp,
+                ff_20=excluded.ff_20, ff_14=excluded.ff_14, adj_ap=excluded.adj_ap,
+                adj_mp=excluded.adj_mp, avg_ppm=excluded.avg_ppm
+            """,
+            (division_id, captured_date, r.rank, pid, r.player, r.ratings_raw,
+             r.ap, r.mp, r.ff_20, r.ff_14, r.adj_ap, r.adj_mp, r.avg_ppm),
+        )
+        loaded += 1
+    conn.commit()
+    return {"rows": len(standings.rows), "loaded": loaded,
+            "unresolved_players": unresolved, "ambiguous_names": ambiguous}
 
 
 def load_team_record(conn: sqlite3.Connection, record: TeamRecord, season: str = config.SEASON,
@@ -1253,6 +1310,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     from .parse.tournament import parse_tournament_file
     from .parse.schedule import parse_schedule_file
     from .parse.weekly_scores import parse_score_sheet_file, parse_week_results_file
+    from .parse.flex import parse_flex_file
 
     path = Path(db_path)
     if path.exists():
@@ -1302,6 +1360,23 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
         if results:
             report["divisions"][did]["results"] = load_match_results(
                 conn, results, season=seasons[did], division_id=did)
+
+    for did in dids:  # pass 3b: FLEX individual point standings (dated drift snapshots)
+        flex_files = sorted(config.division_root(did).glob("*/flex.html"))
+        if not flex_files:
+            continue
+        rep = {"flex_loads": 0, "flex_rows": 0, "flex_failed": 0}
+        for ff in flex_files:
+            try:
+                fs = parse_flex_file(ff)
+                res = load_flex(conn, fs, captured_date=ff.parent.name,
+                                season=seasons[did], division_id=did)
+                rep["flex_loads"] += 1
+                rep["flex_rows"] += res["loaded"]
+            except Exception as exc:  # noqa: BLE001 — one bad capture must not kill a rebuild
+                rep["flex_failed"] += 1
+                print(f"[rebuild] flex {ff} failed: {exc}")
+        report["divisions"][did]["flex"] = rep
 
     # pass 4: profiles — league-wide, after every roster so ids all exist.
     # Skipped when profiles=False (the slow, I/O-bound pass; not needed for the
@@ -1359,7 +1434,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
               for t in ("players", "skill_snapshots", "teams", "matches", "games",
                         "pairing_history", "player_form", "player_divisions",
-                        "tournament_matches")}
+                        "tournament_matches", "flex_standings")}
     report["counts"] = counts
     conn.close()
     return report
