@@ -23,3 +23,6 @@ dashboard.html
 # Local session scratch (handoff docs + logs) and DB backups — not shipped.
 handoffs/
 data/napa.db.bak*
+
+# Local editor/tooling output — not part of the project.
+.codescope/
