@@ -364,9 +364,13 @@ def discover_scout(high: int | None = None, low: int = 0, headless: bool = True,
                    run_date: str | None = None) -> dict:
     """SCOUT (validation): walk did DOWNWARD from `high` (default the highest
     curated did, 14050), record one index row per division.php, and STOP at the
-    first slug that repeats a slug already seen this run — proving a league recurs
-    at a lower did (13077 shares 14050's slug → the (14050, 13077) pair). Single
-    runner. Updates the master index + _historical.json; returns a proof report.
+    first NoCo slug that repeats a NoCo slug already seen this run — proving a
+    NoCo league recurs at a lower did (13077 shares 14050's slug → the
+    (14050, 13077) pair). Non-NoCo divisions ARE catalogued but do NOT drive the
+    stop: the did space is wall-to-wall other-region divisions whose slugs also
+    repeat (observed: friday-swmo-rack-royal-lc at 14016/14015 stops a naive
+    any-slug scout in ~36 dids, long before the NoCo case). Single runner.
+    Updates the master index + _historical.json; returns a proof report.
     Catalog-only: the current divisions it passes are already archived by the
     daily scrape, so it writes no HTML (the full sweep is what archives hits)."""
     from . import division_index as dindex
@@ -396,12 +400,12 @@ def discover_scout(high: int | None = None, low: int = 0, headless: bool = True,
             new_rows[str(did)] = row
             noco += int(row["is_noco"])
             page.wait_for_timeout(1500)  # polite
-            if not dp.resolved:
-                continue
+            if not dp.resolved or not row["is_noco"]:
+                continue  # non-NoCo: catalogued, but never drives the stop
             if dp.slug in seen:
                 proof = {"slug": dp.slug, "first_did": seen[dp.slug], "repeat_did": did}
-                print(f"[discover] REPEAT slug {dp.slug!r}: {seen[dp.slug]} <- {did} "
-                      f"— proves the sweep finds prior sessions; stopping scout.")
+                print(f"[discover] NoCo REPEAT slug {dp.slug!r}: {seen[dp.slug]} <- {did} "
+                      f"— a NoCo league's prior session; stopping scout.")
                 break
             seen[dp.slug] = did
 
@@ -412,8 +416,8 @@ def discover_scout(high: int | None = None, low: int = 0, headless: bool = True,
     print(f"[discover] scout catalogued {len(new_rows)} dids ({noco} NoCo) "
           f"from {high} down to {floor}")
     if not proof:
-        print("[discover] WARNING: no slug repeat in range — too shallow, or curated "
-              "slugs drifted (14050/13077 were expected to repeat).")
+        print("[discover] WARNING: no NoCo slug repeat in range — too shallow, or "
+              "curated slugs drifted (14050/13077 were expected to repeat).")
     return {"proof": proof, "catalogued": len(new_rows), "noco": noco, "high": high}
 
 
