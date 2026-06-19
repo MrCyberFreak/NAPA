@@ -19,3 +19,7 @@ data/*.db-journal
 
 # generated dashboard output (regenerate via tools/dashboard.py)
 dashboard.html
+
+# Local session scratch (handoff docs + logs) and DB backups — not shipped.
+handoffs/
+data/napa.db.bak*
