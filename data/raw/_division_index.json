@@ -1,0 +1,368 @@
+{
+  "updated_utc": "2026-06-19T19:44:08+00:00",
+  "run_date": "2026-06-19",
+  "count": 36,
+  "noco_count": 2,
+  "divisions": {
+    "14015": {
+      "did": 14015,
+      "echoed_did": 14015,
+      "name": "Friday \"SWMO Rack Royal\" Singles RR9 League",
+      "slug": "friday-swmo-rack-royal-lc",
+      "location": "Springfield",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14016": {
+      "did": 14016,
+      "echoed_did": 14016,
+      "name": "Friday \"SWMO Rack Royal\" Singles RR10 League",
+      "slug": "friday-swmo-rack-royal-lc",
+      "location": "Springfield",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14017": {
+      "did": 14017,
+      "echoed_did": 14017,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14018": {
+      "did": 14018,
+      "echoed_did": 14018,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14019": {
+      "did": 14019,
+      "echoed_did": 14019,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14020": {
+      "did": 14020,
+      "echoed_did": 14020,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14021": {
+      "did": 14021,
+      "echoed_did": 14021,
+      "name": "Wednesday \"SidePocket's Sharp Shooters\" Scotch Doubles 9-ball League",
+      "slug": "wednesday-sidepockets-sharp-shooters-9ball",
+      "location": "Shreveport",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14022": {
+      "did": 14022,
+      "echoed_did": 14022,
+      "name": "Wednesday \"Paradise\" No Limit LC League",
+      "slug": "wednesday-paradise-lc",
+      "location": "Lone Tree",
+      "is_noco": true,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14023": {
+      "did": 14023,
+      "echoed_did": 14023,
+      "name": "Wednesday \"Route 21 Doubles 26/01\" Scotch Doubles 10-ball League",
+      "slug": "wednesday-route-21-doubles-26-01-10ball",
+      "location": "Jacksonville",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14024": {
+      "did": 14024,
+      "echoed_did": 14024,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14025": {
+      "did": 14025,
+      "echoed_did": 14025,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14026": {
+      "did": 14026,
+      "echoed_did": 14026,
+      "name": "Wednesday \"Summer Side Pot\" Singles 9-ball League",
+      "slug": "wednesday-summer-side-pot-9ball",
+      "location": "Rutland",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14027": {
+      "did": 14027,
+      "echoed_did": 14027,
+      "name": "Wednesday \"Summer Side Pot\" Singles 8-ball League",
+      "slug": "wednesday-summer-side-pot-8ball",
+      "location": "Rutland",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14028": {
+      "did": 14028,
+      "echoed_did": 14028,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14029": {
+      "did": 14029,
+      "echoed_did": 14029,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14030": {
+      "did": 14030,
+      "echoed_did": 14030,
+      "name": "Thursday \"Route 21 Low And Below 26/02\" Singles LC League",
+      "slug": "thursday-route-21-low-and-below-26-02-lc",
+      "location": "Jacksonville",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14031": {
+      "did": 14031,
+      "echoed_did": 14031,
+      "name": "Thursday \"RB Thur 8ball Singles\" Singles 8-ball League",
+      "slug": "thursday-rb-thur-8ball-singles-8ball",
+      "location": "Defuniak Springs",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14032": {
+      "did": 14032,
+      "echoed_did": 14032,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14033": {
+      "did": 14033,
+      "echoed_did": 14033,
+      "name": "Saturday \"Skeezix Youth\" Singles LC League",
+      "slug": "saturday-skeezix-youth-lc",
+      "location": "Cameron",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14034": {
+      "did": 14034,
+      "echoed_did": 14034,
+      "name": "Sunday Scotch Doubles 10-ball League",
+      "slug": "sunday-scotch-doubles-10-ball-league",
+      "location": "Citrus Springs",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14035": {
+      "did": 14035,
+      "echoed_did": 14035,
+      "name": "Tuesday \"Billiard Blitz\" No Limit LC League",
+      "slug": "tuesday-billiard-blitz-lc",
+      "location": "Fuquay",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14036": {
+      "did": 14036,
+      "echoed_did": 14036,
+      "name": "Monday \"No Time Outs\" Singles 8-ball League",
+      "slug": "monday-no-time-outs-8ball",
+      "location": "Polaris Area",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14037": {
+      "did": 14037,
+      "echoed_did": 14037,
+      "name": "Thursday \"Summer Teams\" MOD-275 8-ball League",
+      "slug": "thursday-summer-teams-8ball",
+      "location": "Waynesboro",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14038": {
+      "did": 14038,
+      "echoed_did": 14038,
+      "name": "Tuesday \"Ole Timers\" Scotch Doubles 8-ball League",
+      "slug": "tuesday-ole-timers-8ball",
+      "location": "Brunswick",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14039": {
+      "did": 14039,
+      "echoed_did": 14039,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14040": {
+      "did": 14040,
+      "echoed_did": 14040,
+      "name": "Tuesday \"Wrangler\" Scotch Doubles 8-ball League",
+      "slug": "tuesday-wrangler-8ball",
+      "location": "Whipple, Ohio",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14041": {
+      "did": 14041,
+      "echoed_did": 14041,
+      "name": "Thursday \"Summer Blast\" Singles 8-ball League",
+      "slug": "thursday-summer-blast-8ball",
+      "location": "Palm Harbor",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14042": {
+      "did": 14042,
+      "echoed_did": 14042,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14043": {
+      "did": 14043,
+      "echoed_did": 14043,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14044": {
+      "did": 14044,
+      "echoed_did": 14044,
+      "name": "Tuesday \"Frankie B's In-house\" Singles 8-ball League",
+      "slug": "tuesday-frankie-bs-in-house-8ball",
+      "location": "Wilbraham",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14045": {
+      "did": 14045,
+      "echoed_did": 14045,
+      "name": "Tuesday \"Frankie B's In-house\" Singles 9-ball League",
+      "slug": "tuesday-frankie-bs-in-house-9ball",
+      "location": "Wilbraham",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14046": {
+      "did": 14046,
+      "echoed_did": 14046,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14047": {
+      "did": 14047,
+      "echoed_did": 14047,
+      "name": "",
+      "slug": "",
+      "location": "",
+      "is_noco": false,
+      "resolved": false,
+      "first_seen_date": "2026-06-19"
+    },
+    "14048": {
+      "did": 14048,
+      "echoed_did": 14048,
+      "name": "Friday Night Ladies MOD-250 8-ball League",
+      "slug": "friday-night-ladies-mod-250-8-ball-league",
+      "location": "Cumby",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14049": {
+      "did": 14049,
+      "echoed_did": 14049,
+      "name": "Friday Night Ladies MOD-250 LC League",
+      "slug": "friday-night-ladies-mod-250-lc-league",
+      "location": "Cumby",
+      "is_noco": false,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    },
+    "14050": {
+      "did": 14050,
+      "echoed_did": 14050,
+      "name": "Thursday \"Big Table Felt\" No Limit LC League",
+      "slug": "thursday-big-table-felt-lc",
+      "location": "Englewood",
+      "is_noco": true,
+      "resolved": true,
+      "first_seen_date": "2026-06-19"
+    }
+  }
+}
