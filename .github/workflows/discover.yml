@@ -139,7 +139,14 @@ jobs:
     if: ${{ always() && inputs.mode == 'sweep' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5    # gets every pushed shard commit
+      # Check out the BRANCH TIP, not the dispatch SHA. The default checkout pins
+      # github.sha (the commit the run was dispatched on), which PREDATES the shard
+      # commits the sweep jobs push during this same run — so the merge would see no
+      # shard JSONLs and fold 0 rows. ref: <branch> + full history fixes that.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
