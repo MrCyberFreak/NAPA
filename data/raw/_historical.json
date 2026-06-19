@@ -1,8 +1,208 @@
 {
-  "updated_utc": "2026-06-19T20:59:01+00:00",
+  "updated_utc": "2026-06-19T21:51:00+00:00",
   "run_date": "2026-06-19",
-  "count": 10,
+  "count": 42,
   "historical": {
+    "10102": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" Lagger's Choice League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10243": {
+      "slug": "tuesday-felt-laggers-lc",
+      "name": "Tuesday \"Felt Laggers\" Lagger's Choice League",
+      "location": "Englewood",
+      "successor": 13985,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10496": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" Lagger's Choice League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10518": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" Lagger's Choice League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10669": {
+      "slug": "tuesday-felt-laggers-lc",
+      "name": "Tuesday \"Felt Laggers\" Lagger's Choice League",
+      "location": "Englewood",
+      "successor": 13985,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10874": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" LC+F8 League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10972": {
+      "slug": "thursday-big-table-felt-lc",
+      "name": "Thursday \"Big Table Felt\" LC League",
+      "location": "Englewood",
+      "successor": 14050,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10992": {
+      "slug": "friday-piazza-friday-dp-8ball",
+      "name": "Friday \"Piazza Friday DP\" 8-ball League",
+      "location": "Aurora",
+      "successor": 13722,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "10993": {
+      "slug": "friday-piazza-friday-dp-lc",
+      "name": "Friday \"Piazza Friday DP\" LC League",
+      "location": "Aurora",
+      "successor": 13723,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11050": {
+      "slug": "wednesday-pharaohs-lc",
+      "name": "Wednesday \"Pharaoh's\" No Limit LC League",
+      "location": "Superior",
+      "successor": 13937,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11112": {
+      "slug": "tuesday-felt-laggers-lc",
+      "name": "Tuesday \"Felt Laggers\" No Limit LC League",
+      "location": "Englewood",
+      "successor": 13985,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11296": {
+      "slug": "tuesday-piazzas-tuesday-8ball",
+      "name": "Tuesday \"Piazzas Tuesday\" No Limit 8-ball League",
+      "location": "Aurora",
+      "successor": 13298,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11297": {
+      "slug": "tuesday-piazzas-tuesday-lc",
+      "name": "Tuesday \"Piazzas Tuesday\" LC League",
+      "location": "Aurora",
+      "successor": 13299,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11314": {
+      "slug": "monday-greeley-lc",
+      "name": "Monday \"Greeley\" No Limit LC League",
+      "location": "Greeley",
+      "successor": 13205,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11396": {
+      "slug": "thursday-big-table-felt-lc",
+      "name": "Thursday \"Big Table Felt\" No Limit LC League",
+      "location": "Englewood",
+      "successor": 14050,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11441": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" No Limit LC League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11480": {
+      "slug": "monday-broomfield-westminster-laggers-lc",
+      "name": "Monday \"Broomfield Westminster Laggers\" No Limit LC League",
+      "location": "Broomfield Westminster",
+      "successor": 13881,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11493": {
+      "slug": "wednesday-pharaohs-lc",
+      "name": "Wednesday \"Pharaoh's\" No Limit LC League",
+      "location": "Superior",
+      "successor": 13937,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11552": {
+      "slug": "friday-piazza-friday-dp-8ball",
+      "name": "Friday \"Piazza Friday DP\" No Limit 8-ball League",
+      "location": "Aurora",
+      "successor": 13722,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11553": {
+      "slug": "friday-piazza-friday-dp-lc",
+      "name": "Friday \"Piazza Friday DP\" LC League",
+      "location": "Aurora",
+      "successor": 13723,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11564": {
+      "slug": "tuesday-felt-laggers-lc",
+      "name": "Tuesday \"Felt Laggers\" No Limit LC League",
+      "location": "Englewood",
+      "successor": 13985,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11901": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" No Limit LC League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11910": {
+      "slug": "thursday-big-table-felt-lc",
+      "name": "Thursday \"Big Table Felt\" No Limit LC League",
+      "location": "Englewood",
+      "successor": 14050,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11920": {
+      "slug": "monday-greeley-lc",
+      "name": "Monday \"Greeley\" No Limit LC League",
+      "location": "Greeley",
+      "successor": 13205,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "11975": {
+      "slug": "wednesday-pharaohs-lc",
+      "name": "Wednesday \"Pharaoh's\" No Limit LC League",
+      "location": "Superior",
+      "successor": 13937,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
     "12148": {
       "slug": "tuesday-felt-laggers-lc",
       "name": "Tuesday \"Felt Laggers\" No Limit LC League",
@@ -80,6 +280,62 @@
       "name": "Tuesday \"Zoosters Laggers\" No Limit LC League",
       "location": "Broomfield",
       "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13135": {
+      "slug": "wednesday-paradise-lc",
+      "name": "Wednesday \"Paradise\" No Limit LC League",
+      "location": "Lone Tree",
+      "successor": 14022,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13160": {
+      "slug": "tuesday-piazzas-tuesday-8ball",
+      "name": "Tuesday \"Piazzas Tuesday\" No Limit 8-ball League",
+      "location": "Aurora",
+      "successor": 13298,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13161": {
+      "slug": "tuesday-piazzas-tuesday-lc",
+      "name": "Tuesday \"Piazzas Tuesday\" No Limit LC League",
+      "location": "Aurora",
+      "successor": 13299,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13247": {
+      "slug": "wednesday-pharaohs-lc",
+      "name": "Wednesday \"Pharaoh's\" No Limit LC League",
+      "location": "Longmont",
+      "successor": 13937,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13302": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" No Limit LC League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13303": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "name": "Tuesday \"Zoosters Laggers\" No Limit LC League",
+      "location": "Broomfield",
+      "successor": 13986,
+      "first_seen_date": "2026-06-19",
+      "onboarded": false
+    },
+    "13337": {
+      "slug": "wednesday-paradise-lc",
+      "name": "Wednesday \"Paradise\" No Limit LC League",
+      "location": "Lone Tree",
+      "successor": 14022,
       "first_seen_date": "2026-06-19",
       "onboarded": false
     }
