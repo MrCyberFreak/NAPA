@@ -339,6 +339,140 @@ def backfill_score_sheets(weeks, out_root: str | Path | None = None,
     return saved
 
 
+def _discover_cleared(page, url: str, attempts: int = 1) -> str:
+    """Navigate + clear the JS challenge, retrying the whole goto up to `attempts`
+    times (mirrors backfill_score_sheets.cleared). Returns '' on a hard nav error
+    or a challenge that never clears — the caller decides skip-vs-abort. A still-
+    challenge result (non-empty but is_challenge) is returned as-is so a sweep can
+    tell 'host-wide abort' from 'transient nav skip'."""
+    for _ in range(attempts):
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        except Exception as exc:  # noqa: BLE001 — slow challenge / transient nav; retry
+            print(f"[discover] nav {url}: {exc} (retry)")
+            continue
+        for _ in range(6):
+            html = page.content()
+            if not fetch.is_challenge(html):
+                return html
+            page.wait_for_timeout(6000)
+        return html  # stayed challenged through all polls — caller aborts host-wide
+    return ""        # every goto attempt errored — fail-soft skip this did
+
+
+def discover_scout(high: int | None = None, low: int = 0, headless: bool = True,
+                   run_date: str | None = None) -> dict:
+    """SCOUT (validation): walk did DOWNWARD from `high` (default the highest
+    curated did, 14050), record one index row per division.php, and STOP at the
+    first slug that repeats a slug already seen this run — proving a league recurs
+    at a lower did (13077 shares 14050's slug → the (14050, 13077) pair). Single
+    runner. Updates the master index + _historical.json; returns a proof report.
+    Catalog-only: the current divisions it passes are already archived by the
+    daily scrape, so it writes no HTML (the full sweep is what archives hits)."""
+    from . import division_index as dindex
+    from .parse.division import parse_division
+
+    high = high if high is not None else max(config.DIVISIONS)
+    run_date = run_date or dt.date.today().isoformat()
+    seen: dict[str, int] = {}          # slug -> first (highest) did seen this run
+    new_rows: dict[str, dict] = {}
+    proof: dict | None = None
+    cookie_landed = False
+    noco = 0
+
+    with _browser_page(headless) as page:
+        for did in range(high, low - 1, -1):
+            html = _discover_cleared(page, config.url("division", did=did),
+                                     attempts=8 if not cookie_landed else 1)
+            if not html:
+                print(f"[discover] {did}: nav failed — skipping (fail-soft)")
+                continue
+            if fetch.is_challenge(html):
+                print(f"[discover] {did}: challenge not cleared — aborting (host-wide)")
+                break
+            cookie_landed = True
+            dp = parse_division(html)
+            row = dindex.make_row(did, dp, run_date)
+            new_rows[str(did)] = row
+            noco += int(row["is_noco"])
+            page.wait_for_timeout(1500)  # polite
+            if not dp.resolved:
+                continue
+            if dp.slug in seen:
+                proof = {"slug": dp.slug, "first_did": seen[dp.slug], "repeat_did": did}
+                print(f"[discover] REPEAT slug {dp.slug!r}: {seen[dp.slug]} <- {did} "
+                      f"— proves the sweep finds prior sessions; stopping scout.")
+                break
+            seen[dp.slug] = did
+
+    merged = dindex.merge_shards(dindex.load_index(), new_rows.values())
+    dindex.save_index(merged, run_date=run_date)
+    dindex.save_historical(dindex.build_historical(merged), run_date=run_date)
+    floor = min((int(d) for d in new_rows), default=high)
+    print(f"[discover] scout catalogued {len(new_rows)} dids ({noco} NoCo) "
+          f"from {high} down to {floor}")
+    if not proof:
+        print("[discover] WARNING: no slug repeat in range — too shallow, or curated "
+              "slugs drifted (14050/13077 were expected to repeat).")
+    return {"proof": proof, "catalogued": len(new_rows), "noco": noco, "high": high}
+
+
+def discover_sweep(high: int, low: int, shard: str | None = None,
+                   headless: bool = True, run_date: str | None = None) -> dict:
+    """FULL SWEEP: walk [high..low] DOWNWARD (this runner's shard residue when
+    sharded), record one index row per probed did, and ARCHIVE full HTML only for
+    NoCo hits. Resumable: skips dids already in the master index or this shard's
+    JSONL. Each runner appends ONLY to its own shard file; a later
+    `python -m src.division_index --merge` folds them into the master index and
+    derives _historical.json. An uncleared challenge aborts THIS shard (never
+    grinds); re-dispatch once on a fresh runner (CLAUDE.md)."""
+    from . import division_index as dindex
+    from .parse.division import parse_division
+
+    run_date = run_date or dt.date.today().isoformat()
+    i = n = None
+    if shard:
+        i, n = dindex.parse_shard(shard)
+        sfile = dindex.shard_path(shard)
+    else:
+        sfile = dindex.INDEX_PATH.parent / "_division_index.shard_1of1.jsonl"
+
+    already = set(dindex.load_index())            # dids from prior merged runs
+    already |= set(dindex.load_shard_rows(sfile))  # this shard's own progress (resume)
+    cookie_landed = False
+    probed = noco = skipped = 0
+
+    with _browser_page(headless) as page:
+        for did in range(high, low - 1, -1):
+            if n and (did % n) != (i - 1):         # not this shard's residue
+                continue
+            if str(did) in already:
+                skipped += 1
+                continue
+            html = _discover_cleared(page, config.url("division", did=did),
+                                     attempts=8 if not cookie_landed else 1)
+            if not html:
+                print(f"[discover] {did}: nav failed — skipping (fail-soft)")
+                continue
+            if fetch.is_challenge(html):
+                print(f"[discover] {did}: challenge not cleared — aborting shard (host-wide)")
+                break
+            cookie_landed = True
+            dp = parse_division(html)
+            row = dindex.make_row(did, dp, run_date)
+            dindex.append_shard_row(sfile, row)
+            probed += 1
+            if row["is_noco"] and dp.resolved:
+                noco += 1
+                fetch.write_on_change("division", html.encode("utf-8"), run_date,
+                                      root=config.division_root(did))
+            page.wait_for_timeout(1500)            # polite
+
+    print(f"[discover] sweep shard {shard or '1/1'}: probed {probed} "
+          f"({noco} NoCo archived), skipped {skipped} already-indexed -> {sfile}")
+    return {"probed": probed, "noco": noco, "skipped": skipped, "shard_file": str(sfile)}
+
+
 def explore_profile(player_id: str, out_dir: str | Path, headless: bool = True) -> list[str]:
     """One-off: open a player profile, click each deep tab, and save the rendered
     HTML + every XHR/JSON/HTML response the tabs trigger — to learn how RIVALS /
@@ -854,7 +988,26 @@ def main() -> None:
                              "= 8/9/10-ball), following &start= pagination")
     parser.add_argument("--match-history-tabs", default="2,3,4",
                         help="comma xTabs for --harvest-match-history (2=8b,3=9b,4=10b)")
+    parser.add_argument("--discover-scout", action="store_true",
+                        help="discovery: walk did DOWN from the highest curated did to "
+                             "the first slug repeat (validates the sweep finds prior sessions)")
+    parser.add_argument("--discover-range", nargs=2, type=int, metavar=("HIGH", "LOW"),
+                        help="discovery: full sweep of dids [HIGH..LOW] downward "
+                             "(index every did, archive HTML for NoCo hits)")
+    parser.add_argument("--discover-shard", default=None, metavar="i/N",
+                        help="with --discover-range: this runner's shard residue, e.g. 3/4")
+    parser.add_argument("--discover-low", type=int, default=0,
+                        help="with --discover-scout: stop floor (default 0)")
     args = parser.parse_args()
+
+    if args.discover_scout:
+        discover_scout(low=args.discover_low, headless=not args.headed)
+        return
+
+    if args.discover_range:
+        high, low = args.discover_range
+        discover_sweep(high, low, shard=args.discover_shard, headless=not args.headed)
+        return
 
     if args.harvest_match_history:
         tabs = tuple(int(t) if t.isdigit() else t

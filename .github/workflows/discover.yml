@@ -1,0 +1,168 @@
+name: discover-divisions
+
+# Division-ID discovery sweep. NAPA mints a new did every season and exposes no
+# season/year URL param, so the only lever to find a league's PAST sessions is the
+# did integer itself: probe division.php?did=N across a range, read each NAME ->
+# slug, and group by slug to recover a league's session lineage.
+#
+# Two modes (workflow_dispatch):
+#  - scout : single runner, walk DOWN from the highest curated did to the FIRST
+#            slug repeat (validates the mechanism — 13077 shares 14050's slug).
+#  - sweep : shard a [high..low] range across N runners (modulo residue, separate
+#            IPs), index EVERY probed did, archive HTML only for NoCo hits; a merge
+#            job folds the shard JSONLs into the master index + _historical.json.
+#
+# Heavier than the daily scrape — run sparingly, off-hours. An uncleared bot-
+# challenge aborts only that shard (fail-fast: false); re-dispatch ONCE on a fresh
+# runner (CLAUDE.md: never loop).
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "scout (validate) or sweep (full sharded run)"
+        type: choice
+        options: [scout, sweep]
+        default: scout
+      high:
+        description: "sweep: highest did (inclusive)"
+        default: "14050"
+      low:
+        description: "sweep: lowest did (inclusive) / scout: stop floor"
+        default: "12000"
+      shards:
+        description: "sweep: number of parallel runners"
+        default: "4"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: discover-divisions
+  cancel-in-progress: false
+
+jobs:
+  # ---- SCOUT: single runner, stop at the first slug repeat -------------------
+  scout:
+    if: ${{ inputs.mode == 'scout' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+      - name: Scout (down to first slug repeat)
+        run: python -m src.browser_fetch --discover-scout --discover-low "${{ inputs.low }}"
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Division discovery — scout" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          tail -c 4000 data/raw/_historical.json 2>/dev/null >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit index + historical
+        if: always()
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw
+          if git diff --cached --quiet; then
+            echo "No discovery changes."
+          else
+            git commit -m "chore(discover): scout index [skip ci]"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
+          fi
+
+  # ---- SWEEP: build a dynamic shard matrix, then fan out --------------------
+  prep:
+    if: ${{ inputs.mode == 'sweep' }}
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.mk.outputs.shards }}
+    steps:
+      - id: mk
+        run: echo "shards=$(seq 1 ${{ inputs.shards }} | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+  sweep:
+    needs: prep
+    if: ${{ inputs.mode == 'sweep' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false      # one shard's host-abort must not kill the others
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.prep.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+      - name: Sweep shard ${{ matrix.shard }}/${{ inputs.shards }}
+        run: >
+          python -m src.browser_fetch --discover-range
+          "${{ inputs.high }}" "${{ inputs.low }}"
+          --discover-shard "${{ matrix.shard }}/${{ inputs.shards }}"
+      - name: Commit this shard's JSONL + NoCo archives
+        if: always()        # commit partial progress even on timeout/abort
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw
+          if git diff --cached --quiet; then
+            echo "Shard ${{ matrix.shard }}: nothing new."
+          else
+            git commit -m "chore(discover): sweep shard ${{ matrix.shard }} [skip ci]"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
+          fi
+
+  # ---- MERGE: fold shard JSONLs -> master index + _historical.json ----------
+  merge:
+    needs: sweep
+    if: ${{ always() && inputs.mode == 'sweep' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5    # gets every pushed shard commit
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install deps (json-only — no browser)
+        run: pip install -r requirements.txt
+      - name: Merge shards + summarize
+        run: |
+          echo "## Division discovery — sweep merge" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          python -m src.division_index --merge --shards "${{ inputs.shards }}" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit merged index (+ shard cleanup)
+        run: |
+          git config user.name  "napa-archive-bot"
+          git config user.email "napa-archive-bot@users.noreply.github.com"
+          git add -A data/raw
+          if git diff --cached --quiet; then
+            echo "Nothing to merge."
+          else
+            git commit -m "chore(discover): merge sweep index [skip ci]"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin ${{ github.ref_name }} \
+                && git push origin HEAD:${{ github.ref_name }} && break
+              echo "push race, retry $i"; sleep 5
+            done
+          fi
