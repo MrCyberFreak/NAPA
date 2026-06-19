@@ -114,6 +114,24 @@ def test_explicit_week_list_never_auto_stops_on_empties():
     assert [wk for wk, _ in walked] == [3]  # 2 consecutive empties only stop "auto"
 
 
+def test_sheet_captured_rejects_empty_shell_so_it_is_refetched(tmp_path):
+    # The resume guard must distinguish a real, populated score sheet from a
+    # pre-season "NO MATCH(ES) PLAYED" shell. A shell is >500 bytes but parses
+    # to zero games; if it counted as "captured", the backfill would never
+    # re-fetch the populated sheet once the match is played (the 14050/14022
+    # bug: a whole season of onboarding shells masked every real sheet).
+    from src.browser_fetch import _sheet_captured
+
+    shell = Path("fixtures/score_sheet_empty_shell.html")  # real 14050 R1 shell
+    assert shell.stat().st_size > 500          # the old size-only check passed it
+    assert _sheet_captured(shell) is False     # but it holds zero games -> re-fetch
+
+    populated = Path("fixtures/score_sheet_w1.mht")
+    assert _sheet_captured(populated) is True  # a real capture -> resume (skip)
+
+    assert _sheet_captured(tmp_path / "missing.html") is False  # nothing on disk
+
+
 def test_parse_weeks_accepts_auto_ranges_and_lists():
     assert _parse_weeks("auto") == "auto"
     assert _parse_weeks("AUTO") == "auto"
