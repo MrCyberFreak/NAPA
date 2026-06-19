@@ -208,6 +208,10 @@ def url(name: str, **kw) -> str:
         "division": f"{HOST_POOLSHOOTERS}/division.php?did={did}",
         "leaderboard": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=leader&ver=detailed",
         "achievements": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=ach",
+        # Individual point standings (the division race) — updates weekly and the
+        # host OVERWRITES it (no historical-flex URL), so capture starts the drift
+        # record only from now on. write_on_change drift-logs it for free.
+        "flex": f"{HOST_POOLSHOOTERS}/division.php?did={did}&view=flex",
         "weekly_scores": f"{HOST_POOLSHOOTERS}/standings_weekly_scores.php?did={did}&week={week}",
         # Live per-game scoring data endpoint (the games grain).
         "live_scores": f"{HOST_SCORES}/getlivescore.php?divID={did}&makeup=",
