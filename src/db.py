@@ -761,6 +761,53 @@ def load_team_record(conn: sqlite3.Connection, record: TeamRecord, season: str =
     return {"results": len(record.results), "loaded": loaded, "unresolved": unresolved}
 
 
+def load_match_results(conn: sqlite3.Connection, results, season: str = config.SEASON,
+                       division_id: int = config.DID) -> dict:
+    """Load the official match-POINT totals parsed off a weekly-scores INDEX
+    (parse.weekly_scores.parse_week_results) into matches.home/away_points,
+    aligning each pair to the match's home/away orientation. This is the result
+    layer mined from the page we already archive for sheet URLs — independent of
+    whether the per-rack score sheet has been published yet.
+
+    A 0-0 pair is a NOT-YET-PLAYED match (NAPA always distributes ~80-96 points
+    across a played team match); it is skipped so a pending fixture is never
+    recorded as a 0-0 result. Unresolved team names / missing fixtures are
+    counted (visible), never guessed. Mirrors load_team_record's per-result
+    alignment; kept separate while the team-record page stays a later add."""
+    init_db(conn)
+    loaded = unresolved = skipped = 0
+    for r in results:
+        if not r.home_points and not r.away_points:
+            skipped += 1                          # 0-0 (or null) = not played yet
+            continue
+        points = {r.home: r.home_points, r.away: r.away_points}
+        teams = {_resolve_team_id(conn, r.home, season, division_id): r.home,
+                 _resolve_team_id(conn, r.away, season, division_id): r.away}
+        if None in teams:
+            unresolved += 1
+            continue
+        row = conn.execute(
+            """
+            SELECT match_id, home_team_id, away_team_id FROM matches
+            WHERE division_id = ? AND season = ? AND round = ?
+              AND home_team_id IN (?, ?) AND away_team_id IN (?, ?)
+            """,
+            (division_id, season, r.week, *teams.keys(), *teams.keys()),
+        ).fetchone()
+        if not row:
+            unresolved += 1
+            continue
+        conn.execute(
+            "UPDATE matches SET home_points = ?, away_points = ? WHERE match_id = ?",
+            (points[teams[row["home_team_id"]]], points[teams[row["away_team_id"]]],
+             row["match_id"]),
+        )
+        loaded += 1
+    conn.commit()
+    return {"results": len(results), "loaded": loaded,
+            "unresolved": unresolved, "skipped": skipped}
+
+
 # --------------------------------------------------------------------------- #
 # Queries (demonstrate the history the official site can't show)
 # --------------------------------------------------------------------------- #
@@ -1205,7 +1252,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
                                 parse_profile_rivals, parse_rival_h2h, parse_trends)
     from .parse.tournament import parse_tournament_file
     from .parse.schedule import parse_schedule_file
-    from .parse.weekly_scores import parse_score_sheet_file
+    from .parse.weekly_scores import parse_score_sheet_file, parse_week_results_file
 
     path = Path(db_path)
     if path.exists():
@@ -1240,13 +1287,21 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
             report["divisions"][did]["schedule"] = load_schedule(
                 conn, fixtures_by_did[did], season=seasons[did], division_id=did)
 
-    for did in dids:  # pass 3: score sheets (the per-game grain)
+    for did in dids:  # pass 3: score sheets (per-game grain) + match-point results
         sheet_files = [f for f in sorted(config.division_root(did).glob("scores/week_*/*.html"))
                        if f.name != "_index.html"]
         if sheet_files:
             sheets = [parse_score_sheet_file(f) for f in sheet_files]
             report["divisions"][did]["sheets"] = load_score_sheets(
                 conn, sheets, season=seasons[did], division_id=did)
+        # The official outcome layer: match POINTS off each week's index (the
+        # page already archived for sheet URLs). Lands results/standings even
+        # when the per-rack sheet has not been published yet.
+        results = [r for idx in sorted(config.division_root(did).glob("scores/week_*/_index.html"))
+                   for r in parse_week_results_file(idx)]
+        if results:
+            report["divisions"][did]["results"] = load_match_results(
+                conn, results, season=seasons[did], division_id=did)
 
     # pass 4: profiles — league-wide, after every roster so ids all exist.
     # Skipped when profiles=False (the slow, I/O-bound pass; not needed for the
@@ -1366,6 +1421,10 @@ def main() -> None:
                         help="parse roster grid(s) and load into the DB")
     parser.add_argument("--rebuild", action="store_true",
                         help="rebuild the DB from the raw archive (all archived divisions)")
+    parser.add_argument("--no-profiles", action="store_true",
+                        help="with --rebuild: skip the slow profile pass (pass 4) for a "
+                             "fast iteration rebuild; passes 1-3 (rosters/schedules/"
+                             "sheets+results) still run over every division")
     parser.add_argument("--did", type=int, default=config.DID,
                         help=f"division to load (default: {config.DID})")
     parser.add_argument("--all-divisions", action="store_true",
@@ -1380,7 +1439,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.rebuild:
-        report = rebuild(args.db)
+        report = rebuild(args.db, profiles=not args.no_profiles)
         for did, rep in report["divisions"].items():
             print(f"[rebuild] {did}: {rep}")
         print(f"[rebuild] profiles: {report['profiles']}")
