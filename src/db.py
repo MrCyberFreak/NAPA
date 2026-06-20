@@ -1283,8 +1283,9 @@ def _division_season(did: int, fixtures: list[Fixture]) -> str:
 
 
 def _archived_dids() -> list[int]:
-    """Registry divisions that actually have an archive dir, registry order."""
-    return [d for d in config.DIVISIONS if config.division_root(d).is_dir()]
+    """Every registered division (curated + discovered rollover + historical
+    inbox) that actually has an archive dir, registry order."""
+    return [d for d in config.divisions() if config.division_root(d).is_dir()]
 
 
 def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
