@@ -67,7 +67,10 @@ def is_captured(did: str) -> bool:
     pass exists to backfill. Mirrors status.sh's all-3 definition. Each leg is
     itself resumable (skip-on-disk), so a did drops out once fully captured."""
     root = config.division_root(int(did))
-    has_scores = (root / "scores").is_dir() and any((root / "scores").glob("*.html"))
+    # Score sheets live in scores/week_NN/<sheet>.html, so the scores check must
+    # RECURSE (rglob) -- a non-recursive glob never matched, so is_captured could
+    # never return True and a resume re-walked already-done dids.
+    has_scores = (root / "scores").is_dir() and any((root / "scores").rglob("*.html"))
     has_roster = any(root.glob("*/roster_grid.html"))
     has_schedule = any(root.glob("*/schedule.html"))
     return has_scores and has_roster and has_schedule
