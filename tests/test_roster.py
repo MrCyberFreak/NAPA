@@ -165,6 +165,7 @@ GRID_13985 = REPO / "fixtures" / "roster_grid_13985.html"        # "CSR 8 - 9 - 
 GRID_13298 = REPO / "fixtures" / "roster_grid_8ball_13298.html"  # bare "CSR"
 GRID_13744 = REPO / "fixtures" / "roster_grid_2game_13744.html"  # "CSR 9 - 10"
 GRID_14022 = REPO / "fixtures" / "roster_grid_4game_14022.html"  # "CSR 8 - 9 - 10 - 10BP"
+GRID_10102 = REPO / "fixtures" / "roster_grid_smjoin_10102.html" # "CSR 8 - 9 - 10 - SM" (old, dash-joined SM)
 
 
 def test_three_game_grid_13985():
@@ -242,6 +243,30 @@ def test_four_game_grid_14022():
     assert p.session_matches == 0
     assert p.is_captain
     assert p.spread == 14  # 30 - 16; the 10BP rating counts toward the spread
+
+
+def test_smjoin_grid_10102():
+    """OLD grid shape (historical-session backfill): the header DASH-joins SM
+    ("CSR 8 - 9 - 10 - SM") and each player's CSR run dash-joins the SM value
+    ("50 - 53 - 56 - 18"). The pre-fix parser RAISED here (4 values vs 3 games);
+    the fix splits the trailing dash-joined value off as SM, not a 4th game.
+    Captured live from the dead division 10102 (2022-23 season)."""
+    players = parse_roster_file(GRID_10102)
+    summary = roster_summary(players)
+    assert summary["n_players"] == 69
+    assert summary["n_teams"] == 9
+    assert summary["n_captains"] == 9            # one captain per team
+    # 3-game LC shape: 8/9/10 rated, no 10BP, and SM is its OWN column (not a rating).
+    assert all(None not in (p.csr_8, p.csr_9, p.csr_10) for p in players)
+    assert all(p.csr_10bp is None for p in players)
+    assert all(p.session_matches is not None for p in players)
+    p = {p.player_id: p for p in players}["10050893"]
+    assert p.player == "Kevin Pikus"
+    assert (p.csr_8, p.csr_9, p.csr_10) == (50, 53, 56)
+    assert p.session_matches == 18               # the dash-joined trailing value is SM ...
+    assert p.csr_10bp is None                    # ... NOT a fourth game rating
+    assert p.is_captain
+    assert p.spread == 6                         # 56 - 50
 
 
 def test_unknown_csr_game_token_raises():
