@@ -5,8 +5,9 @@ reproduces every section against the current (multi-division) DB so the doc can
 be regenerated deterministically each time data lands. Pure-stdlib (no numpy) so
 it runs anywhere the repo runs; the §3a bootstrap is seeded for reproducibility.
 
-Game types are 8 / 9 / 10 (ints) plus '10BP' (text) — the 4-game divisions
-(13986, 14022) add the BP variant, keyed to skill_snapshots.csr_10bp.
+Game types are 8 / 9 / 10 (ints) plus '10BP' / 'F8' (text) and 7 (7-ball, int)
+— the 4-game divisions (13986, 14022) add the BP variant (skill_snapshots.csr_10bp);
+the historical LC+F8 divisions add F8 (csr_f8) and one adds 7-ball (csr_7b).
 
 Run:  python -m tools.phase6_readiness   (or: python tools/phase6_readiness.py)
 """
@@ -24,9 +25,11 @@ AS_OF = "2026-06-12"
 BOOT_REPS = 3000
 SEED = 20260612
 
-TYPES = [8, 9, 10, "10BP"]
-CSR_COL = {8: "csr_8", 9: "csr_9", 10: "csr_10", "10BP": "csr_10bp"}
-LABEL = {8: "8-ball", 9: "9-ball", 10: "10-ball", "10BP": "10BP"}
+TYPES = [8, 9, 10, "10BP", "F8", 7]
+CSR_COL = {8: "csr_8", 9: "csr_9", 10: "csr_10", "10BP": "csr_10bp",
+           "F8": "csr_f8", 7: "csr_7b"}
+LABEL = {8: "8-ball", 9: "9-ball", 10: "10-ball", "10BP": "10BP",
+         "F8": "F8", 7: "7-ball"}
 
 
 def pctile(sorted_vals, p):
@@ -74,7 +77,7 @@ def main():
     # ---- as-of CSR: most recent NON-NULL per game type, per player ---------
     asof = defaultdict(dict)
     for r in c.execute(
-        "SELECT player_id, captured_date, csr_8, csr_9, csr_10, csr_10bp "
+        "SELECT player_id, captured_date, csr_8, csr_9, csr_10, csr_10bp, csr_f8, csr_7b "
         "FROM skill_snapshots ORDER BY captured_date"
     ):
         for t in TYPES:
