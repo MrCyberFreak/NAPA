@@ -47,9 +47,15 @@ from bs4 import BeautifulSoup
 #     "CSR"                   -> games ("8",)                    8-ball-only (13298)
 #     "CSR 9 - 10"            -> games ("9", "10")               2-game DP (13744)
 #     "CSR 8 - 9 - 10 - 10BP" -> games ("8", "9", "10", "10BP")  4-game LC (14022)
+# An OLD (pre-2024) grid DASH-joins the SM column into the CSR header
+# ("CSR 8 - 9 - 10 - SM") and into each player's CSR run ("50 - 53 - 56 - 18");
+# the optional `smjoin` group flags that so the row parser splits SM off the run
+# instead of mistaking it for an extra game (historical-session backfill, 10102).
+# Modern grids SPACE-separate SM ("CSR 8 - 9 - 10  SM"), which `smjoin` ignores.
 _TEAM_HEADER_RE = re.compile(
     r"^#\s*(?P<team>.+?)\s+CSR(?![A-Za-z])\s*"
-    r"(?P<games>\d{1,2}(?:[A-Za-z]{1,3})?(?:\s*[-/]\s*\d{1,2}(?:[A-Za-z]{1,3})?)*)?",
+    r"(?P<games>\d{1,2}(?:[A-Za-z]{1,3})?(?:\s*[-/]\s*\d{1,2}(?:[A-Za-z]{1,3})?)*)?"
+    r"(?P<smjoin>\s*[-/]\s*SM\b)?",
     re.IGNORECASE,
 )
 
@@ -112,6 +118,7 @@ class _TeamHeader:
     team: str
     games: tuple[str, ...]
     text: str  # raw row text, kept for mismatch error messages
+    sm_in_run: bool = False  # old grids dash-join SM into the CSR run/header
 
 
 # --------------------------------------------------------------------------- #
@@ -175,7 +182,8 @@ def _match_team_header(text: str) -> _TeamHeader | None:
     games = tuple(t.upper() for t in _GAME_TOKEN_RE.findall(raw)) if raw else ("8",)
     if len(set(games)) != len(games) or any(g not in _KNOWN_GAMES for g in games):
         raise ValueError(f"unrecognized CSR game set in roster team header: {text!r}")
-    return _TeamHeader(team=m.group("team").strip(), games=games, text=text)
+    return _TeamHeader(team=m.group("team").strip(), games=games, text=text,
+                       sm_in_run=bool(m.group("smjoin")))
 
 
 def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPlayer | None:
@@ -193,6 +201,17 @@ def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPla
         # An 8-digit number with no trailing ratings is not a player row.
         return None
     values = [int(n) for n in _ANY_INT_RE.findall(run.group(0))]
+
+    # Old grids (pre-2024) dash-join the SM column into the CSR run
+    # ("50 - 53 - 56 - 18" under a "CSR 8 - 9 - 10 - SM" header): the trailing
+    # value is SM, not a fourth game. Split it off ONLY when the header declared
+    # the dash-joined SM and the count is exactly one long — anything else still
+    # RAISES (a real mismatch is corruption, never silently mapped).
+    sm_from_run: int | None = None
+    if header.sm_in_run and len(values) == len(header.games) + 1:
+        sm_from_run = values[-1]
+        values = values[:-1]
+
     if len(values) != len(header.games):
         # NEVER map positionally on a mismatch — that's exactly how a 2-game
         # row under a triple-shaped parser swallows the SM column as a rating.
@@ -202,9 +221,13 @@ def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPla
         )
     by_game = dict(zip(header.games, values))
 
-    # SM stays its own column: the first standalone number AFTER the CSR run.
-    sm_m = _ANY_INT_RE.search(after_id, run.end())
-    session_matches = int(sm_m.group(0)) if sm_m else None
+    # SM stays its own column: the dash-joined trailing value (old grids) or the
+    # first standalone number AFTER the CSR run (modern grids).
+    if sm_from_run is not None:
+        session_matches: int | None = sm_from_run
+    else:
+        sm_m = _ANY_INT_RE.search(after_id, run.end())
+        session_matches = int(sm_m.group(0)) if sm_m else None
     is_captain = bool(_CAPTAIN_RE.search(joined))
 
     # Name = the text before the player ID, minus the row number and captain mark.
