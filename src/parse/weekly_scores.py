@@ -200,11 +200,15 @@ def parse_score_sheet(html: str) -> ScoreSheet:
         if not rows:
             continue
         first = rows[0]
-        # matchup header "TeamA vs. TeamB"
+        # matchup header "TeamA vs. TeamB". Collapse internal whitespace runs:
+        # the raw header can carry a double space ("Alex  I mean Robert") that the
+        # roster grid normalizes away, which otherwise breaks the team-name match
+        # in load_score_sheets and leaves every game of that match unlinked.
         if len(first) == 1 and " vs" in first[0].lower() and not games and not matchup_home:
             parts = re.split(r"\s+vs\.?\s+", first[0], maxsplit=1, flags=re.IGNORECASE)
             if len(parts) == 2:
-                matchup_home, matchup_away = parts[0].strip(), parts[1].strip()
+                matchup_home = re.sub(r"\s+", " ", parts[0]).strip()
+                matchup_away = re.sub(r"\s+", " ", parts[1]).strip()
             continue
         if len(first) == 1 and _SHEET_DATE_RE.search(first[0]) and date is None:
             date = _sheet_date(first[0])
