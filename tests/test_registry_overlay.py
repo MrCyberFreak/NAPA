@@ -18,6 +18,9 @@ from src import catchup, config
 def overlay(tmp_path, monkeypatch):
     p = tmp_path / "_registry.json"
     monkeypatch.setattr(config, "REGISTRY_PATH", p)
+    # Isolate from the live discovered-historical inbox (also folded into
+    # divisions()) so these overlay-merge assertions stay curated+overlay only.
+    monkeypatch.setattr(config, "HISTORICAL_PATH", tmp_path / "_historical.json")
 
     def write(discovered):
         p.write_text(json.dumps({"discovered": discovered}), encoding="utf-8")

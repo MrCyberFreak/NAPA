@@ -24,6 +24,16 @@ TUESDAY = config.divisions_playing_on("Tuesday")
 FRIDAY = config.divisions_playing_on("Friday")
 
 
+@pytest.fixture(autouse=True)
+def _isolate_historical_inbox(monkeypatch, tmp_path):
+    """Scheduling/registry-order assertions are about the curated+overlay set.
+    The discovered-historical inbox is folded into config.divisions() as
+    scrape=False (so active_only=True is unaffected), but active_only=False
+    paths would otherwise pick up live historical dids — isolate them so these
+    unit tests don't drift with real captures."""
+    monkeypatch.setattr(config, "HISTORICAL_PATH", tmp_path / "no_historical.json")
+
+
 # --------------------------------------------------------------------------- #
 # config.divisions_due — the day-after-play selector
 # --------------------------------------------------------------------------- #
