@@ -26,3 +26,6 @@ data/napa.db.bak*
 
 # Local editor/tooling output — not part of the project.
 .codescope/
+
+# Local daily-scrape mirror logs (tools/local_scrape.ps1) — never shipped.
+logs/
