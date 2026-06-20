@@ -91,7 +91,12 @@ Write-Host "[4/4] verifying NO GitHub Actions exposure (no new workflow_dispatch
 $ghOk = $true
 try {
     $disabled = (gh workflow list --all 2>$null) -match 'disabled_manually'
-    $enabled  = (gh workflow list --all 2>$null) | Where-Object { $_ -match '\bactive\b' }
+    # Exclude GitHub's built-in "Dependency Graph" workflow: it is legitimately
+    # `active`, is NOT one of our 6 NAPA workflows, and consumes no Actions minutes.
+    # Without this exclusion the guard hit a FALSE exit-3 ("ACTIONS EXPOSURE") on
+    # every stop -- a safety guard that always cries wolf gets ignored.
+    $enabled  = (gh workflow list --all 2>$null) |
+        Where-Object { $_ -match '\bactive\b' -and $_ -notmatch 'Dependency Graph' }
     Write-Host "    workflows disabled_manually: $(@($disabled).Count)"
     if (@($enabled).Count -gt 0) {
         Write-Host "    ENABLED workflow(s) present:" -ForegroundColor Red

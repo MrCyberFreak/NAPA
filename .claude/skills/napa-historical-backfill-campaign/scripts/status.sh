@@ -47,7 +47,10 @@ echo "live? (files written in last 5 min): $live"
 # --- CRITICAL SAFETY: no GitHub Actions exposure ----------------------------
 echo "--- SAFETY: GitHub Actions exposure ---"
 if command -v gh >/dev/null 2>&1; then
-  enabled=$(gh workflow list --all 2>/dev/null | grep -ciE '\bactive\b' || true)
+  # Exclude GitHub's built-in "Dependency Graph" workflow: it is legitimately
+  # `active`, is NOT one of our 6 NAPA workflows, and consumes no Actions minutes.
+  # Counting it tripped a FALSE "ACTIONS EXPOSURE" alarm on every status check.
+  enabled=$(gh workflow list --all 2>/dev/null | grep -iv 'Dependency Graph' | grep -ciE '\bactive\b' || true)
   disabled=$(gh workflow list --all 2>/dev/null | grep -ci 'disabled_manually' || true)
   echo "  workflows: $disabled disabled_manually, $enabled active (expect 0 active / 6 disabled)"
   recent=$(gh run list --limit 10 --json event,createdAt,workflowName 2>/dev/null \
