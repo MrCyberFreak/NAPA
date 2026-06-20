@@ -142,13 +142,17 @@ _GAME_TYPE_RE = re.compile(r"(\d+)\s*-?\s*ball", re.IGNORECASE)
 # checked BEFORE the plain ball regex — "10-Ball BP" would otherwise be
 # silently conflated with plain 10-ball.
 _BP_GAME_RE = re.compile(r"\s*(\d{1,2})\s*(?:-?\s*ball\s*)?BP\b", re.IGNORECASE)
+# The Felt-8-ball game label ("F8") -> canonical "F8" game_type, the played
+# counterpart of the roster's csr_f8 rating (LC+F8 divisions, e.g. 10874). The
+# bare "F8" cell misses the ball regex entirely, so it needs its own matcher.
+_F8_GAME_RE = re.compile(r"^\s*F8\b", re.IGNORECASE)
 _NAME_TEAM_RE = re.compile(r"^(.*?)\s*\((.+)\)\s*$")
 _SHEET_DATE_RE = re.compile(r"([A-Z][a-z]{2})\.?\s+(\d{1,2}),\s*(\d{4})")
 
 
 @dataclass(frozen=True)
 class ScoreGame:
-    game_type: int | str            # 8 / 9 / 10 as ints; "10BP" for the BP variant
+    game_type: int | str            # 8 / 9 / 10 as ints; "10BP"/"F8" text variants
     home_player: str
     home_team: str
     away_player: str
@@ -206,17 +210,20 @@ def parse_score_sheet(html: str) -> ScoreSheet:
             date = _sheet_date(first[0])
             continue
         # game table: first row is [game_type, home_player(team), away_player(team)].
-        # BP variant FIRST — "10-Ball BP" must not fall through as plain 10-ball.
+        # BP and F8 variants FIRST — their labels miss the plain ball regex
+        # ("10-Ball BP" would otherwise read as plain 10-ball; "F8" not at all).
         bp = _BP_GAME_RE.match(first[0]) if first and first[0] else None
-        gt = None if bp else (_GAME_TYPE_RE.match(first[0]) if first else None)
-        if (bp or gt) and len(first) >= 3:
+        f8 = None if bp else (_F8_GAME_RE.match(first[0]) if first and first[0] else None)
+        gt = None if (bp or f8) else (_GAME_TYPE_RE.match(first[0]) if first else None)
+        if (bp or f8 or gt) and len(first) >= 3:
             by_label = {r[0].upper(): r[1:] for r in rows if r and r[0]}
             hp, ht = _name_team(first[1])
             ap, at = _name_team(first[2])
             race = by_label.get("RACE", [])
             wins = by_label.get("# WINS", by_label.get("WINS", []))
             games.append(ScoreGame(
-                game_type=f"{bp.group(1)}BP" if bp else int(gt.group(1)),
+                game_type=(f"{bp.group(1)}BP" if bp else
+                           "F8" if f8 else int(gt.group(1))),
                 home_player=hp, home_team=ht, away_player=ap, away_team=at,
                 home_race=_int(race[0]) if len(race) > 0 else None,
                 away_race=_int(race[1]) if len(race) > 1 else None,

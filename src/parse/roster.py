@@ -47,14 +47,20 @@ from bs4 import BeautifulSoup
 #     "CSR"                   -> games ("8",)                    8-ball-only (13298)
 #     "CSR 9 - 10"            -> games ("9", "10")               2-game DP (13744)
 #     "CSR 8 - 9 - 10 - 10BP" -> games ("8", "9", "10", "10BP")  4-game LC (14022)
+#     "CSR 8 - 9 - 10 - F8"    -> games ("8", "9", "10", "F8")    4-game LC+F8 (10874)
+#     "CSR 9 - 10 - F8"        -> games ("9", "10", "F8")         3-game DP+F8 (10993)
+#     "CSR 9 - 10 - 7B"        -> games ("9", "10", "7B")         3-game +7-ball (11297)
 # An OLD (pre-2024) grid DASH-joins the SM column into the CSR header
 # ("CSR 8 - 9 - 10 - SM") and into each player's CSR run ("50 - 53 - 56 - 18");
 # the optional `smjoin` group flags that so the row parser splits SM off the run
 # instead of mistaking it for an extra game (historical-session backfill, 10102).
 # Modern grids SPACE-separate SM ("CSR 8 - 9 - 10  SM"), which `smjoin` ignores.
+# A game token is digit-first ("8", "10", "10BP") OR letter-first ("F8", the
+# Felt-8-ball rating carried by the Zoosters/Piazza "LC+F8" divisions).
+_GAME_TOK = r"(?:\d{1,2}[A-Za-z]{0,3}|[A-Za-z]{1,3}\d{1,2})"
 _TEAM_HEADER_RE = re.compile(
     r"^#\s*(?P<team>.+?)\s+CSR(?![A-Za-z])\s*"
-    r"(?P<games>\d{1,2}(?:[A-Za-z]{1,3})?(?:\s*[-/]\s*\d{1,2}(?:[A-Za-z]{1,3})?)*)?"
+    rf"(?P<games>{_GAME_TOK}(?:\s*[-/]\s*{_GAME_TOK})*)?"
     r"(?P<smjoin>\s*[-/]\s*SM\b)?",
     re.IGNORECASE,
 )
@@ -62,8 +68,8 @@ _TEAM_HEADER_RE = re.compile(
 # Canonical game labels the system knows how to store (RosterPlayer fields,
 # skill_snapshots columns). A header token outside this set is a NEW division
 # format: capture -> fixture -> deliberate extension, never a silent skip.
-_GAME_TOKEN_RE = re.compile(r"\d{1,2}[A-Za-z]{0,3}")
-_KNOWN_GAMES = ("8", "9", "10", "10BP")
+_GAME_TOKEN_RE = re.compile(_GAME_TOK)
+_KNOWN_GAMES = ("8", "9", "10", "10BP", "F8", "7B")
 
 # An 8-digit player ID, not part of a longer run of digits.
 _PLAYER_ID_RE = re.compile(r"(?<!\d)(\d{8})(?!\d)")
@@ -90,9 +96,12 @@ class RosterPlayer:
     csr_10: int | None
     session_matches: int | None
     is_captain: bool
-    # Defaulted (last): only 4-game grids declare 10BP (14022); keyword-built
-    # RosterPlayers elsewhere keep working without it.
+    # Defaulted (last): only some grids declare these extra games (10BP on 14022;
+    # F8 on the Zoosters/Piazza LC+F8 divisions; 7B on Piazza Tuesday 11297).
+    # Keyword-built RosterPlayers elsewhere keep working without them.
     csr_10bp: int | None = None
+    csr_f8: int | None = None
+    csr_7b: int | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -104,7 +113,8 @@ class RosterPlayer:
         None when fewer than two games carry a rating (8-ball-only grids):
         a single-game player has no cross-game spread.
         """
-        vals = [v for v in (self.csr_8, self.csr_9, self.csr_10, self.csr_10bp)
+        vals = [v for v in (self.csr_8, self.csr_9, self.csr_10,
+                            self.csr_10bp, self.csr_f8, self.csr_7b)
                 if v is not None]
         if len(vals) < 2:
             return None
@@ -247,6 +257,8 @@ def _match_player_row(cells: list[str], header: _TeamHeader | None) -> RosterPla
         csr_9=by_game.get("9"),
         csr_10=by_game.get("10"),
         csr_10bp=by_game.get("10BP"),
+        csr_f8=by_game.get("F8"),
+        csr_7b=by_game.get("7B"),
         session_matches=session_matches,
         is_captain=is_captain,
     )

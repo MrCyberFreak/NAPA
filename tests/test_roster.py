@@ -166,6 +166,9 @@ GRID_13298 = REPO / "fixtures" / "roster_grid_8ball_13298.html"  # bare "CSR"
 GRID_13744 = REPO / "fixtures" / "roster_grid_2game_13744.html"  # "CSR 9 - 10"
 GRID_14022 = REPO / "fixtures" / "roster_grid_4game_14022.html"  # "CSR 8 - 9 - 10 - 10BP"
 GRID_10102 = REPO / "fixtures" / "roster_grid_smjoin_10102.html" # "CSR 8 - 9 - 10 - SM" (old, dash-joined SM)
+GRID_10874 = REPO / "fixtures" / "roster_grid_f8_10874.html"     # "CSR 8 - 9 - 10 - F8"
+GRID_10993 = REPO / "fixtures" / "roster_grid_f8_dp_10993.html"  # "CSR 9 - 10 - F8" (DP+F8)
+GRID_11297 = REPO / "fixtures" / "roster_grid_7b_11297.html"     # "CSR 9 - 10 - 7B" (+7-ball)
 
 
 def test_three_game_grid_13985():
@@ -243,6 +246,66 @@ def test_four_game_grid_14022():
     assert p.session_matches == 0
     assert p.is_captain
     assert p.spread == 14  # 30 - 16; the 10BP rating counts toward the spread
+
+
+def test_four_game_f8_grid_10874():
+    """"CSR 8 - 9 - 10 - F8" — a 4-game LC+F8 shape (historical Zoosters
+    division 10874). F8 is a LETTER-first game token; the pre-fix header regex
+    (digit-first only) read just 3 games and RAISED on the 4-value rows. Fixed
+    by teaching the parser F8 as a first-class rating (csr_f8), like 10BP."""
+    players = parse_roster_file(GRID_10874)
+    summary = roster_summary(players)
+    assert summary["n_players"] == 84
+    assert summary["n_teams"] == 10
+    assert summary["n_captains"] == 10           # one captain per team
+    assert all(None not in (p.csr_8, p.csr_9, p.csr_10, p.csr_f8)
+               for p in players)
+    assert all(p.csr_10bp is None for p in players)   # F8 is NOT the 10BP slot
+    p = {p.player_id: p for p in players}["10049478"]
+    assert p.player == "Marcus Anderson"
+    assert (p.csr_8, p.csr_9, p.csr_10, p.csr_f8) == (90, 87, 82, 83)
+    assert p.session_matches == 15               # SM is its own column, not a rating
+    assert p.is_captain
+    assert p.spread == 8                          # 90 - 82; F8 counts toward the spread
+
+
+def test_three_game_dp_f8_grid_10993():
+    """"CSR 9 - 10 - F8" — F8 layered onto a 2-game DP shape (no 8-ball), the
+    historical Piazza Friday DP division 10993. Confirms F8 maps positionally
+    regardless of which other games the division declares."""
+    players = parse_roster_file(GRID_10993)
+    summary = roster_summary(players)
+    assert summary["n_players"] == 79
+    assert summary["n_teams"] == 9
+    assert all(p.csr_8 is None for p in players)
+    assert all(None not in (p.csr_9, p.csr_10, p.csr_f8) for p in players)
+    p = {p.player_id: p for p in players}["10068628"]
+    assert p.player == "Brittney Lytle"
+    assert (p.csr_9, p.csr_10, p.csr_f8) == (25, 20, 23)
+    assert p.csr_8 is None
+    assert p.session_matches == 10
+    assert p.is_captain
+    assert p.spread == 5                          # 25 - 20
+
+
+def test_three_game_7b_grid_11297():
+    """"CSR 9 - 10 - 7B" — the 7-ball rating layered onto a DP shape (Piazza
+    Tuesday 11297). 7B is digit-first so the token regex already matched it; it
+    just needed adding to the known-game set as csr_7b. (In the SCORE sheets the
+    same game shows as plain "7-ball" -> game_type 7, no parser change there.)"""
+    players = parse_roster_file(GRID_11297)
+    summary = roster_summary(players)
+    assert summary["n_players"] == 66
+    assert summary["n_teams"] == 8
+    assert all(p.csr_8 is None for p in players)
+    assert all(None not in (p.csr_9, p.csr_10, p.csr_7b) for p in players)
+    assert all(p.csr_10bp is None and p.csr_f8 is None for p in players)
+    p = {p.player_id: p for p in players}["10060432"]
+    assert p.player == 'Jose "Skinny" Nevarez'
+    assert (p.csr_9, p.csr_10, p.csr_7b) == (61, 71, 72)
+    assert p.session_matches == 21
+    assert p.is_captain
+    assert p.spread == 11                         # 72 - 61
 
 
 def test_smjoin_grid_10102():
