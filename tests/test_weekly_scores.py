@@ -196,6 +196,25 @@ def test_real_10bp_sheet_13986():
     assert g.home_won is True
 
 
+def test_matchup_team_names_collapse_whitespace():
+    """A matchup header with a double space ("Alex  I mean Robert") must collapse
+    to single-spaced so it matches the roster-derived team name in
+    load_score_sheets. The un-normalized form left every game of that team's
+    match unlinked (real case: 11480 "Alex I mean Robert", 130 games)."""
+    from src.parse.weekly_scores import parse_score_sheet
+    html = """
+    <table><tr><td>Alex  I mean Robert vs. Still in Aces</td></tr></table>
+    <table>
+      <tr><td>9-ball</td><td>P One (Alex I mean Robert)</td><td>P Two (Still in Aces)</td></tr>
+      <tr><td>RACE</td><td>4</td><td>4</td></tr>
+      <tr><td># WINS</td><td>4</td><td>2</td></tr>
+    </table>
+    """
+    sh = parse_score_sheet(html)
+    assert sh.home_team == "Alex I mean Robert"   # single-spaced, not "Alex  I mean Robert"
+    assert sh.away_team == "Still in Aces"
+
+
 def test_f8_game_label_parses_as_f8():
     """The bare "F8" game-type cell canonicalizes to game_type "F8" — it misses
     the ball regex entirely, so without its own matcher the table would be
