@@ -108,6 +108,45 @@ def _load_registry_overlay() -> dict[str, dict]:
     return disc if isinstance(disc, dict) else {}
 
 
+# Discovered-historical inbox: older sessions recovered by the division-ID sweep
+# (src/division_index.py -> data/raw/_historical.json). Report-only for onboarding,
+# but folded into divisions() as scrape=False so (a) the rebuild can LOAD a captured
+# historical session's archive and (b) url() builds correct, weekday-bearing URLs
+# for it. NEVER scraped by the cron (active_dids filters scrape=True).
+HISTORICAL_PATH = pathlib.Path("data/raw") / "_historical.json"
+
+_WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+def _weekday_from_slug(slug: str) -> str:
+    """A slug is '<weekday>-<venue>-<gameset>'; the first token is the league
+    night. Falls back to WEEK_DAY when the head isn't a weekday."""
+    head = slug.split("-", 1)[0].capitalize() if slug else ""
+    return head if head in _WEEKDAYS else WEEK_DAY
+
+
+def _fmt_from_slug(slug: str) -> str:
+    """Display-only format from the slug's gameset suffix. The roster-grid header
+    is the AUTHORITATIVE game set (see roster.py); this is cosmetic only."""
+    if slug.endswith("-8ball"):
+        return "8"
+    if slug.endswith("-9ball"):
+        return "9"
+    return "LC"
+
+
+def _load_historical() -> dict[str, dict]:
+    """The historical inbox's per-did entries (str(did) -> entry). Missing or
+    unreadable => empty: historical loading is best-effort, never a correctness
+    dependency."""
+    try:
+        data = json.loads(HISTORICAL_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    hist = data.get("historical", {})
+    return hist if isinstance(hist, dict) else {}
+
+
 def divisions() -> dict[int, Division]:
     """Curated DIVISIONS merged with the discovered-rollover overlay — THE
     accessor every active-set reader routes through.
@@ -133,6 +172,24 @@ def divisions() -> dict[int, Division]:
             fmt=e.get("fmt", "LC"),
             slug=e["slug"],
             scrape=(e.get("status") == "active"),
+        )
+    # Fold the discovered-historical inbox last (curated + active overlay win):
+    # older sessions, NEVER scraped (scrape=False), weekday/fmt derived from slug.
+    for did_str, e in _load_historical().items():
+        try:
+            did = int(did_str)
+        except (TypeError, ValueError):
+            continue
+        slug = e.get("slug")
+        if did in merged or not slug:
+            continue
+        merged[did] = Division(
+            did=did,
+            name=e.get("name", f"historical-{did}"),
+            weekday=_weekday_from_slug(slug),
+            fmt=_fmt_from_slug(slug),
+            slug=slug,
+            scrape=False,
         )
     return merged
 
