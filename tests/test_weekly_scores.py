@@ -194,3 +194,39 @@ def test_real_10bp_sheet_13986():
     assert (g.home_player, g.away_player) == ("Dave Mattingly", "Cheryl Jones")
     assert (g.home_race, g.away_race, g.home_wins, g.away_wins) == (5, 4, 5, 0)
     assert g.home_won is True
+
+
+def test_f8_game_label_parses_as_f8():
+    """The bare "F8" game-type cell canonicalizes to game_type "F8" — it misses
+    the ball regex entirely, so without its own matcher the table would be
+    silently dropped."""
+    from src.parse.weekly_scores import parse_score_sheet
+    html = """
+    <table>
+      <tr><td>F8</td><td>A Player (Team One)</td><td>B Player (Team Two)</td></tr>
+      <tr><td>RACE</td><td>4</td><td>4</td></tr>
+      <tr><td># WINS</td><td>4</td><td>2</td></tr>
+    </table>
+    """
+    sh = parse_score_sheet(html)
+    assert len(sh.games) == 1
+    g = sh.games[0]
+    assert g.game_type == "F8"
+    assert (g.home_player, g.away_player) == ("A Player", "B Player")
+    assert g.home_won is True
+
+
+def test_real_f8_sheet_10874():
+    """Pinned real capture (10874 week_04, 2023-10-03): a 5-game match mixing
+    plain 9/10-ball tables with one F8 table — the played counterpart of the
+    roster's csr_f8 rating."""
+    from collections import Counter
+    from src.parse.weekly_scores import parse_score_sheet_file
+    sh = parse_score_sheet_file(REPO / "fixtures" / "score_sheet_f8_10874.html")
+    assert (sh.home_team, sh.away_team) == ("On Deck", "Choke On This")
+    assert sh.date == "2023-10-03"
+    assert Counter(g.game_type for g in sh.games) == {10: 3, 9: 1, "F8": 1}
+    g = next(g for g in sh.games if g.game_type == "F8")
+    assert (g.home_player, g.away_player) == ("Rick Riley", "Kevin Pikus")
+    assert (g.home_race, g.away_race, g.home_wins, g.away_wins) == (8, 4, 2, 4)
+    assert g.home_won is False                    # away hit its race (4) first
