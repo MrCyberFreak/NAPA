@@ -1497,12 +1497,88 @@ def _load_one(conn: sqlite3.Connection, did: int, date: str, roster: str | None 
         print(f"  {row['roster_size']:>2}  {row['team']}")
 
 
+def ingest(db_path: str = config.DB_PATH, dids: list[int] | None = None) -> dict:
+    """INCREMENTAL load: fold new/changed score sheets (plus schedules, official
+    match-point results, FLEX, and the newest roster grid for name resolution)
+    for the given divisions into an EXISTING `napa.db`, via the idempotent upsert
+    loaders. This is the daily path -- it does NOT delete the DB and does NOT run
+    the slow profile pass, so it leaves `pairing_history`/`player_form` and every
+    other division untouched. Use `--rebuild` only for a from-scratch
+    regeneration (schema change / integrity reset). Default dids = every active
+    (scrape=True) division; pass a subset (e.g. the divisions that just played).
+
+    Re-ingesting a division is safe: every loader keys on a natural unique tuple
+    and upserts (games on (division, date, home_name, away_name); matches on
+    (season, round, teams); snapshots append per captured_date), so a second run
+    over the same archive changes nothing -- proven by the loader idempotency
+    tests and by re-running this command."""
+    from .parse.schedule import parse_schedule_file
+    from .parse.weekly_scores import parse_score_sheet_file, parse_week_results_file
+    from .parse.flex import parse_flex_file
+
+    path = Path(db_path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{db_path} does not exist -- run `python -m src.db --rebuild` first; "
+            "--ingest folds new data into an EXISTING database.")
+    conn = connect(path)
+    init_db(conn)  # create-if-not-exists only; never wipes
+    dids = dids or config.active_dids()
+    report: dict = {"divisions": {}}
+    for did in dids:
+        root = config.division_root(did)
+        season = _stored_season(conn, did)
+        rep: dict = {}
+        grids = sorted(root.glob("*/roster_grid.html"))
+        if grids:
+            r = load_roster(conn, parse_roster_file(grids[-1]),
+                            captured_date=grids[-1].parent.name, season=season,
+                            division_id=did)
+            rep["roster"] = {"loads": 1, "csr_conflicts": r["csr_conflicts"]}
+        scheds = sorted(root.glob("*/schedule.html"))
+        if scheds:
+            rep["schedule"] = load_schedule(conn, parse_schedule_file(scheds[-1]),
+                                            season=season, division_id=did)
+        sheet_files = [f for f in sorted(root.glob("scores/week_*/*.html"))
+                       if f.name != "_index.html"]
+        if sheet_files:
+            sheets = [parse_score_sheet_file(f) for f in sheet_files]
+            rep["sheets"] = load_score_sheets(conn, sheets, season=season,
+                                              division_id=did)
+        results = [r for idx in sorted(root.glob("scores/week_*/_index.html"))
+                   for r in parse_week_results_file(idx)]
+        if results:
+            rep["results"] = load_match_results(conn, results, season=season,
+                                                division_id=did)
+        flex_files = sorted(root.glob("*/flex.html"))
+        if flex_files:
+            try:
+                fs = parse_flex_file(flex_files[-1])
+                rep["flex"] = load_flex(conn, fs, captured_date=flex_files[-1].parent.name,
+                                        season=season, division_id=did)
+            except Exception as exc:  # noqa: BLE001 — one bad capture must not kill the run
+                rep["flex"] = {"error": str(exc)}
+        report["divisions"][did] = rep
+    counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+              for t in ("players", "skill_snapshots", "teams", "matches", "games",
+                        "flex_standings")}
+    report["counts"] = counts
+    conn.close()
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA database loader")
     parser.add_argument("--load", action="store_true",
                         help="parse roster grid(s) and load into the DB")
     parser.add_argument("--rebuild", action="store_true",
                         help="rebuild the DB from the raw archive (all archived divisions)")
+    parser.add_argument("--ingest", action="store_true",
+                        help="INCREMENTAL: fold new score sheets (+ schedules, "
+                             "match-point results, flex, newest roster) into the "
+                             "EXISTING DB via idempotent upserts -- no wipe, no "
+                             "profile pass. The daily path; use --did / "
+                             "--all-divisions to scope. (cf. --rebuild = from scratch)")
     parser.add_argument("--no-profiles", action="store_true",
                         help="with --rebuild: skip the slow profile pass (pass 4) for a "
                              "fast iteration rebuild; passes 1-3 (rosters/schedules/"
@@ -1526,6 +1602,14 @@ def main() -> None:
             print(f"[rebuild] {did}: {rep}")
         print(f"[rebuild] profiles: {report['profiles']}")
         print(f"[rebuild] counts: {report['counts']}")
+        return
+
+    if args.ingest:
+        dids = config.active_dids() if args.all_divisions else [args.did]
+        report = ingest(args.db, dids)
+        for did, rep in report["divisions"].items():
+            print(f"[ingest] {did}: {rep}")
+        print(f"[ingest] counts: {report['counts']}")
         return
 
     if not args.load:
