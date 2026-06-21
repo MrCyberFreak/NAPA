@@ -26,6 +26,30 @@ $stamp = (Get-Date).ToString('yyyyMMdd-HHmmss')
 $log = Join-Path $logDir "scrape-$stamp.log"
 function Log($m) { ("{0}  {1}" -f (Get-Date).ToString('s'), $m) | Tee-Object -FilePath $log -Append }
 
+# Run a git command, tee its output to the log, and return git's REAL exit code.
+# (A bare `git ... | Tee-Object` sets $LASTEXITCODE to Tee's code, not git's, which
+#  is how the old commit step silently swallowed a failed `git add`.)
+function GitStep([string[]]$GitArgs) {
+  $out = & git @GitArgs 2>&1
+  $code = $LASTEXITCODE
+  if ($out) { $out | Tee-Object -FilePath $log -Append | Out-Null }
+  return $code
+}
+
+# Clear a STALE .git/index.lock (recurs from the IDE git integration). Only when no
+# git.exe is running -- never yank the lock out from under a live git process.
+function Clear-StaleIndexLock {
+  $lock = Join-Path $repo '.git\index.lock'
+  if (-not (Test-Path $lock)) { return }
+  if (Get-Process git -ErrorAction SilentlyContinue) {
+    Log "index.lock present but git.exe is running -- not clearing (will retry)"
+    return
+  }
+  $age = ((Get-Date) - (Get-Item $lock).LastWriteTime).TotalMinutes
+  Remove-Item -Force $lock -ErrorAction SilentlyContinue
+  Log ("cleared stale .git/index.lock (age {0:N0} min, no git.exe running)" -f $age)
+}
+
 Log "=== local_scrape start (mirror of scrape.yml) ==="
 
 # --- Host-serialization guard: never run while the historical backfill drives the browser ---
@@ -49,24 +73,47 @@ python -m src.browser_fetch --scheduled --all-divisions 2>&1 | Tee-Object -FileP
 Log "capture exit code: $LASTEXITCODE"
 
 # --- Commit + push data/raw as the durable archive.
-#     Identity is passed PER-COMMIT (-c) so this never mutates your git config. ---
-git add -A data/raw 2>&1 | Tee-Object -FilePath $log -Append
-git diff --cached --quiet
-if ($LASTEXITCODE -eq 0) {
-  Log "no archive changes to commit (write-on-change: nothing new)."
+#     Identity is passed PER-COMMIT (-c) so this never mutates your git config.
+#     Self-healing: pre-clear a stale index.lock, check git's REAL exit code at
+#     every step, retry the add once on lock failure, distinguish "nothing new"
+#     from a FAILED add, and exit non-zero on any failure so the Scheduled Task's
+#     LastResult (and napa-scrape-health) surface it instead of reporting success. ---
+$archiveFailed = $false
+Clear-StaleIndexLock
+$addCode = GitStep @('add', '-A', 'data/raw')
+if ($addCode -ne 0) {
+  Log "git add failed (exit $addCode) -- likely a stale index.lock; clearing and retrying once"
+  Clear-StaleIndexLock
+  $addCode = GitStep @('add', '-A', 'data/raw')
+}
+if ($addCode -ne 0) {
+  Log "ARCHIVE COMMIT FAILED: git add still failing (exit $addCode). Raw data is captured on disk but UNCOMMITTED -- recover next run or commit manually."
+  $archiveFailed = $true
 } else {
-  $today = (Get-Date).ToString('yyyy-MM-dd')
-  git -c user.name='napa-archive-bot' -c user.email='napa-archive-bot@users.noreply.github.com' `
-      commit -m "chore(archive): local scrape $today [skip ci]" 2>&1 | Tee-Object -FilePath $log -Append
-  $pushed = $false
-  for ($i = 1; $i -le 5; $i++) {
-    git pull --rebase origin main 2>&1 | Tee-Object -FilePath $log -Append
-    git push origin HEAD:main 2>&1 | Tee-Object -FilePath $log -Append
-    if ($LASTEXITCODE -eq 0) { $pushed = $true; break }
-    Log "push race/failure, retry $i/5"
-    Start-Sleep -Seconds 5
+  git diff --cached --quiet; $hasChanges = ($LASTEXITCODE -ne 0)
+  if (-not $hasChanges) {
+    Log "no archive changes to commit (write-on-change: nothing new)."
+  } else {
+    $today = (Get-Date).ToString('yyyy-MM-dd')
+    $commitCode = GitStep @('-c', 'user.name=napa-archive-bot',
+      '-c', 'user.email=napa-archive-bot@users.noreply.github.com',
+      'commit', '-m', "chore(archive): local scrape $today [skip ci]")
+    if ($commitCode -ne 0) {
+      Log "ARCHIVE COMMIT FAILED: git commit exit $commitCode -- staged but not committed."
+      $archiveFailed = $true
+    } else {
+      $pushed = $false
+      for ($i = 1; $i -le 5; $i++) {
+        GitStep @('pull', '--rebase', 'origin', 'main') | Out-Null
+        $pushCode = GitStep @('push', 'origin', 'HEAD:main')
+        if ($pushCode -eq 0) { $pushed = $true; break }
+        Log "push race/failure (exit $pushCode), retry $i/5"
+        Start-Sleep -Seconds 5
+      }
+      if ($pushed) { Log "pushed archive to origin/main." }
+      else { Log "PUSH FAILED after 5 retries -- commit is LOCAL; will retry next run or push manually."; $archiveFailed = $true }
+    }
   }
-  if ($pushed) { Log "pushed archive to origin/main." }
-  else { Log "PUSH FAILED after 5 retries -- commit is local; will retry next run or push manually." }
 }
 Log "=== local_scrape end ==="
+if ($archiveFailed) { exit 1 } else { exit 0 }
