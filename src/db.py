@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import sqlite3
 from pathlib import Path
 
@@ -1294,6 +1295,70 @@ def _archived_dids() -> list[int]:
     return [d for d in config.divisions() if config.division_root(d).is_dir()]
 
 
+def _profiles_root() -> Path:
+    """Player-keyed profile archive root: data/raw/profiles/ (division-independent)."""
+    return Path("data/raw/profiles")
+
+
+def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
+                     *, captured_default: str | None = None) -> tuple[bool, str | None]:
+    """Load ONE data/raw/profiles/<id>/ directory into the DB via the idempotent
+    profile loaders (demographics, CSR peaks, rivals, per-rival H2H drill-downs,
+    trends, career match history, tournaments). Shared by rebuild()'s pass 4 and
+    the incremental ingest_profiles(), so the per-profile logic lives in one place.
+
+    Returns (loaded, error): (True, None) on a successful load, (False, None) when
+    skipped (no main.html / no player_id), (False, msg) on a captured exception.
+    Never raises — one bad capture must not kill the caller. The caller owns
+    conn.commit() (update_pairing_h2h does not self-commit)."""
+    from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
+    from .parse.profile import (parse_cuespeed, parse_profile_file,
+                                parse_profile_rivals, parse_rival_h2h, parse_trends)
+    from .parse.tournament import parse_tournament_file
+
+    main_f = pdir / "main.html"
+    if not main_f.exists():
+        return (False, None)
+    try:
+        prof = parse_profile_file(main_f)
+        if not prof.player_id:
+            return (False, None)
+        load_profile(conn, prof)
+        captured = prof.as_of or captured_default or dt.date.today().isoformat()
+        html = main_f.read_text(encoding="utf-8", errors="replace")
+        load_cuespeed(conn, prof.player_id, parse_cuespeed(html))
+        rivals_f = pdir / "rivals.html"
+        if rivals_f.exists():
+            _, rivals = parse_profile_rivals(
+                rivals_f.read_text(encoding="utf-8", errors="replace"))
+            load_rivals(conn, prof.player_id, rivals, captured)
+        for rf in sorted(pdir.glob("rival_*.html")):
+            per_game = parse_rival_h2h(rf.read_text(encoding="utf-8", errors="replace"))
+            update_pairing_h2h(conn, prof.player_id, rf.stem.split("_", 1)[1], per_game)
+        trends_f = pdir / "trends.html"
+        if trends_f.exists():
+            form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
+            load_trends(conn, prof.player_id, form, captured)
+        # Career match history: any archived match_<tab>_<start>.html (no-op when
+        # none). Tab/start are recovered from the filename; game_type from the tab.
+        for mf in sorted(pdir.glob("match_*.html")):
+            tok = mf.stem.split("_")[1]
+            tab = int(tok) if tok.isdigit() else tok
+            if tab == 24:  # Tournaments — own parser + table (xTab=24)
+                sid, tpage = parse_tournament_file(mf)
+                load_tournament_matches(conn, sid or prof.player_id,
+                                        tpage.matches, captured)
+                continue
+            if tab not in TAB_GAME_TYPE:
+                continue  # Local-Duels (25): archived raw, parsed elsewhere
+            sid, page = parse_match_history_file(mf)
+            load_match_history(conn, sid or prof.player_id, page.game_type,
+                               page.matches, captured)
+        return (True, None)
+    except Exception as exc:  # noqa: BLE001 — one bad capture must not kill the caller
+        return (False, str(exc))
+
+
 def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
             profiles: bool = True) -> dict:
     """Rebuild the DB from the raw archive, pass-ordered so the master player
@@ -1311,10 +1376,6 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     gate is sourced from passes 1–3; only the profile-sourced multi-division
     ENUMERATION (player_divisions) is informational, so onboarding can gate fast
     and leave the full profile load for the final verification rebuild."""
-    from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
-    from .parse.profile import (parse_cuespeed, parse_profile_file,
-                                parse_profile_rivals, parse_rival_h2h, parse_trends)
-    from .parse.tournament import parse_tournament_file
     from .parse.schedule import parse_schedule_file
     from .parse.weekly_scores import parse_score_sheet_file, parse_week_results_file
     from .parse.flex import parse_flex_file
@@ -1388,53 +1449,16 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
     # pass 4: profiles — league-wide, after every roster so ids all exist.
     # Skipped when profiles=False (the slow, I/O-bound pass; not needed for the
     # PASS/FAIL onboarding gates — see rebuild() docstring).
-    profiles_root = Path("data/raw/profiles")
+    profiles_root = _profiles_root()
     loaded = failed = 0
     if profiles and profiles_root.is_dir():
         for pdir in sorted(profiles_root.iterdir()):
-            main_f = pdir / "main.html"
-            if not main_f.exists():
-                continue
-            try:
-                prof = parse_profile_file(main_f)
-                if not prof.player_id:
-                    continue
-                load_profile(conn, prof)
-                captured = prof.as_of or dt.date.today().isoformat()
-                html = main_f.read_text(encoding="utf-8", errors="replace")
-                load_cuespeed(conn, prof.player_id, parse_cuespeed(html))
-                rivals_f = pdir / "rivals.html"
-                if rivals_f.exists():
-                    _, rivals = parse_profile_rivals(
-                        rivals_f.read_text(encoding="utf-8", errors="replace"))
-                    load_rivals(conn, prof.player_id, rivals, captured)
-                for rf in sorted(pdir.glob("rival_*.html")):
-                    per_game = parse_rival_h2h(rf.read_text(encoding="utf-8", errors="replace"))
-                    update_pairing_h2h(conn, prof.player_id, rf.stem.split("_", 1)[1], per_game)
-                trends_f = pdir / "trends.html"
-                if trends_f.exists():
-                    form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
-                    load_trends(conn, prof.player_id, form, captured)
-                # Optional: career match history, any archived match_<tab>_<start>.html
-                # pages (a no-op when none exist). Tab/start are recovered from the
-                # filename; game_type comes from the tab, not the page body.
-                for mf in sorted(pdir.glob("match_*.html")):
-                    tok = mf.stem.split("_")[1]
-                    tab = int(tok) if tok.isdigit() else tok
-                    if tab == 24:  # Tournaments — own parser + table (xTab=24)
-                        sid, tpage = parse_tournament_file(mf)
-                        load_tournament_matches(conn, sid or prof.player_id,
-                                                tpage.matches, captured)
-                        continue
-                    if tab not in TAB_GAME_TYPE:
-                        continue  # Local-Duels (25): archived raw, parsed elsewhere
-                    sid, page = parse_match_history_file(mf)
-                    load_match_history(conn, sid or prof.player_id, page.game_type,
-                                       page.matches, captured)
+            ok, err = load_profile_dir(conn, pdir)
+            if ok:
                 loaded += 1
-            except Exception as exc:  # noqa: BLE001 — one bad capture must not kill a rebuild
+            elif err is not None:
                 failed += 1
-                print(f"[rebuild] profile {pdir.name} failed: {exc}")
+                print(f"[rebuild] profile {pdir.name} failed: {err}")
     conn.commit()
     report["profiles"] = {"loaded": loaded, "failed": failed, "skipped": not profiles}
 
@@ -1567,6 +1591,111 @@ def ingest(db_path: str = config.DB_PATH, dids: list[int] | None = None) -> dict
     return report
 
 
+def _profiles_state_path(db_path: str | Path) -> Path:
+    """Change-detection state for ingest_profiles, kept beside the DB (regenerable,
+    gitignored). Tying it to the DB dir keeps tests on a tmp DB fully isolated."""
+    return Path(db_path).resolve().parent / "profiles_ingest_state.json"
+
+
+def _dir_signature(pdir: Path) -> str:
+    """Stat-only signature of a profile dir: sorted `name:size` of its *.html files.
+    Cheap (no reads) and sufficient because harvest only ADDS files and never
+    rewrites an existing page >500B — so a changed file set means new data landed."""
+    return ";".join(f"{p.name}:{p.stat().st_size}"
+                    for p in sorted(pdir.glob("*.html")))
+
+
+def _read_profiles_state(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"version": 1, "dirs": {}}
+
+
+def _write_profiles_state(path: Path, state: dict) -> None:
+    path.write_text(json.dumps(state, indent=0), encoding="utf-8")
+
+
+def ingest_profiles(db_path: str | Path = config.DB_PATH, *,
+                    dids: list[int] | None = None,
+                    player_ids: list[str] | None = None,
+                    all_dirs: bool = False, force: bool = False,
+                    profiles_root: str | Path | None = None) -> dict:
+    """INCREMENTAL profile load: fold harvested data/raw/profiles/<id>/ dirs into
+    the EXISTING napa.db via the idempotent profile loaders (load_profile_dir) --
+    NO wipe, NO full re-walk. The post-HARVEST counterpart to ingest() (the daily,
+    profile-free path). Profiles are player-keyed, so scope is by player:
+      - player_ids=[...] -> exactly those players
+      - dids=[...]       -> every player on those divisions' newest roster grids
+      - all_dirs=True    -> every profile dir on disk (the rebuild-equivalent set)
+    Default scope (none of the above) = active divisions' rosters. Change detection
+    (default): a gitignored state file beside the DB records each dir's stat-only
+    signature; only dirs whose signature changed since last ingest are loaded.
+    force=True bypasses the filter. Re-ingest is a no-op (idempotent loaders); use
+    --rebuild only for schema / integrity resets."""
+    from .browser_fetch import _roster_player_ids
+
+    path = Path(db_path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{db_path} does not exist -- run `python -m src.db --rebuild` first; "
+            "--ingest-profiles folds harvested profiles into an EXISTING database.")
+    root = Path(profiles_root) if profiles_root else _profiles_root()
+    conn = connect(path)
+    init_db(conn)  # create-if-not-exists only; never wipes
+
+    # resolve scope -> candidate player ids that actually have a dir on disk
+    if player_ids:
+        candidates = [str(p) for p in player_ids]
+    elif all_dirs:
+        candidates = ([d.name for d in sorted(root.iterdir()) if d.is_dir()]
+                      if root.is_dir() else [])
+    else:
+        ids: set[str] = set()
+        for did in (dids or config.active_dids()):
+            ids.update(_roster_player_ids(did))
+        candidates = sorted(ids)
+    candidates = [pid for pid in candidates if (root / pid).is_dir()]
+
+    # change-detection filter (skip dirs whose signature is unchanged) unless force
+    state_path = _profiles_state_path(path)
+    state = _read_profiles_state(state_path)
+    dirs_state = state.setdefault("dirs", {})
+    to_load: list[tuple[str, str]] = []
+    skipped = 0
+    for pid in candidates:
+        sig = _dir_signature(root / pid)
+        if force or dirs_state.get(pid, {}).get("sig") != sig:
+            to_load.append((pid, sig))
+        else:
+            skipped += 1
+
+    loaded = failed = 0
+    today = dt.date.today().isoformat()
+    for pid, sig in to_load:
+        ok, err = load_profile_dir(conn, root / pid)
+        if err is not None:
+            failed += 1
+            print(f"[ingest-profiles] profile {pid} failed: {err}")
+            continue
+        if ok:
+            loaded += 1
+        # record signature whether loaded or cleanly skipped (no main.html), so a
+        # genuinely-empty dir isn't retried every run; only errors stay unrecorded.
+        dirs_state[pid] = {"sig": sig, "loaded_at": today}
+    conn.commit()
+    _write_profiles_state(state_path, state)
+
+    counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+              for t in ("players", "skill_snapshots", "pairing_history",
+                        "player_form", "match_history", "tournament_matches",
+                        "player_divisions")}
+    conn.close()
+    scope = "players" if player_ids else "all_dirs" if all_dirs else "divisions"
+    return {"scope": scope, "considered": len(candidates), "loaded": loaded,
+            "failed": failed, "skipped_unchanged": skipped, "counts": counts}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="NAPA database loader")
     parser.add_argument("--load", action="store_true",
@@ -1583,6 +1712,22 @@ def main() -> None:
                         help="with --rebuild: skip the slow profile pass (pass 4) for a "
                              "fast iteration rebuild; passes 1-3 (rosters/schedules/"
                              "sheets+results) still run over every division")
+    parser.add_argument("--ingest-profiles", action="store_true",
+                        help="INCREMENTAL: fold HARVESTED profiles (pairing_history, "
+                             "player_form, match/tournament history, CSR peaks) into "
+                             "the EXISTING DB via idempotent upserts -- no wipe, no "
+                             "rebuild. Player-keyed: scope with --did / --all-divisions "
+                             "(rostered players), --players, or --all-dirs. Loads only "
+                             "dirs that changed since last run unless --force.")
+    parser.add_argument("--players", type=str, default=None,
+                        help="with --ingest-profiles: comma-separated player_ids to "
+                             "ingest (overrides division scope)")
+    parser.add_argument("--all-dirs", action="store_true",
+                        help="with --ingest-profiles: every profile dir on disk "
+                             "(incl. historical-only players), not just rostered")
+    parser.add_argument("--force", action="store_true",
+                        help="with --ingest-profiles: bypass change-detection and "
+                             "load the whole resolved scope")
     parser.add_argument("--did", type=int, default=config.DID,
                         help=f"division to load (default: {config.DID})")
     parser.add_argument("--all-divisions", action="store_true",
@@ -1610,6 +1755,15 @@ def main() -> None:
         for did, rep in report["divisions"].items():
             print(f"[ingest] {did}: {rep}")
         print(f"[ingest] counts: {report['counts']}")
+        return
+
+    if getattr(args, "ingest_profiles", False):
+        pids = [p.strip() for p in args.players.split(",") if p.strip()] if args.players else None
+        dids = (config.active_dids() if args.all_divisions
+                else None if (pids or args.all_dirs) else [args.did])
+        report = ingest_profiles(args.db, dids=dids, player_ids=pids,
+                                 all_dirs=args.all_dirs, force=args.force)
+        print(f"[ingest-profiles] {report}")
         return
 
     if not args.load:
