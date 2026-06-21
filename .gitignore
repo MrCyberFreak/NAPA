@@ -29,3 +29,6 @@ data/napa.db.bak*
 
 # Local daily-scrape mirror logs (tools/local_scrape.ps1) — never shipped.
 logs/
+
+# Design drop-in archive (the extracted UI lives under handoff_napa_web/) — not shipped.
+NAPA Mobile UI.zip
