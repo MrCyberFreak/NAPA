@@ -26,9 +26,12 @@ $stamp = (Get-Date).ToString('yyyyMMdd-HHmmss')
 $log = Join-Path $logDir "scrape-$stamp.log"
 function Log($m) { ("{0}  {1}" -f (Get-Date).ToString('s'), $m) | Tee-Object -FilePath $log -Append }
 
-# Run a git command, tee its output to the log, and return git's REAL exit code.
-# (A bare `git ... | Tee-Object` sets $LASTEXITCODE to Tee's code, not git's, which
-#  is how the old commit step silently swallowed a failed `git add`.)
+# Run a git command, tee its output to the log, and return git's REAL exit code,
+# captured immediately so a following git command can't clobber $LASTEXITCODE
+# before we check it. (The original bug wasn't Tee -- Tee-Object is a cmdlet and
+# preserves $LASTEXITCODE -- it was that a failed `git add` went unchecked: the
+# next line `git diff --cached --quiet` returned 0 for an empty index, which the
+# code misread as "nothing to commit.")
 function GitStep([string[]]$GitArgs) {
   $out = & git @GitArgs 2>&1
   $code = $LASTEXITCODE
@@ -115,5 +118,23 @@ if ($addCode -ne 0) {
     }
   }
 }
+
+# --- Fold the captured data into napa.db INCREMENTALLY (src/db.py --ingest):
+#     idempotent upserts on the EXISTING DB -- no wipe, no profile pass -- so new
+#     score sheets / makeups land in seconds and the local DB stays current daily
+#     WITHOUT a rebuild. Runs even if the archive commit failed (the raw files are
+#     on disk regardless). Tee-Object preserves $LASTEXITCODE, so it's python's
+#     real code. ---
+$ingestFailed = $false
+Log "ingest: python -m src.db --ingest --all-divisions"
+python -m src.db --ingest --all-divisions 2>&1 | Tee-Object -FilePath $log -Append
+$ingestCode = $LASTEXITCODE
+if ($ingestCode -ne 0) {
+  Log "INGEST FAILED (exit $ingestCode) -- napa.db NOT updated this run; the raw archive is on disk, re-run 'python -m src.db --ingest --all-divisions' or rebuild."
+  $ingestFailed = $true
+} else {
+  Log "ingest OK -- new score sheets folded into napa.db (no rebuild)."
+}
+
 Log "=== local_scrape end ==="
-if ($archiveFailed) { exit 1 } else { exit 0 }
+if ($archiveFailed -or $ingestFailed) { exit 1 } else { exit 0 }
