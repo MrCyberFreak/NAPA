@@ -139,6 +139,25 @@ def test_score_sheet_mirror_dedup():
 
 
 @pytest.mark.skipif(not SHEET.exists(), reason="no score_sheet fixture")
+def test_load_score_sheets_reload_is_idempotent():
+    """Re-ingesting the SAME score sheet upserts -- never double-counts. This is
+    the guarantee the incremental `db --ingest` path relies on (a daily run can
+    re-load a division's week folders without inflating `games`)."""
+    from src.parse.weekly_scores import parse_score_sheet_file
+    from src.db import load_score_sheets
+    conn = _loaded_db()
+    sh = parse_score_sheet_file(SHEET)
+    first = load_score_sheets(conn, [sh], season=SEASON)
+    assert first["loaded"] == 5
+    n1 = conn.execute("SELECT COUNT(*) FROM games").fetchone()[0]
+    # second identical load: every game is caught as an already-present pair
+    second = load_score_sheets(conn, [sh], season=SEASON)
+    n2 = conn.execute("SELECT COUNT(*) FROM games").fetchone()[0]
+    assert second["deduped"] == 5 and second["loaded"] == 0
+    assert n1 == n2 == 5
+
+
+@pytest.mark.skipif(not SHEET.exists(), reason="no score_sheet fixture")
 def test_pending_matches_flags_unplayed_not_errors():
     """A scheduled match with no loaded games (date passed) is PENDING, not an
     error; loading its games drops it from the list (re-pull structure)."""
