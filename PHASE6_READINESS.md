@@ -5,11 +5,11 @@
 > This is a major jump from the prior build: games 3,906 → 23,227, players 715 →
 > 1,274, 56 divisions now carry games (was 13). Two NEW game types enter — F8
 > (Felt-8-ball, `skill_snapshots.csr_f8`) and 7-ball (`csr_7b`) — alongside 10BP,
-> from the historical LC+F8 / 7-ball divisions. TWO caveats bound this build:**
-> **(1) the profile pass is DEFERRED (`--no-profiles` rebuild) — the §5
-> `pairing_history` H2H layer is NOT loaded here (0 rows); the prior 715-player
-> profiles build measured 48,076 directed edges, which must be re-run against this
-> 1,274-player DB. (2) Every CSR snapshot is dated June 2026 (the roster grids,
+> from the historical LC+F8 / 7-ball divisions. The profile pass is now LOADED
+> (full `profiles=True` rebuild — 708/708 profiles, 0 failures).**
+> **The §5 `pairing_history` lifetime-H2H layer carries 48,076 directed edges over
+> 704 players, all with per-game W-L splits (see §5). ONE caveat still bounds this
+> build: every CSR snapshot is dated June 2026 (the roster grids,
 > including the historical ones, were all captured in the 06-2026 backfill), but
 > games now span 2022-2026 — so the ~83% of games that are historical carry the
 > players' CURRENT (2026) CSR, not their rating at the time of play. The
@@ -22,8 +22,7 @@
 This is the input to the Phase 6 estimator-design decision.
 
 **Source:** `data/napa.db`, rebuilt from the committed raw archive in the DATA.md
-pass order (roster grids → schedules → score sheets; profiles DEFERRED this
-build). Row counts: **1,274 players, 5,043 skill snapshots, 535 teams, 6,198
+pass order (roster grids → schedules → score sheets → profiles). Row counts: **1,274 players, 5,043 skill snapshots, 535 teams, 6,198
 matches, 23,227 games** (8 / 9 / 10 / 10BP / F8 / 7-ball = 13,119 / 4,637 / 5,264
 / 118 / 81 / 8), spanning **56 divisions** with games across the 2022-2026
 seasons. Regenerate deterministically (seeded bootstrap) with
@@ -198,7 +197,7 @@ so the diff is approximate for those — the curve below mixes contemporaneous
 | 6–10  | 10 |  60 | 40.0% | 10.0% |
 | 11–18 | 28 | 169 | 60.4% | 60.7% |
 | 19–30 | 25 | 167 | 62.9% | 52.0% |
-| 31+   | 40 | 297 | 78.5% | 81.5% |
+| 31+   | 40 | 297 | 78.5% | 82.5% |
 
 **F8** (thin — historical LC+F8 divisions only)
 
@@ -322,13 +321,16 @@ anticipated.
   estimate of relative skill, and weight or flag historical games accordingly when
   fitting. True contemporaneous historical CSR is not recoverable from the current
   grid captures.
-- **`pairing_history` is NOT loaded in this build (DEFERRED).** This was a
-  `--no-profiles` rebuild, so the §5 lifetime-H2H layer has **0 rows**. The prior
-  715-player profiles build measured **48,076 directed RIVALS edges** over 704
-  players (100% drilled to per-game W-L); those figures predate the historical
-  load and must be **re-run with a `profiles=True` rebuild on this 1,274-player
-  DB** before the H2H prior can be quoted for the multi-season pool. 710 profiles
-  are on disk ready to load; the rebuild is the long pole (~hours, I/O-bound).
+- **`pairing_history` (lifetime H2H) is now LOADED.** A full `profiles=True`
+  rebuild loaded **708/708 profiles (0 failures)**, giving **48,076 directed
+  RIVALS edges** over **704 subjects** — **36,022 distinct unordered pairings**
+  (33% reciprocal/both-sided), and **all 48,076 edges carry per-game W-L splits
+  (100% drilled)**. This layer is AGGREGATE lifetime W-L (no rack detail, no
+  opponent-skill-at-time), kept separate from `games` per the hard rules.
+  **Densification value:** of the 15,141 id-resolved game pairings (§4), **13,174
+  (87%) also have a lifetime H2H edge**, and **22,848 lifetime pairings are NOT in
+  this season's games** — extra prior signal the games window alone never sees. Use
+  it as an aggregate-lifetime H2H prior, NOT as rack-level training data.
 - **Pending makeups: 30 across the league** (date ≤ 2026-06-20, byes excluded),
   surfaced by `db.pending_matches(as_of)`. These are genuine off-schedule makeups
   / not-yet-played, not capture lag (14022's R1 is now posted and dropped off):
@@ -364,5 +366,6 @@ anticipated.
    CSR-gap region, where the race matrix under-compensates (60.7% then 67.1% match
    WR).
 5. **Honour the caveats:** treat CSR as static / 2026-valued (historical games are
-   anachronistic), exclude the 30 pending makeups, and **re-run the profile pass**
-   before using `pairing_history` as a prior — it is not loaded in this build.
+   anachronistic) and exclude the 30 pending makeups. `pairing_history` is now
+   loaded (48,076 directed edges over 704 subjects, fully drilled to per-game W-L)
+   and usable as an aggregate-lifetime H2H prior — never as rack-level training data.
