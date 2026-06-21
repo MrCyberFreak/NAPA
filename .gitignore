@@ -17,6 +17,9 @@ data/napa.db
 data/*.db
 data/*.db-journal
 
+# Incremental profile-ingest change-detection state (regenerable; tools/ writes it)
+data/*ingest_state.json
+
 # generated dashboard output (regenerate via tools/dashboard.py)
 dashboard.html
 
