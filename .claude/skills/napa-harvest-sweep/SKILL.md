@@ -63,7 +63,7 @@ hand-roll a parallel dispatch:
   far short after a SUCCESS aborted on the challenge — re-dispatch it once more,
   or read its `[harvest]` log line (onboard skill §4), never loop.
 
-## 2. STOP — pull, report coverage, recommend the rebuild
+## 2. STOP — pull, report coverage, fold profiles in (incremental ingest)
 
 The script ends with `git pull` (the workflows commit the archive / profiles to
 `main`) and a per-division SUCCESS / ABORT block. Then:
@@ -74,9 +74,16 @@ The script ends with `git pull` (the workflows commit the archive / profiles to
   ```
   It counts rostered players (`team_members ⋈ teams` on `division_id`, distinct
   non-null `player_id`) with no `data/raw/profiles/<id>/` dir yet.
-- Recommend the owed `python -m src.db --rebuild` (rosters → schedules → sheets →
-  profiles, ~25 min) so the new profiles load into `pairing_history` — but do NOT
-  run it from this skill unless explicitly asked. STOP.
+- Fold the new profiles into `napa.db` with the INCREMENTAL ingest (seconds, no
+  rebuild) — for each swept division:
+  ```
+  python -m src.db --ingest-profiles --did <did>
+  ```
+  It loads only the profile dirs whose files changed since last ingest (idempotent
+  upserts; no wipe, no profile-pass), so `pairing_history` / `player_form` pick up
+  the harvest without the old ~5-7h rebuild. A full `python -m src.db --rebuild` is
+  needed ONLY for a schema change / integrity reset — do NOT run it from this skill.
+  STOP.
 
 ## Out of scope
 
