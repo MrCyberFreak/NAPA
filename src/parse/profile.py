@@ -263,7 +263,8 @@ def parse_trends(html: str) -> TrendForm:
 
 # --------------------------------------------------------------------------- #
 # Deep tabs (JS/AJAX-loaded via stats.php?...&xTab=N). The harvest captures
-# RIVALS (xTab=5; drill per rival via &rival=<id>), H2H (12), TRENDS (33).
+# RIVALS (xTab=5; drill per rival via &rival=<id> -> per-opponent record),
+# H2H (xTab=12; HILL-HILL deciding-game stats, NOT head-to-head), TRENDS (33).
 # --------------------------------------------------------------------------- #
 
 _RIVAL_LINK_RE = re.compile(r"playerID=(\d{8})[^\"']*?rival=(\d{8})")
@@ -303,8 +304,9 @@ _RIVAL_GAME_RE = re.compile(
     re.IGNORECASE)
 
 
-def parse_rival_h2h(html: str) -> dict[int, tuple[int, int, int, int]]:
-    """Rival drill-down (xTab=5&rival=<id>) -> per-game lifetime H2H:
+def parse_rival_record(html: str) -> dict[int, tuple[int, int, int, int]]:
+    """Rival drill-down (xTab=5&rival=<id>) -> per-game lifetime record vs this ONE
+    rival (true per-opponent head-to-head; NOT NAPA's hill-hill "H2H" tab):
     {game: (matches_played, lags_won, wins, losses)} for 8/9/10-ball."""
     text = re.sub(r"\s+", " ", BeautifulSoup(html, "lxml").get_text(" ", strip=True))
     out: dict[int, tuple[int, int, int, int]] = {}
@@ -316,24 +318,32 @@ def parse_rival_h2h(html: str) -> dict[int, tuple[int, int, int, int]]:
 
 
 @dataclass
-class H2HSummary:
-    total_matches: int | None = None
+class HillHillSummary:
+    """NAPA's profile "H2H" tab (xTab=12) = HILL-HILL: matches that reached a
+    deciding game with BOTH players on the hill (each one win short of the race,
+    e.g. 4-4 in a race to 5). The record is a clutch / deciding-game signal, NOT a
+    per-opponent head-to-head record (that comes from the RIVALS tab ->
+    pairing_history). `matches` is how many of the player's matches went hill-hill;
+    `wins`/`losses`/`win_pct` are their record IN those deciding games."""
+    matches: int | None = None
     wins: int | None = None
     losses: int | None = None
     win_pct: int | None = None
-    per_game: dict[int, tuple[int, int]] = field(default_factory=dict)  # game -> (w, l)
+    per_game: dict[int, tuple[int, int]] = field(default_factory=dict)  # game -> hill-hill (w, l)
 
 
-def parse_h2h_summary(html: str) -> H2HSummary:
-    """H2H tab -> overall meetings, record, win%, and per-game W-L."""
+def parse_hillhill_summary(html: str) -> HillHillSummary:
+    """Parse the HILL-HILL ("H2H") tab. The page's literal labels are "Total H2H
+    Matches" / "H2H W-L Record" / "H2H Win %" -- on NAPA, H2H = hill-to-hill, so
+    the regexes keep that token while the parsed meaning is deciding-game stats."""
     soup = BeautifulSoup(html, "lxml")
     text_rows = [r.get_text(" | ", strip=True) for t in soup.find_all("table")
                  for r in t.find_all("tr")]
     blob = "\n".join(text_rows)
-    s = H2HSummary()
+    s = HillHillSummary()
     m = re.search(r"Total H2H Matches.*?\b(\d+)\b", blob, re.DOTALL)
     if m:
-        s.total_matches = int(m.group(1))
+        s.matches = int(m.group(1))
     m = re.search(r"H2H W-L Record\D+(\d+)\s*-\s*(\d+)", blob, re.DOTALL)
     if m:
         s.wins, s.losses = int(m.group(1)), int(m.group(2))

@@ -27,7 +27,7 @@ tabs-only).
 2. Never sweep a harvest and a backfill together: both hit poolshooters.com and a
    concurrent pair starves each into 30s nav timeouts (onboard skill §4). Pick
    ONE workflow per sweep.
-3. `--drill` defaults to `1` (full per-rival H2H drill) — the standard for the
+3. `--drill` defaults to `1` (full per-rival record drill) — the standard for the
    densification sweep, so `pairing_history` lands per-game lifetime splits for
    every division. The drill is ~5,200 pages / ~3h45m per division, which is why
    it runs STRICTLY one division per dispatch (the workflow's 350-min timeout

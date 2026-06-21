@@ -13,7 +13,7 @@ a model.
 - The per-rack skill curve **does not differ provably by game type** on this
   season's data — the 8/9/10 slopes are statistically indistinguishable and the
   9-ball "flatter curve" hypothesis is **not** supported yet (readiness §3a).
-- `games` is single-meeting (median 1 pairing), so no empirical H2H; pool through
+- `games` is single-meeting (median 1 pairing), so no empirical per-opponent record; pool through
   latent skill (readiness §4).
 - The handicap balances typical mismatches but **under-compensates at large CSR
   gaps** — that residual is the scouting edge (readiness §3, §5).

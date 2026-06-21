@@ -316,7 +316,7 @@ def main():
             print(f"  {did}: {len(pend)} -> " +
                   "; ".join(f"R{p['round']} {p['home_team']} vs {p['away_team']}" for p in pend))
     print(f"  TOTAL pending: {total_pending}")
-    # ---- §5 pairing_history (lifetime H2H layer) ---------------------------
+    # ---- §5 pairing_history (lifetime per-opponent-record layer) -----------
     # Profile RIVALS-sourced and DISTINCT from `games`: aggregate lifetime W-L,
     # no rack detail, no opponent-skill-at-time. Tabs-only harvests record only
     # existence rows (player_id, rival_id, rival_name); per-game W-L splits are
@@ -326,7 +326,7 @@ def main():
         "SELECT player_id, rival_id, total_matches, "
         "g8_w, g8_l, g9_w, g9_l, g10_w, g10_l FROM pairing_history"
     ).fetchall()
-    print("\n--- §5 pairing_history (lifetime H2H) ---")
+    print("\n--- §5 pairing_history (lifetime per-opponent record) ---")
     print(f"directed edges: {len(ph)}")
     if ph:
         subjects = {r["player_id"] for r in ph}
@@ -356,7 +356,7 @@ def main():
         print(f"distinct lifetime pairs: {len(ph_pairs)}")
         if game_pairs:
             print(f"this-season game pairs (§4 by_id): {len(game_pairs)}  "
-                  f"with lifetime H2H: {len(both)} "
+                  f"with lifetime record: {len(both)} "
                   f"({100*len(both)/len(game_pairs):.0f}% of game pairs)")
         print(f"lifetime pairs not in this season's games: "
               f"{len(ph_pairs - game_pairs)}")

@@ -85,7 +85,7 @@ def render(data: dict, today: str) -> str:
         ("divisions", 15), ("players", t["players"]), ("teams", t["teams"]),
         ("matches", t["matches"]), ("games (racks)", t["games"]),
         ("skill snapshots", t["skill_snapshots"]),
-        ("H2H pairings", t["pairing_history"]), ("tournament matches", t["tournament_matches"]),
+        ("rival pairings", t["pairing_history"]), ("tournament matches", t["tournament_matches"]),
     ]
     card_html = "".join(
         f'<div class="card"><div class="num">{v:,}</div><div class="lbl">{k}</div></div>'
@@ -163,7 +163,7 @@ def render(data: dict, today: str) -> str:
   <div class="panel"><ul>
     <li>Scope: <b>NoCo-only (15 divisions)</b> — El Paso + Mesa excluded (parked, not integrated).</li>
     <li>Capture: every division has rosters, schedules &amp; all available score sheets on disk.</li>
-    <li>Profiles: every rostered player harvested <b>and full-drilled</b> (pairing_history {t['pairing_history']:,} lifetime H2H edges).</li>
+    <li>Profiles: every rostered player harvested <b>and full-drilled</b> (pairing_history {t['pairing_history']:,} lifetime per-opponent edges).</li>
     <li>Season-rollover discovery is <b>live</b> — 14050 onboarded as 13077's successor; the cron auto-handles future rollovers.</li>
   </ul></div>
 

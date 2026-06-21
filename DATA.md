@@ -39,7 +39,7 @@ division column; EVENTS tables carry `division_id` as an attribute.
 | `player_divisions` | 85+ | Profile‑sourced "Divisions:" membership — sees divisions outside the scrape set; distinct provenance from rosters. | PK (player_id, division_id) |
 | `matches` | 135 | Fixtures. `home_points`/`away_points` from standings record. | PK `match_id`; `division_id`; UNIQUE (season, round, home, away) |
 | `games` | 657 | **Per‑game (race) results** — the rack‑level grain. game_type (8/9/10), races, wins, winner. All 657 linked to a match. | PK `game_id`; UNIQUE (division_id, played_date, home_name, away_name) |
-| `pairing_history` | 7,731 | **Lifetime aggregate H2H** from profiles: per‑game W‑L + lags. **NOT rack‑level**, lacks opponent‑skill‑at‑time. Pairing‑layer enrichment only. | PK (player_id, rival_id); 6,620 distinct undirected pairs |
+| `pairing_history` | 7,731 | **Lifetime aggregate per‑opponent record** (from profile RIVALS drill‑downs; NOT the hill‑hill "H2H" tab): per‑game W‑L + lags. **NOT rack‑level**, lacks opponent‑skill‑at‑time. Pairing‑layer enrichment only. | PK (player_id, rival_id); 6,620 distinct undirected pairs |
 | `player_form` | 85 | Dated **form snapshot** (TRENDS): lifetime + last‑10 + 30/60/90‑day records + 10‑match assessment. | PK (player_id, captured_date) |
 
 `matches/games` deliberately do **NOT** FK `*_player_id` to roster membership (subs).
@@ -56,8 +56,8 @@ across divisions by design — that IS the Phase 6 pooling.
 - 8/9/10‑ball split: **340 / 140 / 177**  (≈ 52% / 21% / 27%) — 8‑ball dominates (LC).
 - Racks per player: **median 74**, mean ~80, p90 ~160, max ~228; right‑skewed
   (≈30 regulars >120 racks; ≈18 thin‑tail players <20 → need shrinkage to roster CSR).
-- Single‑session head‑to‑head pairings: **592**, median **1** game/pairing
-  (empirical H2H statistically meaningless single‑session).
+- Single‑session per‑opponent pairings: **592**, median **1** game/pairing
+  (empirical per‑opponent record statistically meaningless single‑session).
 
 **Densification (`pairing_history`)**
 - **6,620 distinct lifetime pairings** vs **592** single‑session ≈ **10.5× denser**;
@@ -65,7 +65,7 @@ across divisions by design — that IS the Phase 6 pooling.
 - 7,731 directed rival edges; rivals per player median 61, mean 91, max 386.
 - 1,553 distinct opponents (1,468 off the current roster = subs/past, superset rule).
 - Still thin per pair (lifetime mean ~2 meetings) → a **pooled latent‑skill model**
-  with these counts as priors is the right shape; not direct empirical H2H.
+  with these counts as priors is the right shape; not direct empirical per‑opponent record.
 
 **Skill drift / form**
 - **45 of 85** players' CSRs recomputed Jun 4 → Jun 5 (end‑of‑session recompute) —

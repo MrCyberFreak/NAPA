@@ -64,8 +64,9 @@ playerID); divisions and teams are routing — everything known about a player
 - Seasons are STAGGERED per division (18/21/27-round examples in B1 recon).
   Never assume 27 weeks; the season key for non-13077 divisions is the R1 date,
   stored in divisions.season. 13077 keeps "2025-26".
-- pairing_history is AGGREGATE lifetime W-L (from profile RIVALS/H2H), NOT rack-level —
-  keep it separate from `games`. It lacks opponent-skill-at-time.
+- pairing_history is AGGREGATE lifetime W-L (from profile RIVALS drill-downs ONLY —
+  per-opponent head-to-head; NOT the hill-hill "H2H" tab), NOT rack-level — keep it
+  separate from `games`. It lacks opponent-skill-at-time.
 - ALL hosts (paper.playpool.io, scores.playpool.io, poolshooters.com, playpool.io,
   races.napaleagues.com) serve a "One moment..." JS bot-challenge to plain GETs
   (HTTP 200, not 403). A plain client (even httpx with cookies) CANNOT clear it —
@@ -75,6 +76,10 @@ playerID); divisions and teams are routing — everything known about a player
   aborts the whole run — never hammer the remaining divisions.
 - Profile deep tabs (RIVALS/H2H/TRENDS) are JS/AJAX — load via
   stats.php?...&xTab=N (RIVALS=5 drill via &rival=<id>, H2H=12, TRENDS=33). Browser only.
+  NAPA "H2H" (xTab=12) = HILL-HILL: matches that reached a deciding game (both players
+  one win short of the race, e.g. 4-4 to 5) + the player's record IN those games — a
+  clutch stat, NOT head-to-head. Per-opponent head-to-head is the RIVALS tab (xTab=5)
+  -> pairing_history. Parser: parse_hillhill_summary (parsed, not yet ingested).
   Profile harvests are TABS-ONLY by default (drill ~5,200 pages/division for
   per-game splits Phase 6 doesn't use; re-enable per player set when needed).
 - Current per-game ratings come from each division's roster grid (one fetch per
@@ -83,6 +88,10 @@ playerID); divisions and teams are routing — everything known about a player
 ## Domain
 - LC = Lagger's Choice; skill is per-game (8/9/10). The spread matters, not one number.
 - CSR = CueSpeed Rating. Higher = stronger. SM = session matches played.
+- H2H = HILL-HILL (hill-to-hill): a match that reached a deciding game with both
+  players one win short of the race (e.g. 4-4 in a race to 5) — the closest possible
+  finish. NAPA's profile "H2H" tab is a clutch / deciding-game record, NOT head-to-head.
+  (Per-opponent head-to-head is the RIVALS tab.)
 - Race lengths: src/race.py is the NAPA matrix transcribed from races.js (class = stronger player's CSR band; race from band+diff). Static lookup, never fetched live. League-wide. Provenance: data/raw/race_assets/.
 - The 14 NoCo divisions live in config.DIVISIONS (did, weekday, fmt, scrape flag).
   `fmt` is display-only; the authoritative game set comes from the grid header.

@@ -16,7 +16,7 @@
 #   scripts/sweep.sh [--workflow harvest|backfill] [--drill 1] <did> [<did> ...]
 #     --workflow  harvest (default) -> harvest-profiles.yml  -f did -f drill=<drill>
 #                 backfill          -> backfill.yml          -f did -f weeks=auto
-#     --drill     harvest only; 1 (default) = full per-rival H2H drill (the
+#     --drill     harvest only; 1 (default) = full per-rival record drill (the
 #                 standard for densification); 0 = tabs-only. Must be 0 or 1.
 set -u
 

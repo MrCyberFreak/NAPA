@@ -18,7 +18,7 @@ Division list confirmed from `https://www.napaleagues.com/states.php?location=Co
 User decisions (locked):
 - **Full-season score-sheet backfill** for all 13 new divisions.
 - **Profile harvest for all new players, TABS-ONLY** (no per-rival drill — drill ≈ 5,200 page
-  loads / 3h45m per division and Phase 6 doesn't use the per-game H2H splits; tabs-only
+  loads / 3h45m per division and Phase 6 doesn't use the per-game per-opponent splits; tabs-only
   ≈ 15 min/division, observed 8m49s for 85 players). Rival drill stays available later for
   selectively chosen players.
 - Scout grid / standings stay **13077-centric by default**.

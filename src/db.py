@@ -190,7 +190,8 @@ CREATE TABLE IF NOT EXISTS games (
     away_score       INTEGER
 );
 
--- Lifetime pairing history from player profiles (RIVALS / H2H drill-downs).
+-- Lifetime pairing history from player profiles (RIVALS drill-downs -- per-opponent
+-- head-to-head; NOT the hill-hill "H2H" tab, which is a deciding-game stat).
 -- DISTINCT from `games`: these are aggregate W-L counts, not rack-level results,
 -- and lack opponent-skill-at-time. Enrichment of the pairing layer only.
 -- Keyed by 8-digit ids; rivals are a SUPERSET of the roster (subs appear).
@@ -952,10 +953,11 @@ def load_trends(conn: sqlite3.Connection, player_id: str, form: TrendForm, captu
     conn.commit()
 
 
-def update_pairing_h2h(conn: sqlite3.Connection, player_id: str, rival_id: str,
-                       per_game: dict, rival_name: str | None = None) -> None:
+def update_pairing_record(conn: sqlite3.Connection, player_id: str, rival_id: str,
+                          per_game: dict, rival_name: str | None = None) -> None:
     """Fold a rival drill-down's per-game (played, lags, wins, losses) into the
-    pairing row. Aggregate counts only — never rack-level, never into `games`."""
+    pairing row (per-opponent lifetime record). Aggregate counts only — never
+    rack-level, never into `games`."""
     init_db(conn)
     g = {k: per_game.get(k, (0, 0, 0, 0)) for k in (8, 9, 10)}
     total = sum(v[0] for v in g.values())
@@ -1303,17 +1305,17 @@ def _profiles_root() -> Path:
 def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
                      *, captured_default: str | None = None) -> tuple[bool, str | None]:
     """Load ONE data/raw/profiles/<id>/ directory into the DB via the idempotent
-    profile loaders (demographics, CSR peaks, rivals, per-rival H2H drill-downs,
+    profile loaders (demographics, CSR peaks, rivals, per-rival record drill-downs,
     trends, career match history, tournaments). Shared by rebuild()'s pass 4 and
     the incremental ingest_profiles(), so the per-profile logic lives in one place.
 
     Returns (loaded, error): (True, None) on a successful load, (False, None) when
     skipped (no main.html / no player_id), (False, msg) on a captured exception.
     Never raises — one bad capture must not kill the caller. The caller owns
-    conn.commit() (update_pairing_h2h does not self-commit)."""
+    conn.commit() (update_pairing_record does not self-commit)."""
     from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
     from .parse.profile import (parse_cuespeed, parse_profile_file,
-                                parse_profile_rivals, parse_rival_h2h, parse_trends)
+                                parse_profile_rivals, parse_rival_record, parse_trends)
     from .parse.tournament import parse_tournament_file
 
     main_f = pdir / "main.html"
@@ -1333,8 +1335,8 @@ def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
                 rivals_f.read_text(encoding="utf-8", errors="replace"))
             load_rivals(conn, prof.player_id, rivals, captured)
         for rf in sorted(pdir.glob("rival_*.html")):
-            per_game = parse_rival_h2h(rf.read_text(encoding="utf-8", errors="replace"))
-            update_pairing_h2h(conn, prof.player_id, rf.stem.split("_", 1)[1], per_game)
+            per_game = parse_rival_record(rf.read_text(encoding="utf-8", errors="replace"))
+            update_pairing_record(conn, prof.player_id, rf.stem.split("_", 1)[1], per_game)
         trends_f = pdir / "trends.html"
         if trends_f.exists():
             form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
