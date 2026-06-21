@@ -7,7 +7,7 @@
 > (Felt-8-ball, `skill_snapshots.csr_f8`) and 7-ball (`csr_7b`) — alongside 10BP,
 > from the historical LC+F8 / 7-ball divisions. The profile pass is now LOADED
 > (full `profiles=True` rebuild — 708/708 profiles, 0 failures).**
-> **The §5 `pairing_history` lifetime-H2H layer carries 48,076 directed edges over
+> **The §5 `pairing_history` lifetime per-opponent-record layer carries 48,076 directed edges over
 > 704 players, all with per-game W-L splits (see §5). ONE caveat still bounds this
 > build: every CSR snapshot is dated June 2026 (the roster grids,
 > including the historical ones, were all captured in the 06-2026 backfill), but
@@ -282,9 +282,9 @@ revisit this test next season. (See PHASE6_DESIGN.md §"Per-game curves".)
 
 ---
 
-## 4. Pairing depth — `games` is not H2H training data
+## 4. Pairing depth — `games` is not per-opponent training data
 
-Distinct head-to-head pairings observed in `games`, by meeting count (unordered
+Distinct per-opponent pairings observed in `games`, by meeting count (unordered
 player pairs, pooled across divisions and seasons):
 
 | meetings | pairs | share |
@@ -301,7 +301,7 @@ player pairs, pooled across divisions and seasons):
 
 **71% of pairings were played exactly once** (down from 84% in the single-season
 build — four seasons add repeat meetings, and the max rises to 13). But the median
-is still 1 and the mean barely 1.46: a per-pair empirical H2H record remains
+is still 1 and the mean barely 1.46: a per-pair empirical record remains
 statistically meaningless for the bulk of pairings. The model cannot key on
 observed pairwise matchups; it must pool through latent player skill, with the
 pairing graph used only as a prior — confirming the architecture DATA.md
@@ -321,16 +321,16 @@ anticipated.
   estimate of relative skill, and weight or flag historical games accordingly when
   fitting. True contemporaneous historical CSR is not recoverable from the current
   grid captures.
-- **`pairing_history` (lifetime H2H) is now LOADED.** A full `profiles=True`
+- **`pairing_history` (lifetime per-opponent record) is now LOADED.** A full `profiles=True`
   rebuild loaded **708/708 profiles (0 failures)**, giving **48,076 directed
   RIVALS edges** over **704 subjects** — **36,022 distinct unordered pairings**
   (33% reciprocal/both-sided), and **all 48,076 edges carry per-game W-L splits
   (100% drilled)**. This layer is AGGREGATE lifetime W-L (no rack detail, no
   opponent-skill-at-time), kept separate from `games` per the hard rules.
   **Densification value:** of the 15,141 id-resolved game pairings (§4), **13,174
-  (87%) also have a lifetime H2H edge**, and **22,848 lifetime pairings are NOT in
+  (87%) also have a lifetime per-opponent edge**, and **22,848 lifetime pairings are NOT in
   this season's games** — extra prior signal the games window alone never sees. Use
-  it as an aggregate-lifetime H2H prior, NOT as rack-level training data.
+  it as an aggregate-lifetime per-opponent prior, NOT as rack-level training data.
 - **Pending makeups: 30 across the league** (date ≤ 2026-06-20, byes excluded),
   surfaced by `db.pending_matches(as_of)`. These are genuine off-schedule makeups
   / not-yet-played, not capture lag (14022's R1 is now posted and dropped off):
@@ -359,7 +359,7 @@ anticipated.
    2026-only**: historical games carry current, not contemporaneous, CSR (caveat 1).
 3. **A latent-skill / logistic-in-CSR-difference rack model with per-game-type
    structure** fits the evidence: clean curve shape across the populated game
-   types, thin per-pair data (median 1 meeting) ruling out empirical H2H, and core
+   types, thin per-pair data (median 1 meeting) ruling out empirical per-opponent records, and core
    slopes too close to separate (partial pooling toward a shared slope).
 4. **The handicap balances the whole mid-range and leaks only at the tail** — the
    edge metric ("your P minus matrix-implied P") will be largest in the 31+ /46+
@@ -368,4 +368,4 @@ anticipated.
 5. **Honour the caveats:** treat CSR as static / 2026-valued (historical games are
    anachronistic) and exclude the 30 pending makeups. `pairing_history` is now
    loaded (48,076 directed edges over 704 subjects, fully drilled to per-game W-L)
-   and usable as an aggregate-lifetime H2H prior — never as rack-level training data.
+   and usable as an aggregate-lifetime per-opponent prior — never as rack-level training data.

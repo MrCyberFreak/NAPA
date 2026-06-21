@@ -70,8 +70,8 @@ def collect(out: str) -> list[tuple[str, str, str]]:
     add("§5", "reciprocal %", grab(out, r"reciprocal:\s+\d+,\s+(\d+%)"), comma=False)
     add("§5", "edges with W-L (count)", grab(out, r"edges with W-L totals:\s+(\d+)"))
     add("§5", "edges with W-L (%)", grab(out, r"edges with W-L totals:\s+\d+\s+\((\d+%)\)"), comma=False)
-    add("§5", "game pairs with H2H (count)", grab(out, r"with lifetime H2H:\s+(\d+)"))
-    add("§5", "game pairs with H2H (%)", grab(out, r"with lifetime H2H:\s+\d+\s+\((\d+%) of game pairs\)"), comma=False)
+    add("§5", "game pairs with record (count)", grab(out, r"with lifetime record:\s+(\d+)"))
+    add("§5", "game pairs with record (%)", grab(out, r"with lifetime record:\s+\d+\s+\((\d+%) of game pairs\)"), comma=False)
     add("§5", "historical-only pairings", grab(out, r"lifetime pairs not in this season's games:\s+(\d+)"))
     add("§5", "pending total", grab(out, r"TOTAL pending:\s+(\d+)"), comma=False)
 

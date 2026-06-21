@@ -1,4 +1,4 @@
-"""Profile RIVALS/H2H parser + pairing_history loader tests (real fixtures)."""
+"""Profile RIVALS + hill-hill ("H2H") parser + pairing_history loader tests (real fixtures)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from src.db import connect, load_rivals, pairing_coverage
-from src.parse.profile import parse_profile_rivals, parse_h2h_summary
+from src.parse.profile import parse_profile_rivals, parse_hillhill_summary
 
 REPO = Path(__file__).resolve().parents[1]
 RIVALS = REPO / "fixtures" / "profile_rivals.html"
@@ -28,10 +28,10 @@ def test_parse_rivals_list():
     assert ("10071539", "Aaron Allen") in [(r.rival_id, r.name) for r in rivals]
 
 
-def test_h2h_summary():
-    h = parse_h2h_summary(_read(H2H))
-    assert h.total_matches == 31
-    assert h.per_game.get(8) == (10, 3)         # 8-ball lifetime H2H W-L
+def test_hillhill_summary():
+    h = parse_hillhill_summary(_read(H2H))
+    assert h.matches == 31                       # matches that went hill-hill (deciding game)
+    assert h.per_game.get(8) == (10, 3)         # 8-ball hill-hill W-L
 
 
 def test_load_rivals_into_pairing_history():
@@ -48,17 +48,17 @@ def test_load_rivals_into_pairing_history():
     assert conn.execute("SELECT COUNT(*) FROM pairing_history").fetchone()[0] == 62
 
 
-RIVAL_DD = REPO / "fixtures" / "profile_rival_h2h.html"
+RIVAL_DD = REPO / "fixtures" / "profile_rival_record.html"
 
 
 @pytest.mark.skipif(not RIVAL_DD.exists(), reason="no rival drill-down fixture")
-def test_parse_rival_h2h_and_load():
-    from src.parse.profile import parse_rival_h2h
-    from src.db import connect, update_pairing_h2h
-    pg = parse_rival_h2h(_read(RIVAL_DD))
+def test_parse_rival_record_and_load():
+    from src.parse.profile import parse_rival_record
+    from src.db import connect, update_pairing_record
+    pg = parse_rival_record(_read(RIVAL_DD))
     assert pg[8] == (2, 1, 0, 2)        # Sam vs Aaron Allen: 8-ball 2 played, 1 lag, 0-2
     conn = connect(":memory:")
-    update_pairing_h2h(conn, "10063698", "10071539", pg, rival_name="Aaron Allen")
+    update_pairing_record(conn, "10063698", "10071539", pg, rival_name="Aaron Allen")
     row = conn.execute(
         "SELECT total_matches, lags_won, g8_w, g8_l FROM pairing_history "
         "WHERE player_id='10063698' AND rival_id='10071539'").fetchone()

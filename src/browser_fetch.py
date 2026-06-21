@@ -548,7 +548,8 @@ def harvest_profiles(player_ids: list[str] | None = None, out_root: str | Path =
     division-independent; `did` only selects whose roster grid supplies the
     default player_ids). Resumable (skips files already on disk), spaced,
     fail-soft PER PAGE for nav errors (logs and continues — a re-run resumes).
-    With drill_rivals, follows each RIVALS link for per-game lifetime H2H.
+    With drill_rivals, follows each RIVALS link for the per-game lifetime
+    per-opponent record (the "h2h" tab key below is NAPA's hill-hill tab, xTab=12).
     Rate-limit-friendly: slow + bounded.
 
     Challenge handling (2026-06-11 14022 harvests): the poolshooters.com

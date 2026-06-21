@@ -26,7 +26,7 @@ def _profile_dir(root: Path) -> Path:
     shutil.copyfile(MAIN, d / "main.html")
     shutil.copyfile(F / "profile_rivals.html", d / "rivals.html")
     shutil.copyfile(F / "profile_trends.html", d / "trends.html")
-    shutil.copyfile(F / "profile_rival_h2h.html", d / "rival_10071539.html")
+    shutil.copyfile(F / "profile_rival_record.html", d / "rival_10071539.html")
     shutil.copyfile(REPO / "tests/data/match_history_8ball_10063698.html", d / "match_2_0.html")
     shutil.copyfile(REPO / "tests/data/tournament_24_10063698.html", d / "match_24_0.html")
     return d
@@ -97,7 +97,7 @@ def test_ingest_profiles_change_detection(tmp_path):
     assert r2["loaded"] == 0 and r2["skipped_unchanged"] == 1
 
     # a new harvested file changes the dir signature -> it reloads
-    shutil.copyfile(F / "profile_rival_h2h.html", d / "rival_99999999.html")
+    shutil.copyfile(F / "profile_rival_record.html", d / "rival_99999999.html")
     r3 = ingest_profiles(db, player_ids=[PID], profiles_root=proot)
     assert r3["loaded"] == 1
 
