@@ -1,0 +1,137 @@
+[
+  {
+    "did": 14064,
+    "name": "Monday \"Greeley\" No Limit LC",
+    "slug": "monday-greeley-lc",
+    "weekday": "Monday",
+    "venue": "Greeley",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 14050,
+    "name": "Thursday \"Big Table Felt\" No Limit LC",
+    "slug": "thursday-big-table-felt-lc",
+    "weekday": "Thursday",
+    "venue": "Big Table Felt",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 14022,
+    "name": "Wednesday \"Paradise\" No Limit LC",
+    "slug": "wednesday-paradise-lc",
+    "weekday": "Wednesday",
+    "venue": "Paradise",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13986,
+    "name": "Tuesday \"Zoosters Laggers\" No Limit LC",
+    "slug": "tuesday-zoosters-laggers-lc",
+    "weekday": "Tuesday",
+    "venue": "Zoosters Laggers",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13985,
+    "name": "Tuesday \"Felt Laggers\" No Limit LC",
+    "slug": "tuesday-felt-laggers-lc",
+    "weekday": "Tuesday",
+    "venue": "Felt Laggers",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13937,
+    "name": "Wednesday \"Pharaoh's\" No Limit LC",
+    "slug": "wednesday-pharaohs-lc",
+    "weekday": "Wednesday",
+    "venue": "Pharaoh's",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13881,
+    "name": "Monday \"Broomfield Westminster Laggers\" No Limit LC",
+    "slug": "monday-broomfield-westminster-laggers-lc",
+    "weekday": "Monday",
+    "venue": "Broomfield Westminster Laggers",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13744,
+    "name": "Friday \"DP Broomfield Westminster\" LC",
+    "slug": "friday-dp-broomfield-westminster-lc",
+    "weekday": "Friday",
+    "venue": "DP Broomfield Westminster",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13743,
+    "name": "Friday \"DP Broomfield Westminster\" No Limit 8-ball",
+    "slug": "friday-dp-broomfield-westminster-8ball",
+    "weekday": "Friday",
+    "venue": "DP Broomfield Westminster",
+    "gameset": "8ball",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13723,
+    "name": "Friday \"Piazza Friday DP\" No Limit LC",
+    "slug": "friday-piazza-friday-dp-lc",
+    "weekday": "Friday",
+    "venue": "Piazza Friday DP",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13722,
+    "name": "Friday \"Piazza Friday DP\" No Limit 8-ball",
+    "slug": "friday-piazza-friday-dp-8ball",
+    "weekday": "Friday",
+    "venue": "Piazza Friday DP",
+    "gameset": "8ball",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13711,
+    "name": "Sunday \"Wreckroom Sunday\" No Limit LC",
+    "slug": "sunday-wreckroom-sunday-lc",
+    "weekday": "Sunday",
+    "venue": "Wreckroom Sunday",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13299,
+    "name": "Tuesday \"Piazzas Tuesday\" No Limit LC",
+    "slug": "tuesday-piazzas-tuesday-lc",
+    "weekday": "Tuesday",
+    "venue": "Piazzas Tuesday",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13298,
+    "name": "Tuesday \"Piazzas Tuesday\" No Limit 8-ball",
+    "slug": "tuesday-piazzas-tuesday-8ball",
+    "weekday": "Tuesday",
+    "venue": "Piazzas Tuesday",
+    "gameset": "8ball",
+    "group": "NAPA of Northern Colorado"
+  },
+  {
+    "did": 13205,
+    "name": "Monday \"Greeley\" No Limit LC",
+    "slug": "monday-greeley-lc",
+    "weekday": "Monday",
+    "venue": "Greeley",
+    "gameset": "lc",
+    "group": "NAPA of Northern Colorado"
+  }
+]

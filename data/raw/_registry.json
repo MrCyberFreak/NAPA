@@ -1,6 +1,15 @@
 {
-  "updated_utc": "2026-06-21T15:00:17+00:00",
-  "run_date": "2026-06-21",
-  "discovered": {},
+  "updated_utc": "2026-06-22T15:00:14+00:00",
+  "run_date": "2026-06-22",
+  "discovered": {
+    "14064": {
+      "slug": "monday-greeley-lc",
+      "status": "active",
+      "weekday": "Monday",
+      "name": "Monday \"Greeley\" No Limit LC",
+      "predecessor": 13205,
+      "since": "2026-06-22"
+    }
+  },
   "unknown": {}
 }
