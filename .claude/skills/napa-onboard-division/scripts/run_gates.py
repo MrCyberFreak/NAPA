@@ -173,18 +173,21 @@ def gate_db(did: int, baseline: int, max_null_rate: float, as_of: str,
          f"carry division_id={did}")
     if has_sheets and games == 0:
         # 0 games + archived sheets is a REAL loss only if some sheet actually
-        # contains a game table. A brand-new season backfills the full
-        # schedule as unplayed SHELLS (no game tables at all) -- 0 games is
-        # then the correct state until results are entered on the site.
-        import re as _re
-        ball = _re.compile(r"\d+\s*-?\s*ball", _re.IGNORECASE)
+        # contains a PLAYED game table. A brand-new season backfills the full
+        # FORWARD schedule as unplayed SHELLS -- 0 games is then the correct
+        # state until results are entered on the site. Detect a real game table
+        # with the PARSER (the same oracle the rebuild loads through), NOT a raw
+        # "\d+-ball" regex: that string also appears as a game-type LABEL in the
+        # shell template, so the regex false-FAILs a season-start onboarding whose
+        # shells carry those labels (observed: 14064, R1 2026-06-22 -- all 27
+        # weeks captured as shells dated today..2026-12-21, 0 games, correct).
+        from src.parse.weekly_scores import parse_score_sheet_file
         with_games = sum(
             1 for f in config.division_root(did).glob("scores/week_*/*.html")
-            if f.name != "_index.html"
-            and ball.search(f.read_text(encoding="utf-8", errors="replace"))
+            if f.name != "_index.html" and parse_score_sheet_file(f).games
         )
         if with_games:
-            emit(FAIL, f"division tagging: {with_games} archived sheet(s) contain "
+            emit(FAIL, f"division tagging: {with_games} archived sheet(s) parse to "
                        f"game tables but 0 games loaded for {did}")
         else:
             emit(INFO, f"division tagging: all archived {did} sheets are unplayed "
