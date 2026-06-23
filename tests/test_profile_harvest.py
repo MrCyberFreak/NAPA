@@ -31,7 +31,26 @@ def test_parse_rivals_list():
 def test_hillhill_summary():
     h = parse_hillhill_summary(_read(H2H))
     assert h.matches == 31                       # matches that went hill-hill (deciding game)
+    assert (h.wins, h.losses) == (21, 10)        # record IN those deciding games
+    assert h.win_pct == 68
     assert h.per_game.get(8) == (10, 3)         # 8-ball hill-hill W-L
+    assert h.per_game.get(9) == (3, 2) and h.per_game.get(10) == (8, 5)
+
+
+def test_load_hill_hill():
+    from src.db import load_hill_hill
+    h = parse_hillhill_summary(_read(H2H))
+    conn = connect(":memory:")
+    load_hill_hill(conn, "10063698", h, captured_date="2026-06-05")
+    row = conn.execute(
+        "SELECT matches, wins, losses, win_pct, g8_w, g8_l FROM hill_hill "
+        "WHERE player_id='10063698' AND captured_date='2026-06-05'").fetchone()
+    assert row["matches"] == 31 and row["wins"] == 21 and row["losses"] == 10
+    assert row["win_pct"] == 68
+    assert row["g8_w"] == 10 and row["g8_l"] == 3
+    # dated snapshot is idempotent (INSERT OR REPLACE on same date)
+    load_hill_hill(conn, "10063698", h, captured_date="2026-06-05")
+    assert conn.execute("SELECT COUNT(*) FROM hill_hill").fetchone()[0] == 1
 
 
 def test_load_rivals_into_pairing_history():

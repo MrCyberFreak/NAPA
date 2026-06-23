@@ -344,10 +344,15 @@ def parse_hillhill_summary(html: str) -> HillHillSummary:
     m = re.search(r"Total H2H Matches.*?\b(\d+)\b", blob, re.DOTALL)
     if m:
         s.matches = int(m.group(1))
-    m = re.search(r"H2H W-L Record\D+(\d+)\s*-\s*(\d+)", blob, re.DOTALL)
+    # Overall W-L and Win% are a two-column HEADER row ("H2H W-L Record |
+    # H2H Win %") followed by a VALUE row ("21-10 | 68%"), so each value sits on
+    # the NEXT line. A same-line \D+ scan can't reach it -- and "H2H" itself
+    # contains a digit, so \D+ would snag on the neighbouring label. Cross the
+    # newline instead (no DOTALL, so ".*" stays on the label line).
+    m = re.search(r"H2H W-L Record.*\n\s*(\d+)\s*-\s*(\d+)", blob)
     if m:
         s.wins, s.losses = int(m.group(1)), int(m.group(2))
-    m = re.search(r"H2H Win %\D+(\d+)%", blob, re.DOTALL)
+    m = re.search(r"H2H Win %.*\n[^\n]*?(\d+)\s*%", blob)
     if m:
         s.win_pct = int(m.group(1))
     for g in (8, 9, 10):

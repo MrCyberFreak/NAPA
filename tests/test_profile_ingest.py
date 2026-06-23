@@ -26,6 +26,7 @@ def _profile_dir(root: Path) -> Path:
     shutil.copyfile(MAIN, d / "main.html")
     shutil.copyfile(F / "profile_rivals.html", d / "rivals.html")
     shutil.copyfile(F / "profile_trends.html", d / "trends.html")
+    shutil.copyfile(F / "profile_h2h.html", d / "h2h.html")
     shutil.copyfile(F / "profile_rival_record.html", d / "rival_10071539.html")
     shutil.copyfile(REPO / "tests/data/match_history_8ball_10063698.html", d / "match_2_0.html")
     shutil.copyfile(REPO / "tests/data/tournament_24_10063698.html", d / "match_24_0.html")
@@ -44,7 +45,7 @@ def _counts(db: Path) -> dict:
     conn = connect(str(db))
     try:
         return {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-                for t in ("players", "pairing_history", "player_form",
+                for t in ("players", "pairing_history", "player_form", "hill_hill",
                           "match_history", "tournament_matches")}
     finally:
         conn.close()
@@ -66,6 +67,9 @@ def test_ingest_profiles_loads_player(tmp_path):
     form = conn.execute("SELECT lifetime_w, d90_l FROM player_form "
                         "WHERE player_id=?", (PID,)).fetchone()
     assert form["lifetime_w"] == 85 and form["d90_l"] == 3
+    hh = conn.execute("SELECT matches, wins, g8_w FROM hill_hill "
+                      "WHERE player_id=?", (PID,)).fetchone()
+    assert hh["matches"] == 31 and hh["wins"] == 21 and hh["g8_w"] == 10
     peak = conn.execute("SELECT peak_csr_8 FROM players WHERE player_id=?", (PID,)).fetchone()
     assert peak["peak_csr_8"] == 100
     assert conn.execute("SELECT COUNT(*) FROM match_history WHERE subject_player_id=?",

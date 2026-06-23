@@ -12,7 +12,7 @@ Three layers, players first (see MULTIDIVISION_PLAN.md):
            per-game values MERGE across divisions' grids (an 8-ball-only grid
            brings only csr_8); conflicting non-null values warn (CSR is league-
            wide — a real disagreement is a tripwire, not an expected state)
-    player_form, pairing_history (lifetime, profile-sourced)
+    player_form, hill_hill, pairing_history (lifetime, profile-sourced)
   AFFILIATION:
     teams(team_id, division_id, name, season), team_members(team_id, player_id, ...)
     player_divisions(player_id, division_id, ...) -> profile-sourced "Divisions:"
@@ -42,7 +42,7 @@ import sqlite3
 from pathlib import Path
 
 from . import config
-from .parse.profile import CueSpeed, Profile, TrendForm
+from .parse.profile import CueSpeed, HillHillSummary, Profile, TrendForm
 from .parse.roster import RosterPlayer, parse_roster_file
 from .parse.schedule import Fixture
 from .parse.standings import TeamRecord
@@ -85,6 +85,21 @@ CREATE TABLE IF NOT EXISTS player_form (
     d30_played INTEGER, d30_w INTEGER, d30_l INTEGER,
     d60_played INTEGER, d60_w INTEGER, d60_l INTEGER,
     d90_played INTEGER, d90_w INTEGER, d90_l INTEGER,
+    PRIMARY KEY (player_id, captured_date)
+);
+
+-- HILL-HILL record (profile "H2H" tab, xTab=12). A hill-hill match is one decided
+-- in the final game with BOTH players on the hill (each one win short of the race,
+-- e.g. 4-4 to 5). `matches` = how many of the player's matches went hill-hill;
+-- wins/losses/win_pct = their record IN those deciding games; g{8,9,10}_* are the
+-- per-game-type splits. A CLUTCH / deciding-game signal, NOT head-to-head (that is
+-- pairing_history). Dated snapshot like player_form: PK (player_id, captured_date).
+CREATE TABLE IF NOT EXISTS hill_hill (
+    player_id     TEXT NOT NULL,
+    captured_date TEXT NOT NULL,
+    matches       INTEGER,
+    wins INTEGER, losses INTEGER, win_pct INTEGER,
+    g8_w INTEGER, g8_l INTEGER, g9_w INTEGER, g9_l INTEGER, g10_w INTEGER, g10_l INTEGER,
     PRIMARY KEY (player_id, captured_date)
 );
 
@@ -953,6 +968,27 @@ def load_trends(conn: sqlite3.Connection, player_id: str, form: TrendForm, captu
     conn.commit()
 
 
+def load_hill_hill(conn: sqlite3.Connection, player_id: str, hh: HillHillSummary,
+                   captured_date: str) -> None:
+    """Record a dated HILL-HILL snapshot (profile "H2H" tab): how many of the
+    player's matches went hill-hill (decided in the final game, both on the hill)
+    and their record IN those deciding games, overall + per game type. A clutch
+    signal; NOT head-to-head (that is pairing_history)."""
+    init_db(conn)
+    g8 = hh.per_game.get(8, (None, None))
+    g9 = hh.per_game.get(9, (None, None))
+    g10 = hh.per_game.get(10, (None, None))
+    conn.execute(
+        """INSERT OR REPLACE INTO hill_hill
+           (player_id, captured_date, matches, wins, losses, win_pct,
+            g8_w, g8_l, g9_w, g9_l, g10_w, g10_l)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (player_id, captured_date, hh.matches, hh.wins, hh.losses, hh.win_pct,
+         g8[0], g8[1], g9[0], g9[1], g10[0], g10[1]),
+    )
+    conn.commit()
+
+
 def update_pairing_record(conn: sqlite3.Connection, player_id: str, rival_id: str,
                           per_game: dict, rival_name: str | None = None) -> None:
     """Fold a rival drill-down's per-game (played, lags, wins, losses) into the
@@ -1314,8 +1350,9 @@ def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
     Never raises — one bad capture must not kill the caller. The caller owns
     conn.commit() (update_pairing_record does not self-commit)."""
     from .parse.match_history import TAB_GAME_TYPE, parse_match_history_file
-    from .parse.profile import (parse_cuespeed, parse_profile_file,
-                                parse_profile_rivals, parse_rival_record, parse_trends)
+    from .parse.profile import (parse_cuespeed, parse_hillhill_summary,
+                                parse_profile_file, parse_profile_rivals,
+                                parse_rival_record, parse_trends)
     from .parse.tournament import parse_tournament_file
 
     main_f = pdir / "main.html"
@@ -1341,6 +1378,10 @@ def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
         if trends_f.exists():
             form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
             load_trends(conn, prof.player_id, form, captured)
+        h2h_f = pdir / "h2h.html"
+        if h2h_f.exists():
+            hh = parse_hillhill_summary(h2h_f.read_text(encoding="utf-8", errors="replace"))
+            load_hill_hill(conn, prof.player_id, hh, captured)
         # Career match history: any archived match_<tab>_<start>.html (no-op when
         # none). Tab/start are recovered from the filename; game_type from the tab.
         for mf in sorted(pdir.glob("match_*.html")):
@@ -1466,7 +1507,7 @@ def rebuild(db_path: str | Path = config.DB_PATH, dids: list[int] | None = None,
 
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
               for t in ("players", "skill_snapshots", "teams", "matches", "games",
-                        "pairing_history", "player_form", "player_divisions",
+                        "pairing_history", "player_form", "hill_hill", "player_divisions",
                         "tournament_matches", "flex_standings")}
     report["counts"] = counts
     conn.close()
@@ -1690,7 +1731,7 @@ def ingest_profiles(db_path: str | Path = config.DB_PATH, *,
 
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
               for t in ("players", "skill_snapshots", "pairing_history",
-                        "player_form", "match_history", "tournament_matches",
+                        "player_form", "hill_hill", "match_history", "tournament_matches",
                         "player_divisions")}
     conn.close()
     scope = "players" if player_ids else "all_dirs" if all_dirs else "divisions"
@@ -1716,7 +1757,7 @@ def main() -> None:
                              "sheets+results) still run over every division")
     parser.add_argument("--ingest-profiles", action="store_true",
                         help="INCREMENTAL: fold HARVESTED profiles (pairing_history, "
-                             "player_form, match/tournament history, CSR peaks) into "
+                             "player_form, hill_hill, match/tournament history, CSR peaks) into "
                              "the EXISTING DB via idempotent upserts -- no wipe, no "
                              "rebuild. Player-keyed: scope with --did / --all-divisions "
                              "(rostered players), --players, or --all-dirs. Loads only "
