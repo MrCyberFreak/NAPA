@@ -1,0 +1,1079 @@
+{
+  "divisions": {
+    "13077": {
+      "form": [
+        {
+          "lifetime_l": 516,
+          "lifetime_played": 1026,
+          "lifetime_w": 510,
+          "lifetime_win_pct": 50,
+          "player_id": "10027703"
+        },
+        {
+          "lifetime_l": 429,
+          "lifetime_played": 828,
+          "lifetime_w": 399,
+          "lifetime_win_pct": 48,
+          "player_id": "10028381"
+        },
+        {
+          "lifetime_l": 30,
+          "lifetime_played": 109,
+          "lifetime_w": 79,
+          "lifetime_win_pct": 72,
+          "player_id": "10035001"
+        },
+        {
+          "lifetime_l": 262,
+          "lifetime_played": 554,
+          "lifetime_w": 292,
+          "lifetime_win_pct": 53,
+          "player_id": "10035202"
+        },
+        {
+          "lifetime_l": 224,
+          "lifetime_played": 431,
+          "lifetime_w": 207,
+          "lifetime_win_pct": 48,
+          "player_id": "10037468"
+        },
+        {
+          "lifetime_l": 167,
+          "lifetime_played": 319,
+          "lifetime_w": 152,
+          "lifetime_win_pct": 48,
+          "player_id": "10039363"
+        },
+        {
+          "lifetime_l": 246,
+          "lifetime_played": 491,
+          "lifetime_w": 245,
+          "lifetime_win_pct": 50,
+          "player_id": "10040424"
+        },
+        {
+          "lifetime_l": 97,
+          "lifetime_played": 191,
+          "lifetime_w": 94,
+          "lifetime_win_pct": 49,
+          "player_id": "10043155"
+        },
+        {
+          "lifetime_l": 173,
+          "lifetime_played": 405,
+          "lifetime_w": 232,
+          "lifetime_win_pct": 57,
+          "player_id": "10044230"
+        },
+        {
+          "lifetime_l": 72,
+          "lifetime_played": 177,
+          "lifetime_w": 105,
+          "lifetime_win_pct": 59,
+          "player_id": "10044409"
+        }
+      ],
+      "hill_hill": [
+        {
+          "losses": 132,
+          "matches": 292,
+          "player_id": "10027703",
+          "win_pct": 55,
+          "wins": 160
+        },
+        {
+          "losses": 120,
+          "matches": 267,
+          "player_id": "10028381",
+          "win_pct": 55,
+          "wins": 147
+        },
+        {
+          "losses": 7,
+          "matches": 34,
+          "player_id": "10035001",
+          "win_pct": 79,
+          "wins": 27
+        },
+        {
+          "losses": 54,
+          "matches": 141,
+          "player_id": "10035202",
+          "win_pct": 62,
+          "wins": 87
+        },
+        {
+          "losses": 80,
+          "matches": 137,
+          "player_id": "10037468",
+          "win_pct": 42,
+          "wins": 57
+        },
+        {
+          "losses": 70,
+          "matches": 119,
+          "player_id": "10039363",
+          "win_pct": 41,
+          "wins": 49
+        },
+        {
+          "losses": 102,
+          "matches": 168,
+          "player_id": "10040424",
+          "win_pct": 39,
+          "wins": 66
+        },
+        {
+          "losses": 24,
+          "matches": 57,
+          "player_id": "10043155",
+          "win_pct": 58,
+          "wins": 33
+        },
+        {
+          "losses": 52,
+          "matches": 127,
+          "player_id": "10044230",
+          "win_pct": 59,
+          "wins": 75
+        },
+        {
+          "losses": 14,
+          "matches": 46,
+          "player_id": "10044409",
+          "win_pct": 70,
+          "wins": 32
+        }
+      ],
+      "match_points": [
+        {
+          "away_points": 65,
+          "away_team": "Cheat Code Felt Billiards Team #6",
+          "home_points": 36,
+          "home_team": "Barbarians Felt Billiards Team #5",
+          "round": 1
+        },
+        {
+          "away_points": 41,
+          "away_team": "5 Amigos Felt Billiards Team #7",
+          "home_points": 51,
+          "home_team": "Doug's Team Felt Billiards Team #4",
+          "round": 1
+        },
+        {
+          "away_points": 19,
+          "away_team": "Pocket Predators Felt Billiards Team #8",
+          "home_points": 76,
+          "home_team": "Ed's Balls Felt Billiards Team #3",
+          "round": 1
+        },
+        {
+          "away_points": 29,
+          "away_team": "\"And then?\" Felt Billiards Team #10",
+          "home_points": 59,
+          "home_team": "Pocket Pals Felt Billiards Team #1",
+          "round": 1
+        },
+        {
+          "away_points": 38,
+          "away_team": "Trap Gods Felt Billiards Team #9",
+          "home_points": 57,
+          "home_team": "The Furies Felt Billiards Team #2",
+          "round": 1
+        },
+        {
+          "away_points": 40,
+          "away_team": "Cheat Code Felt Billiards Team #6",
+          "home_points": 48,
+          "home_team": "\"And then?\" Felt Billiards Team #10",
+          "round": 2
+        },
+        {
+          "away_points": 55,
+          "away_team": "Barbarians Felt Billiards Team #5",
+          "home_points": 42,
+          "home_team": "5 Amigos Felt Billiards Team #7",
+          "round": 2
+        },
+        {
+          "away_points": 27,
+          "away_team": "The Furies Felt Billiards Team #2",
+          "home_points": 65,
+          "home_team": "Pocket Pals Felt Billiards Team #1",
+          "round": 2
+        }
+      ],
+      "racks": [
+        {
+          "away_player_id": "10076383",
+          "away_player_name": "Josh Messmore",
+          "away_race": 7,
+          "away_score": 3,
+          "game_type": 10,
+          "home_player_id": "10077913",
+          "home_player_name": "Adam DeLaPena",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10079275",
+          "away_player_name": "Yogi Gautam",
+          "away_race": 3,
+          "away_score": 3,
+          "game_type": 10,
+          "home_player_id": "10047267",
+          "home_player_name": "Beau Solano",
+          "home_race": 7,
+          "home_score": 4,
+          "home_won": 0,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10063700",
+          "away_player_name": "Adriana Vega",
+          "away_race": 4,
+          "away_score": 3,
+          "game_type": 10,
+          "home_player_id": "10063697",
+          "home_player_name": "Chris McNeal",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10071070",
+          "away_player_name": "Tim Drake",
+          "away_race": 4,
+          "away_score": 4,
+          "game_type": 10,
+          "home_player_id": null,
+          "home_player_name": "Dan Williams",
+          "home_race": 6,
+          "home_score": 1,
+          "home_won": 0,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10070181",
+          "away_player_name": "Ryan Nuss",
+          "away_race": 4,
+          "away_score": 2,
+          "game_type": 8,
+          "home_player_id": "10079518",
+          "home_player_name": "Ben Riddle",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10083530",
+          "away_player_name": "Anthony Miller",
+          "away_race": 5,
+          "away_score": 3,
+          "game_type": 8,
+          "home_player_id": "10078368",
+          "home_player_name": "Bobby Neues",
+          "home_race": 7,
+          "home_score": 7,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10055665",
+          "away_player_name": "Josh Miller",
+          "away_race": 8,
+          "away_score": 7,
+          "game_type": 8,
+          "home_player_id": "10085888",
+          "home_player_name": "Dalton Bartholomew",
+          "home_race": 2,
+          "home_score": 2,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10081827",
+          "away_player_name": "Bradley Patrick",
+          "away_race": 6,
+          "away_score": 2,
+          "game_type": 8,
+          "home_player_id": null,
+          "home_player_name": "Dennis Houman",
+          "home_race": 4,
+          "home_score": 4,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10080325",
+          "away_player_name": "Chris Rossi",
+          "away_race": 4,
+          "away_score": 0,
+          "game_type": 9,
+          "home_player_id": "10085888",
+          "home_player_name": "Dalton Bartholomew",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10055518",
+          "away_player_name": "Michael McMinn",
+          "away_race": 4,
+          "away_score": 3,
+          "game_type": 9,
+          "home_player_id": "10061788",
+          "home_player_name": "Ed Kiefer",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": null,
+          "away_player_name": "Nick Fiore",
+          "away_race": 4,
+          "away_score": 1,
+          "game_type": 9,
+          "home_player_id": "10080879",
+          "home_player_name": "Gustaf Friberg",
+          "home_race": 6,
+          "home_score": 6,
+          "home_won": 1,
+          "played_date": "2025-10-02"
+        },
+        {
+          "away_player_id": "10085969",
+          "away_player_name": "Zack Nelson",
+          "away_race": 3,
+          "away_score": 3,
+          "game_type": 9,
+          "home_player_id": "10082944",
+          "home_player_name": "Kyle Rupprecht",
+          "home_race": 5,
+          "home_score": 1,
+          "home_won": 0,
+          "played_date": "2025-10-02"
+        }
+      ]
+    },
+    "13298": {
+      "form": [
+        {
+          "lifetime_l": 71,
+          "lifetime_played": 227,
+          "lifetime_w": 156,
+          "lifetime_win_pct": 69,
+          "player_id": "10034054"
+        },
+        {
+          "lifetime_l": 363,
+          "lifetime_played": 766,
+          "lifetime_w": 403,
+          "lifetime_win_pct": 53,
+          "player_id": "10039148"
+        },
+        {
+          "lifetime_l": 87,
+          "lifetime_played": 149,
+          "lifetime_w": 62,
+          "lifetime_win_pct": 42,
+          "player_id": "10041446"
+        },
+        {
+          "lifetime_l": 196,
+          "lifetime_played": 430,
+          "lifetime_w": 234,
+          "lifetime_win_pct": 54,
+          "player_id": "10050311"
+        },
+        {
+          "lifetime_l": 150,
+          "lifetime_played": 326,
+          "lifetime_w": 176,
+          "lifetime_win_pct": 54,
+          "player_id": "10050893"
+        },
+        {
+          "lifetime_l": 177,
+          "lifetime_played": 433,
+          "lifetime_w": 256,
+          "lifetime_win_pct": 59,
+          "player_id": "10054654"
+        },
+        {
+          "lifetime_l": 202,
+          "lifetime_played": 552,
+          "lifetime_w": 350,
+          "lifetime_win_pct": 63,
+          "player_id": "10054655"
+        },
+        {
+          "lifetime_l": 342,
+          "lifetime_played": 642,
+          "lifetime_w": 300,
+          "lifetime_win_pct": 47,
+          "player_id": "10054661"
+        },
+        {
+          "lifetime_l": 174,
+          "lifetime_played": 388,
+          "lifetime_w": 214,
+          "lifetime_win_pct": 55,
+          "player_id": "10054680"
+        },
+        {
+          "lifetime_l": 195,
+          "lifetime_played": 372,
+          "lifetime_w": 177,
+          "lifetime_win_pct": 48,
+          "player_id": "10054683"
+        }
+      ],
+      "hill_hill": [
+        {
+          "losses": 12,
+          "matches": 60,
+          "player_id": "10034054",
+          "win_pct": 80,
+          "wins": 48
+        },
+        {
+          "losses": 57,
+          "matches": 195,
+          "player_id": "10039148",
+          "win_pct": 71,
+          "wins": 138
+        },
+        {
+          "losses": 23,
+          "matches": 45,
+          "player_id": "10041446",
+          "win_pct": 49,
+          "wins": 22
+        },
+        {
+          "losses": 43,
+          "matches": 101,
+          "player_id": "10050311",
+          "win_pct": 57,
+          "wins": 58
+        },
+        {
+          "losses": 51,
+          "matches": 97,
+          "player_id": "10050893",
+          "win_pct": 47,
+          "wins": 46
+        },
+        {
+          "losses": 36,
+          "matches": 116,
+          "player_id": "10054654",
+          "win_pct": 69,
+          "wins": 80
+        },
+        {
+          "losses": 32,
+          "matches": 121,
+          "player_id": "10054655",
+          "win_pct": 74,
+          "wins": 89
+        },
+        {
+          "losses": 143,
+          "matches": 229,
+          "player_id": "10054661",
+          "win_pct": 38,
+          "wins": 86
+        },
+        {
+          "losses": 34,
+          "matches": 98,
+          "player_id": "10054680",
+          "win_pct": 65,
+          "wins": 64
+        },
+        {
+          "losses": 38,
+          "matches": 96,
+          "player_id": "10054683",
+          "win_pct": 60,
+          "wins": 58
+        }
+      ],
+      "match_points": [
+        {
+          "away_points": 32,
+          "away_team": "Next up Piazzas Ital. rest. and sportsbar Team #10",
+          "home_points": 21,
+          "home_team": "Chalk Norris Piazzas Ital. rest. and sportsbar Team #1",
+          "round": 1
+        },
+        {
+          "away_points": 35,
+          "away_team": "Pool Party Piazzas Ital. rest. and sportsbar Team #9",
+          "home_points": 60,
+          "home_team": "Chalk full of Talent Piazzas Ital. rest. and sportsbar Team #2",
+          "round": 1
+        },
+        {
+          "away_points": 59,
+          "away_team": "The Hustlers Piazzas Ital. rest. and sportsbar Team #7",
+          "home_points": 38,
+          "home_team": "Cue-tastrophe Piazzas Ital. rest. and sportsbar Team #4",
+          "round": 1
+        },
+        {
+          "away_points": 14,
+          "away_team": "House sticks Piazzas Ital. rest. and sportsbar Team #8",
+          "home_points": 6,
+          "home_team": "Misfits Piazzas Ital. rest. and sportsbar Team #3",
+          "round": 1
+        },
+        {
+          "away_points": 61,
+          "away_team": "Snapped Piazzas Ital. rest. and sportsbar Team #6",
+          "home_points": 32,
+          "home_team": "Skinny's team Piazzas Ital. rest. and sportsbar Team #5",
+          "round": 1
+        },
+        {
+          "away_points": 25,
+          "away_team": "Chalk full of Talent Piazzas Ital. rest. and sportsbar Team #2",
+          "home_points": 78,
+          "home_team": "Chalk Norris Piazzas Ital. rest. and sportsbar Team #1",
+          "round": 2
+        },
+        {
+          "away_points": 53,
+          "away_team": "Cue-tastrophe Piazzas Ital. rest. and sportsbar Team #4",
+          "home_points": 45,
+          "home_team": "House sticks Piazzas Ital. rest. and sportsbar Team #8",
+          "round": 2
+        },
+        {
+          "away_points": 40,
+          "away_team": "Snapped Piazzas Ital. rest. and sportsbar Team #6",
+          "home_points": 56,
+          "home_team": "Next up Piazzas Ital. rest. and sportsbar Team #10",
+          "round": 2
+        }
+      ],
+      "racks": [
+        {
+          "away_player_id": null,
+          "away_player_name": "Dustin Thurman",
+          "away_race": 3,
+          "away_score": 3,
+          "game_type": 8,
+          "home_player_id": "10086795",
+          "home_player_name": "Brian Porwoll",
+          "home_race": 4,
+          "home_score": 1,
+          "home_won": 0,
+          "played_date": "2025-12-16"
+        },
+        {
+          "away_player_id": "10072059",
+          "away_player_name": "Jacob Casados",
+          "away_race": 8,
+          "away_score": 8,
+          "game_type": 8,
+          "home_player_id": "10065870",
+          "home_player_name": "Chris Holzwarth",
+          "home_race": 4,
+          "home_score": 0,
+          "home_won": 0,
+          "played_date": "2025-12-16"
+        },
+        {
+          "away_player_id": "10071570",
+          "away_player_name": "Marcus Hubenka",
+          "away_race": 6,
+          "away_score": 6,
+          "game_type": 8,
+          "home_player_id": "10086742",
+          "home_player_name": "David Johnson",
+          "home_race": 4,
+          "home_score": 2,
+          "home_won": 0,
+          "played_date": "2025-12-16"
+        },
+        {
+          "away_player_id": "10064118",
+          "away_player_name": "Jamal Bannoura",
+          "away_race": 9,
+          "away_score": 9,
+          "game_type": 8,
+          "home_player_id": "10079066",
+          "home_player_name": "Demetrio Silva",
+          "home_race": 3,
+          "home_score": 1,
+          "home_won": 0,
+          "played_date": "2025-12-16"
+        }
+      ]
+    },
+    "13986": {
+      "form": [
+        {
+          "lifetime_l": 11,
+          "lifetime_played": 29,
+          "lifetime_w": 18,
+          "lifetime_win_pct": 62,
+          "player_id": "10017557"
+        },
+        {
+          "lifetime_l": 445,
+          "lifetime_played": 864,
+          "lifetime_w": 419,
+          "lifetime_win_pct": 48,
+          "player_id": "10024442"
+        },
+        {
+          "lifetime_l": 389,
+          "lifetime_played": 726,
+          "lifetime_w": 337,
+          "lifetime_win_pct": 46,
+          "player_id": "10037709"
+        },
+        {
+          "lifetime_l": 183,
+          "lifetime_played": 357,
+          "lifetime_w": 174,
+          "lifetime_win_pct": 49,
+          "player_id": "10041693"
+        },
+        {
+          "lifetime_l": 105,
+          "lifetime_played": 205,
+          "lifetime_w": 100,
+          "lifetime_win_pct": 49,
+          "player_id": "10041931"
+        },
+        {
+          "lifetime_l": 314,
+          "lifetime_played": 568,
+          "lifetime_w": 254,
+          "lifetime_win_pct": 45,
+          "player_id": "10043902"
+        },
+        {
+          "lifetime_l": 17,
+          "lifetime_played": 55,
+          "lifetime_w": 38,
+          "lifetime_win_pct": 69,
+          "player_id": "10045825"
+        },
+        {
+          "lifetime_l": 125,
+          "lifetime_played": 258,
+          "lifetime_w": 133,
+          "lifetime_win_pct": 52,
+          "player_id": "10046336"
+        },
+        {
+          "lifetime_l": 186,
+          "lifetime_played": 336,
+          "lifetime_w": 150,
+          "lifetime_win_pct": 45,
+          "player_id": "10046832"
+        },
+        {
+          "lifetime_l": 125,
+          "lifetime_played": 256,
+          "lifetime_w": 131,
+          "lifetime_win_pct": 51,
+          "player_id": "10047426"
+        }
+      ],
+      "hill_hill": [
+        {
+          "losses": 2,
+          "matches": 5,
+          "player_id": "10017557",
+          "win_pct": 60,
+          "wins": 3
+        },
+        {
+          "losses": 116,
+          "matches": 239,
+          "player_id": "10024442",
+          "win_pct": 51,
+          "wins": 123
+        },
+        {
+          "losses": 108,
+          "matches": 214,
+          "player_id": "10037709",
+          "win_pct": 50,
+          "wins": 106
+        },
+        {
+          "losses": 30,
+          "matches": 82,
+          "player_id": "10041693",
+          "win_pct": 63,
+          "wins": 52
+        },
+        {
+          "losses": 24,
+          "matches": 54,
+          "player_id": "10041931",
+          "win_pct": 56,
+          "wins": 30
+        },
+        {
+          "losses": 88,
+          "matches": 177,
+          "player_id": "10043902",
+          "win_pct": 50,
+          "wins": 89
+        },
+        {
+          "losses": 8,
+          "matches": 19,
+          "player_id": "10045825",
+          "win_pct": 58,
+          "wins": 11
+        },
+        {
+          "losses": 38,
+          "matches": 74,
+          "player_id": "10046336",
+          "win_pct": 49,
+          "wins": 36
+        },
+        {
+          "losses": 29,
+          "matches": 74,
+          "player_id": "10046832",
+          "win_pct": 61,
+          "wins": 45
+        },
+        {
+          "losses": 57,
+          "matches": 100,
+          "player_id": "10047426",
+          "win_pct": 43,
+          "wins": 43
+        }
+      ],
+      "match_points": [
+        {
+          "away_points": 65,
+          "away_team": "Just Get It In Zoosters Team #5",
+          "home_points": 37,
+          "home_team": "Choke on This Zoosters Team #4",
+          "round": 1
+        },
+        {
+          "away_points": 49,
+          "away_team": "Let's rock Zoosters Team #7",
+          "home_points": 46,
+          "home_team": "New Cue Zoosters Team #2",
+          "round": 1
+        },
+        {
+          "away_points": 59,
+          "away_team": "Duke Zoosters Team #8",
+          "home_points": 29,
+          "home_team": "Zoo Zoo Top Zoosters Team #1",
+          "round": 1
+        },
+        {
+          "away_points": 38,
+          "away_team": "Just Get It In Zoosters Team #5",
+          "home_points": 52,
+          "home_team": "Duke Zoosters Team #8",
+          "round": 2
+        },
+        {
+          "away_points": 82,
+          "away_team": "Sons of Shanarchy Zoosters Team #3",
+          "home_points": 17,
+          "home_team": "Let's rock Zoosters Team #7",
+          "round": 2
+        },
+        {
+          "away_points": 14,
+          "away_team": "New Cue Zoosters Team #2",
+          "home_points": 82,
+          "home_team": "Zoo Zoo Top Zoosters Team #1",
+          "round": 2
+        },
+        {
+          "away_points": 62,
+          "away_team": "Duke Zoosters Team #8",
+          "home_points": 32,
+          "home_team": "New Cue Zoosters Team #2",
+          "round": 3
+        },
+        {
+          "away_points": 70,
+          "away_team": "Zoo Zoo Top Zoosters Team #1",
+          "home_points": 27,
+          "home_team": "Sons of Shanarchy Zoosters Team #3",
+          "round": 3
+        }
+      ],
+      "racks": [
+        {
+          "away_player_id": "10065593",
+          "away_player_name": "James Carlan",
+          "away_race": 5,
+          "away_score": 1,
+          "game_type": 10,
+          "home_player_id": "10082048",
+          "home_player_name": "Dave Mattingly",
+          "home_race": 5,
+          "home_score": 5,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10085193",
+          "away_player_name": "Belem Ceballos",
+          "away_race": 2,
+          "away_score": 0,
+          "game_type": 10,
+          "home_player_id": "10079229",
+          "home_player_name": "Lexi Scheidt",
+          "home_race": 2,
+          "home_score": 2,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10078124",
+          "away_player_name": "Joey Smith",
+          "away_race": 4,
+          "away_score": 4,
+          "game_type": 10,
+          "home_player_id": "10052725",
+          "home_player_name": "Matt Sylvester",
+          "home_race": 5,
+          "home_score": 3,
+          "home_won": 0,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10046832",
+          "away_player_name": "Rick Riley",
+          "away_race": 5,
+          "away_score": 2,
+          "game_type": 10,
+          "home_player_id": "10056163",
+          "home_player_name": "Primo Fraire",
+          "home_race": 5,
+          "home_score": 5,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10024442",
+          "away_player_name": "Cheryl Jones",
+          "away_race": 4,
+          "away_score": 0,
+          "game_type": "10BP",
+          "home_player_id": "10082048",
+          "home_player_name": "Dave Mattingly",
+          "home_race": 5,
+          "home_score": 5,
+          "home_won": 1,
+          "played_date": "2026-06-09"
+        },
+        {
+          "away_player_id": "10054414",
+          "away_player_name": "Brian Casey",
+          "away_race": 5,
+          "away_score": 4,
+          "game_type": "10BP",
+          "home_player_id": "10076556",
+          "home_player_name": "Allan Sease",
+          "home_race": 5,
+          "home_score": 5,
+          "home_won": 1,
+          "played_date": "2026-06-16"
+        },
+        {
+          "away_player_id": "10074168",
+          "away_player_name": "Spencer Johnson",
+          "away_race": 4,
+          "away_score": 1,
+          "game_type": "10BP",
+          "home_player_id": "10073341",
+          "home_player_name": "Gary Killcoyne",
+          "home_race": 5,
+          "home_score": 5,
+          "home_won": 1,
+          "played_date": "2026-06-16"
+        },
+        {
+          "away_player_id": "10065593",
+          "away_player_name": "James Carlan",
+          "away_race": 6,
+          "away_score": 6,
+          "game_type": "10BP",
+          "home_player_id": "10077197",
+          "home_player_name": "Jack Taft",
+          "home_race": 4,
+          "home_score": 2,
+          "home_won": 0,
+          "played_date": "2026-06-16"
+        },
+        {
+          "away_player_id": "10041931",
+          "away_player_name": "Paul Schreiber",
+          "away_race": 5,
+          "away_score": 2,
+          "game_type": 8,
+          "home_player_id": "10087312",
+          "home_player_name": "Ben Conner",
+          "home_race": 4,
+          "home_score": 4,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10046336",
+          "away_player_name": "John Mulloy",
+          "away_race": 5,
+          "away_score": 1,
+          "game_type": 8,
+          "home_player_id": "10043902",
+          "home_player_name": "Daniel Rocksted",
+          "home_race": 3,
+          "home_score": 3,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10090091",
+          "away_player_name": "Dan Yimmer",
+          "away_race": 4,
+          "away_score": 0,
+          "game_type": 8,
+          "home_player_id": "10090122",
+          "home_player_name": "Jong Ham",
+          "home_race": 4,
+          "home_score": 4,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10056429",
+          "away_player_name": "Taylor Sallee",
+          "away_race": 10,
+          "away_score": 10,
+          "game_type": 8,
+          "home_player_id": "10084992",
+          "home_player_name": "Jp Marciel",
+          "home_race": 2,
+          "home_score": 1,
+          "home_won": 0,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10017557",
+          "away_player_name": "Will Stridde",
+          "away_race": 8,
+          "away_score": 8,
+          "game_type": 9,
+          "home_player_id": "10071438",
+          "home_player_name": "Alan Scheidt",
+          "home_race": 2,
+          "home_score": 0,
+          "home_won": 0,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10041693",
+          "away_player_name": "Chris Linnen",
+          "away_race": 5,
+          "away_score": 2,
+          "game_type": 9,
+          "home_player_id": "10076406",
+          "home_player_name": "Duke Marion",
+          "home_race": 4,
+          "home_score": 4,
+          "home_won": 1,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10053013",
+          "away_player_name": "Kevin Reid",
+          "away_race": 8,
+          "away_score": 8,
+          "game_type": 9,
+          "home_player_id": "10077084",
+          "home_player_name": "Eddie Wong",
+          "home_race": 3,
+          "home_score": 2,
+          "home_won": 0,
+          "played_date": "2026-06-02"
+        },
+        {
+          "away_player_id": "10037709",
+          "away_player_name": "Kurt Funk",
+          "away_race": 4,
+          "away_score": 4,
+          "game_type": 9,
+          "home_player_id": "10047426",
+          "home_player_name": "Jennifer Harding",
+          "home_race": 3,
+          "home_score": 2,
+          "home_won": 0,
+          "played_date": "2026-06-02"
+        }
+      ]
+    }
+  },
+  "meta": {
+    "dids": [
+      13077,
+      13298,
+      13986
+    ],
+    "note": "Regenerate ONLY after an intentional, verified pipeline change: python -m tools.golden_capture",
+    "source": "committed raw archive (data/raw/<did>) via the scoped parse->DB builder in tests/golden/harness.py"
+  },
+  "player_ids": [
+    "10017557",
+    "10024442",
+    "10027703",
+    "10028381",
+    "10034054",
+    "10035001",
+    "10035202",
+    "10037468",
+    "10037709",
+    "10039148",
+    "10039363",
+    "10040424",
+    "10041446",
+    "10041693",
+    "10041931",
+    "10043155",
+    "10043902",
+    "10044230",
+    "10044409",
+    "10045825",
+    "10046336",
+    "10046832",
+    "10047426",
+    "10050311",
+    "10050893",
+    "10054654",
+    "10054655",
+    "10054661",
+    "10054680",
+    "10054683"
+  ]
+}

@@ -41,6 +41,7 @@ division column; EVENTS tables carry `division_id` as an attribute.
 | `games` | 657 | **Per‑game (race) results** — the rack‑level grain. game_type (8/9/10), races, wins, winner. All 657 linked to a match. | PK `game_id`; UNIQUE (division_id, played_date, home_name, away_name) |
 | `pairing_history` | 7,731 | **Lifetime aggregate per‑opponent record** (from profile RIVALS drill‑downs; NOT the hill‑hill "H2H" tab): per‑game W‑L + lags. **NOT rack‑level**, lacks opponent‑skill‑at‑time. Pairing‑layer enrichment only. | PK (player_id, rival_id); 6,620 distinct undirected pairs |
 | `player_form` | 85 | Dated **form snapshot** (TRENDS): lifetime + last‑10 + 30/60/90‑day records + 10‑match assessment. | PK (player_id, captured_date) |
+| `hill_hill` | 708 | Dated **HILL‑HILL snapshot** (profile "H2H" tab): how many of a player's matches reached a deciding game with both on the hill, + their record IN those games (overall + per game type). A **clutch / deciding‑game** signal, NOT head‑to‑head. | PK (player_id, captured_date) |
 
 `matches/games` deliberately do **NOT** FK `*_player_id` to roster membership (subs).
 Sources that give only names (live scores, score sheets) are name‑joined to the
