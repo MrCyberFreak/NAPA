@@ -1338,6 +1338,20 @@ def _profiles_root() -> Path:
     return Path("data/raw/profiles")
 
 
+def _read_text_safe(path: Path) -> str | None:
+    """read_text tolerant of an on-disk file the FILESYSTEM itself can't read
+    (e.g. NTFS corruption -> OSError / WinError 1392 -- distinct from a decode
+    error, which errors='replace' already handles). Returns None and warns instead
+    of raising, so one unreadable archived file can't abort a whole profile load or
+    ingest run. The raw archive is committed, so git holds the durable copy: a
+    later disk repair + re-ingest recovers any file skipped here."""
+    try:
+        return path.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        print(f"[profile] UNREADABLE archived file, skipping: {path} ({exc})")
+        return None
+
+
 def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
                      *, captured_default: str | None = None) -> tuple[bool, str | None]:
     """Load ONE data/raw/profiles/<id>/ directory into the DB via the idempotent
@@ -1367,20 +1381,25 @@ def load_profile_dir(conn: sqlite3.Connection, pdir: Path,
         html = main_f.read_text(encoding="utf-8", errors="replace")
         load_cuespeed(conn, prof.player_id, parse_cuespeed(html))
         rivals_f = pdir / "rivals.html"
-        if rivals_f.exists():
-            _, rivals = parse_profile_rivals(
-                rivals_f.read_text(encoding="utf-8", errors="replace"))
+        rivals_txt = _read_text_safe(rivals_f) if rivals_f.exists() else None
+        if rivals_txt is not None:
+            _, rivals = parse_profile_rivals(rivals_txt)
             load_rivals(conn, prof.player_id, rivals, captured)
         for rf in sorted(pdir.glob("rival_*.html")):
-            per_game = parse_rival_record(rf.read_text(encoding="utf-8", errors="replace"))
+            rtxt = _read_text_safe(rf)
+            if rtxt is None:
+                continue  # unreadable on disk (corruption) -- git keeps the copy
+            per_game = parse_rival_record(rtxt)
             update_pairing_record(conn, prof.player_id, rf.stem.split("_", 1)[1], per_game)
         trends_f = pdir / "trends.html"
-        if trends_f.exists():
-            form = parse_trends(trends_f.read_text(encoding="utf-8", errors="replace"))
+        trends_txt = _read_text_safe(trends_f) if trends_f.exists() else None
+        if trends_txt is not None:
+            form = parse_trends(trends_txt)
             load_trends(conn, prof.player_id, form, captured)
         h2h_f = pdir / "h2h.html"
-        if h2h_f.exists():
-            hh = parse_hillhill_summary(h2h_f.read_text(encoding="utf-8", errors="replace"))
+        h2h_txt = _read_text_safe(h2h_f) if h2h_f.exists() else None
+        if h2h_txt is not None:
+            hh = parse_hillhill_summary(h2h_txt)
             load_hill_hill(conn, prof.player_id, hh, captured)
         # Career match history: any archived match_<tab>_<start>.html (no-op when
         # none). Tab/start are recovered from the filename; game_type from the tab.
@@ -1643,9 +1662,17 @@ def _profiles_state_path(db_path: str | Path) -> Path:
 def _dir_signature(pdir: Path) -> str:
     """Stat-only signature of a profile dir: sorted `name:size` of its *.html files.
     Cheap (no reads) and sufficient because harvest only ADDS files and never
-    rewrites an existing page >500B — so a changed file set means new data landed."""
-    return ";".join(f"{p.name}:{p.stat().st_size}"
-                    for p in sorted(pdir.glob("*.html")))
+    rewrites an existing page >500B — so a changed file set means new data landed.
+    Tolerates a file the filesystem can't even stat (NTFS corruption ->
+    WinError 1392): marks it UNREADABLE rather than aborting the whole ingest, so
+    one bad on-disk file can't block folding every other profile."""
+    parts = []
+    for p in sorted(pdir.glob("*.html")):
+        try:
+            parts.append(f"{p.name}:{p.stat().st_size}")
+        except OSError:
+            parts.append(f"{p.name}:UNREADABLE")
+    return ";".join(parts)
 
 
 def _read_profiles_state(path: Path) -> dict:

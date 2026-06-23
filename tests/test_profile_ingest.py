@@ -79,6 +79,58 @@ def test_ingest_profiles_loads_player(tmp_path):
     conn.close()
 
 
+def test_ingest_survives_unreadable_rival_file(tmp_path, monkeypatch):
+    """A rival_*.html the FILESYSTEM can't read (NTFS corruption -> OSError /
+    WinError 1392, NOT a decode error errors='replace' would mask) is skipped
+    loudly, not fatal: the profile still loads and every READABLE rival drill-down
+    lands. Regression for the 10060392 corruption cluster (108 unreadable files)
+    that aborted a whole --ingest-profiles run."""
+    proot = tmp_path / "profiles"
+    d = _profile_dir(proot)
+    shutil.copyfile(F / "profile_rival_record.html", d / "rival_99999999.html")
+    db = _empty_db(tmp_path)
+    real_read = Path.read_text
+
+    def read_maybe(self, *a, **k):
+        if self.name == "rival_99999999.html":
+            raise OSError(1392, "corrupted and unreadable")
+        return real_read(self, *a, **k)
+    monkeypatch.setattr(Path, "read_text", read_maybe)
+
+    rep = ingest_profiles(db, player_ids=[PID], profiles_root=proot, force=True)
+    assert rep["loaded"] == 1 and rep["failed"] == 0          # survived the corrupt file
+
+    conn = connect(str(db))
+    row = conn.execute("SELECT total_matches, g8_l FROM pairing_history "
+                       "WHERE player_id=? AND rival_id='10071539'", (PID,)).fetchone()
+    assert row["total_matches"] == 2 and row["g8_l"] == 2     # readable rival still loaded
+    assert conn.execute("SELECT COUNT(*) FROM pairing_history "
+                        "WHERE player_id=? AND rival_id='99999999'",
+                        (PID,)).fetchone()[0] == 0             # corrupt rival skipped, not faked
+    conn.close()
+
+
+def test_dir_signature_tolerates_unstatable_file(tmp_path, monkeypatch):
+    """_dir_signature must not crash when a file can't even be stat'd (NTFS
+    corruption -> WinError 1392) -- the exact site that aborted the ingest. The
+    bad file is marked UNREADABLE; good files keep their name:size."""
+    from src.db import _dir_signature
+    (tmp_path / "main.html").write_text("ok", encoding="utf-8")
+    (tmp_path / "rival_bad.html").write_text("y", encoding="utf-8")
+    real_stat = Path.stat
+
+    def stat_maybe(self, *a, **k):
+        if self.name == "rival_bad.html":
+            raise OSError(1392, "corrupted and unreadable")
+        return real_stat(self, *a, **k)
+    monkeypatch.setattr(Path, "stat", stat_maybe)
+
+    sig = _dir_signature(tmp_path)
+    assert "rival_bad.html:UNREADABLE" in sig
+    assert any(p.startswith("main.html:") and not p.endswith("UNREADABLE")
+               for p in sig.split(";"))
+
+
 def test_ingest_profiles_idempotent(tmp_path):
     proot = tmp_path / "profiles"
     _profile_dir(proot)
