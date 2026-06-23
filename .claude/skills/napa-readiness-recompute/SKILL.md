@@ -83,7 +83,7 @@ bot pushes `[skip ci]` commits to `main` and a direct push races it.
 rm -f .git/index.lock                      # recurs from the IDE git integration
 git checkout -b docs/phase6-readiness-<short-reason>
 git add PHASE6_READINESS.md
-git commit -m "docs(phase6): <what moved and why>"   # end with the Co-Authored-By trailer
+git commit -m "docs(phase6): <what moved and why>"
 git push -u origin HEAD
 gh pr create --base main --title "…" --body "…"      # table the before→after of the stale figures
 ```
