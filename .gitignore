@@ -35,3 +35,4 @@ logs/
 
 # Design drop-in archive (the extracted UI lives under handoff_napa_web/) — not shipped.
 NAPA Mobile UI.zip
+handoff_napa_web/
