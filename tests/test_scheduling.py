@@ -73,7 +73,11 @@ def test_due_sunday_run_after_saturday_is_empty():
 
 def test_due_registry_order_preserved():
     due = config.divisions_due(dt.date(2026, 6, 16), active_only=False)
-    assert due == [d for d in config.DIVISIONS if d in set(due)]
+    # Registry order = config.divisions() (curated + discovered-rollover overlay),
+    # the SAME accessor divisions_due iterates -- NOT config.DIVISIONS (curated
+    # only), which silently drops an overlay rollover did (e.g. 14064) and made
+    # this assertion fail the moment discovery folded one in.
+    assert due == [d for d in config.divisions() if d in set(due)]
 
 
 # --------------------------------------------------------------------------- #
@@ -103,7 +107,8 @@ def test_run_set_unions_due_and_queue_in_registry_order():
     rs = catchup.run_set(due, queue)
     assert 13299 in rs
     assert set(due) <= set(rs)
-    assert rs == [d for d in config.DIVISIONS if d in set(rs)]  # registry order
+    # registry order = config.divisions() (the merged set run_set itself iterates)
+    assert rs == [d for d in config.divisions() if d in set(rs)]
     # idempotent on a division both due and queued (no duplicate)
     assert len(rs) == len(set(rs))
 
