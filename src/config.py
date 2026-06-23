@@ -1,8 +1,8 @@
 """Single source of truth for the divisions and their URL patterns.
 
-All 14 NAPA of Northern Colorado divisions (plus 14050, the season-rollover of
-13077) live in the DIVISIONS registry; flipping a division's `scrape` flag is
-the one-line per-division activation.
+All 14 NAPA of Northern Colorado divisions (plus 14050 and 14064, the
+season-rollovers of 13077 and 13205) live in the DIVISIONS registry; flipping a
+division's `scrape` flag is the one-line per-division activation.
 `DID = 13077` stays the app-wide default so every existing call site keys on
 one config value — retargeting is still a one-line change.
 """
@@ -51,9 +51,9 @@ class Division:
     scrape: bool = False
 
 
-# The 14 NoCo divisions plus 14050 (the season-rollover of 13077). Rollout is
-# COMPLETE — every entry is scrape=True; set a division's `scrape` flag to
-# activate it (see MULTIDIVISION_PLAN.md rollout).
+# The 14 NoCo divisions plus 14050 and 14064 (the season-rollovers of 13077 and
+# 13205). Rollout is COMPLETE -- every entry is scrape=True; set a division's
+# `scrape` flag to activate it (see MULTIDIVISION_PLAN.md rollout).
 DIVISIONS: dict[int, Division] = {
     d.did: d
     for d in (
@@ -80,6 +80,13 @@ DIVISIONS: dict[int, Division] = {
         # 13077's slug — same logical league, two session-ids — so both nest under
         # data/raw/thursday-big-table-felt-lc/ once the archive is slug-grouped.
         Division(14050, "Thursday Big Table Felt, No Limit LC (R1 2026-06-18)", "Thursday", "LC", "thursday-big-table-felt-lc", scrape=True),
+        # Season-rollover entry: 14064 is the NEW session of 13205 (Greeley
+        # Monday LC), discovered 2026-06-22. KEEP 13205 -- it holds the prior
+        # session's history (and any pending makeups). 14064 SHARES 13205's slug
+        # (monday-greeley-lc) -- same logical league, two session-ids -- so both
+        # nest under data/raw/monday-greeley-lc/ once the archive is slug-grouped.
+        # R1 = 2026-06-22 (the division's first night; the divisions.season key).
+        Division(14064, "Greeley (R1 2026-06-22)", "Monday", "LC", "monday-greeley-lc", scrape=True),
     )
 }
 

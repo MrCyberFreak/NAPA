@@ -1,8 +1,8 @@
 """Division registry tests — the DIVISIONS dict and URL templating.
 
-Verifies the 15-entry registry (14 NoCo divisions + the 14050 rollover of
-13077), the per-division weekDay in the schedule URL, the scrape activation
-flag, and the per-division archive root.
+Verifies the 16-entry registry (14 NoCo divisions + the 14050 rollover of 13077
++ the 14064 rollover of 13205), the per-division weekDay in the schedule URL,
+the scrape activation flag, and the per-division archive root.
 """
 
 from __future__ import annotations
@@ -20,9 +20,10 @@ ALL_URL_NAMES = (
 
 
 def test_registry_has_all_divisions():
-    # 14 NoCo divisions + 14050 (the season-rollover of 13077, kept alongside it
-    # while 13077 still owes an R27 makeup and holds the 2025-26 history).
-    assert len(config.DIVISIONS) == 15
+    # 14 NoCo divisions + two season-rollovers: 14050 (of 13077, kept while 13077
+    # still owes an R27 makeup and holds the 2025-26 history) and 14064 (of 13205,
+    # Greeley Monday LC, R1 2026-06-22).
+    assert len(config.DIVISIONS) == 16
     assert all(did == d.did for did, d in config.DIVISIONS.items())
     assert all(d.fmt in ("LC", "8") for d in config.DIVISIONS.values())
 
@@ -34,15 +35,17 @@ def test_every_division_has_a_slug():
 def test_slugs_unique_per_league_rollovers_share():
     # The slug is the stable LOGICAL-league key: distinct leagues -> distinct
     # slugs (esp. the three shared-venue LC/8-ball pairs, kept apart only by the
-    # gameset token), but the two session-ids of the SAME league (13077 and its
-    # rollover 14050) intentionally SHARE one slug.
+    # gameset token), but the two session-ids of the SAME league intentionally
+    # SHARE one slug -- 13077 + its rollover 14050, and 13205 + its rollover 14064.
     from collections import Counter
 
     shared = {slug for slug, n in Counter(
         d.slug for d in config.DIVISIONS.values()).items() if n > 1}
-    assert shared == {"thursday-big-table-felt-lc"}
+    assert shared == {"thursday-big-table-felt-lc", "monday-greeley-lc"}
     assert sorted(did for did, d in config.DIVISIONS.items()
                   if d.slug == "thursday-big-table-felt-lc") == [13077, 14050]
+    assert sorted(did for did, d in config.DIVISIONS.items()
+                  if d.slug == "monday-greeley-lc") == [13205, 14064]
 
 
 @pytest.mark.parametrize("did", list(config.DIVISIONS))
@@ -70,12 +73,12 @@ def test_active_divisions_match_rollout():
     # The CURATED active set, asserted against config.DIVISIONS directly so a
     # real discovered-rollover overlay can't perturb this list (the MERGED
     # active_dids() behavior is covered in test_registry_overlay). Rollout
-    # COMPLETE: all 14 NoCo divisions active + the 14050 rollover (added last,
-    # so it lands at the tail), in REGISTRY (dict insertion) order.
+    # COMPLETE: all 14 NoCo divisions active + the 14050 and 14064 rollovers
+    # (added last, so they land at the tail), in REGISTRY (dict insertion) order.
     curated_active = [did for did, d in config.DIVISIONS.items() if d.scrape]
     assert curated_active == [13077, 13985, 14022, 13986, 13937, 13881,
                               13711, 13299, 13205, 13744, 13723, 13743,
-                              13722, 13298, 14050]
+                              13722, 13298, 14050, 14064]
     assert curated_active == list(config.DIVISIONS)  # every curated division active
 
 
