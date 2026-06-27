@@ -1,0 +1,54 @@
+name: tests
+
+# Real pytest gate for the parse -> DB pipeline.
+#
+# The daily scrape commits land with [skip ci] (don't burn Actions minutes on a
+# data-only change), so a DATA commit can silently red main with nothing else to
+# catch it -- the golden harness / scheduling-registry tests are the canary. This
+# closes that gap three ways:
+#   - pull_request : gate every code change before it merges,
+#   - push to main : re-check after a merge / direct (non-[skip ci]) push,
+#   - schedule     : re-run on main daily AFTER the 15:00 scrape -- [skip ci]
+#                    skips push-triggered runs but NOT scheduled ones, so a data
+#                    commit that reddened main is caught within a day.
+#
+# Tests run entirely against the committed fixtures/ + data/raw archive (never the
+# live host), so no Playwright browser binary is needed -- only the playwright
+# PYTHON package, so `import src.browser_fetch` resolves at collection.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 16 * * *"   # ~10:00 MT, ~1h after the daily scrape commits
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        # requirements-browser gives the playwright Python package so test
+        # imports of src.browser_fetch resolve; the chromium binary is NOT
+        # installed (tests never drive a live browser).
+        run: pip install -r requirements.txt -r requirements-browser.txt
+
+      - name: Run tests
+        env:
+          PYTHONUTF8: "1"
+        run: pytest -q
