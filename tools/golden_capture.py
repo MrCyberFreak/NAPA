@@ -25,7 +25,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from tests.golden.harness import (  # noqa: E402
-    GOLDEN_DIDS, GOLDEN_JSON, build_division_db, extract_division,
+    GOLDEN_DIDS, GOLDEN_JSON, MAX_MATCHES, build_division_db, extract_division,
     select_golden_players)
 
 
@@ -49,7 +49,12 @@ def capture() -> dict:
         tmp = Path(td)
         player_ids = _select_player_union(tmp)
         conn = build_division_db(tmp / "golden.db", GOLDEN_DIDS, player_ids)
-        divisions = {str(did): extract_division(conn, did) for did in GOLDEN_DIDS}
+        # Freeze a small, stable EARLY slice of match_points (match_limit); the
+        # test rebuilds with NO limit and checks the frozen rows as a subset, so
+        # a living season's later matches can't shift a still-correct row out of
+        # a fixed top-N window and false-flag drift.
+        divisions = {str(did): extract_division(conn, did, match_limit=MAX_MATCHES)
+                     for did in GOLDEN_DIDS}
         conn.close()
     return {
         "meta": {
