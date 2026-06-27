@@ -209,20 +209,34 @@ def select_golden_players(conn, did: int, limit: int = MAX_PLAYERS) -> list[str]
     return out
 
 
-def extract_division(conn, did: int) -> dict:
-    """Pull the deterministic anchor sets for one division from a built DB."""
+def extract_division(conn, did: int, match_limit: int | None = None) -> dict:
+    """Pull the deterministic anchor sets for one division from a built DB.
+
+    match_limit bounds the match_points slice ONLY when FREEZING the baseline
+    (golden_capture passes MAX_MATCHES), so the stored set stays small and
+    anchored on the earliest rounds. At CHECK time it is left None, so the
+    rebuild returns EVERY scored match and the frozen rows are verified as a
+    SUBSET (test_rebuild_matches_golden). That is stable as a LIVING season
+    fills in / adds matches: the old fixed top-N sample silently shifted as
+    earlier rounds filled in and false-flagged "drift" on rows that were still
+    correct, merely pushed past the LIMIT."""
     season = _season(conn, did)
 
-    match_points = [dict(r) for r in conn.execute(
-        """SELECT m.round AS round, h.name AS home_team, a.name AS away_team,
-                  m.home_points AS home_points, m.away_points AS away_points
-           FROM matches m
-           JOIN teams h ON h.team_id = m.home_team_id
-           JOIN teams a ON a.team_id = m.away_team_id
-           WHERE m.division_id = ? AND m.season = ?
-             AND m.home_points IS NOT NULL AND m.away_points IS NOT NULL
-           ORDER BY m.round, h.name, a.name
-           LIMIT ?""", (did, season, MAX_MATCHES))]
+    mp_sql = (
+        "SELECT m.round AS round, h.name AS home_team, a.name AS away_team, "
+        "m.home_points AS home_points, m.away_points AS away_points "
+        "FROM matches m "
+        "JOIN teams h ON h.team_id = m.home_team_id "
+        "JOIN teams a ON a.team_id = m.away_team_id "
+        "WHERE m.division_id = ? AND m.season = ? "
+        "AND m.home_points IS NOT NULL AND m.away_points IS NOT NULL "
+        "ORDER BY m.round, h.name, a.name"
+    )
+    mp_params: list = [did, season]
+    if match_limit is not None:
+        mp_sql += " LIMIT ?"
+        mp_params.append(match_limit)
+    match_points = [dict(r) for r in conn.execute(mp_sql, mp_params)]
 
     # Racks: a bounded slice PER distinct game_type so every fragile type path
     # (8/9/10 ints + "10BP" text) is represented, not just the most common one.

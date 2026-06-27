@@ -99,10 +99,28 @@ def test_every_field_is_non_null(golden, category, cols):
 def test_rebuild_matches_golden(built, golden, category):
     """The freshly-rebuilt anchors equal the frozen baseline, row-for-row. Any
     drift (a value changed, a field went NULL, rows dropped) fails here -- the
-    self-healing loop's signal to trace the root cause."""
+    self-healing loop's signal to trace the root cause.
+
+    match_points is checked as a SUBSET (every frozen row must still rebuild,
+    keyed by round+teams, with identical points) rather than row-for-row: an
+    ACTIVE division's season keeps adding matches and filling earlier rounds in,
+    which shifted the old fixed top-N sample and false-flagged rows that were
+    still correct, merely pushed past the LIMIT. A genuine value change, a
+    dropped/NULLed frozen match still fails -- only the season GROWING no longer
+    does. The completed division (13077) is unaffected either way."""
     for did in _dids(golden):
-        assert built[did][category] == golden["divisions"][did][category], \
-            f"rebuild drift in {did}/{category}"
+        gold = golden["divisions"][did][category]
+        rebuilt = built[did][category]
+        if category == "match_points":
+            by_key = {(r["round"], r["home_team"], r["away_team"]): r for r in rebuilt}
+            for row in gold:
+                key = (row["round"], row["home_team"], row["away_team"])
+                assert key in by_key, \
+                    f"golden match_points row missing from rebuild ({did}): {row}"
+                assert by_key[key] == row, \
+                    f"match_points drift in {did}: golden {row} -> rebuilt {by_key[key]}"
+        else:
+            assert rebuilt == gold, f"rebuild drift in {did}/{category}"
 
 
 @pytest.mark.skipif(not _ARCHIVE_OK, reason="raw archive not present")

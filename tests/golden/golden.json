@@ -509,9 +509,9 @@
       ],
       "match_points": [
         {
-          "away_points": 32,
+          "away_points": 49,
           "away_team": "Next up Piazzas Ital. rest. and sportsbar Team #10",
-          "home_points": 21,
+          "home_points": 41,
           "home_team": "Chalk Norris Piazzas Ital. rest. and sportsbar Team #1",
           "round": 1
         },
@@ -781,6 +781,13 @@
           "round": 1
         },
         {
+          "away_points": 0,
+          "away_team": "Bye Zoosters Team #6",
+          "home_points": 50,
+          "home_team": "Sons of Shanarchy Zoosters Team #3",
+          "round": 1
+        },
+        {
           "away_points": 59,
           "away_team": "Duke Zoosters Team #8",
           "home_points": 29,
@@ -809,17 +816,10 @@
           "round": 2
         },
         {
-          "away_points": 62,
-          "away_team": "Duke Zoosters Team #8",
-          "home_points": 32,
-          "home_team": "New Cue Zoosters Team #2",
-          "round": 3
-        },
-        {
-          "away_points": 70,
-          "away_team": "Zoo Zoo Top Zoosters Team #1",
-          "home_points": 27,
-          "home_team": "Sons of Shanarchy Zoosters Team #3",
+          "away_points": 0,
+          "away_team": "Bye Zoosters Team #6",
+          "home_points": 114,
+          "home_team": "Just Get It In Zoosters Team #5",
           "round": 3
         }
       ],
