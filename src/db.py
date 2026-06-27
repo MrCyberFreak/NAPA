@@ -1766,7 +1766,18 @@ def ingest_profiles(db_path: str | Path = config.DB_PATH, *,
             "failed": failed, "skipped_unchanged": skipped, "counts": counts}
 
 
-def main() -> None:
+def _ingest_dids(args: argparse.Namespace) -> list[int]:
+    """Divisions for `--ingest`. The daily ingest path is MULTI-division, so a
+    bare `--ingest` folds in EVERY active division; pass `--did N` to scope to
+    one. (--all-divisions stays an explicit synonym for "all".) Guards the
+    footgun where a bare `--ingest` silently loaded only config.DID and made
+    every other division's fresh data look missing."""
+    if args.did is not None and not args.all_divisions:
+        return [args.did]
+    return config.active_dids()
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="NAPA database loader")
     parser.add_argument("--load", action="store_true",
                         help="parse roster grid(s) and load into the DB")
@@ -1776,8 +1787,9 @@ def main() -> None:
                         help="INCREMENTAL: fold new score sheets (+ schedules, "
                              "match-point results, flex, newest roster) into the "
                              "EXISTING DB via idempotent upserts -- no wipe, no "
-                             "profile pass. The daily path; use --did / "
-                             "--all-divisions to scope. (cf. --rebuild = from scratch)")
+                             "profile pass. The daily path; ingests ALL active "
+                             "divisions by default, pass --did N to scope to one. "
+                             "(cf. --rebuild = from scratch)")
     parser.add_argument("--no-profiles", action="store_true",
                         help="with --rebuild: skip the slow profile pass (pass 4) for a "
                              "fast iteration rebuild; passes 1-3 (rosters/schedules/"
@@ -1798,8 +1810,10 @@ def main() -> None:
     parser.add_argument("--force", action="store_true",
                         help="with --ingest-profiles: bypass change-detection and "
                              "load the whole resolved scope")
-    parser.add_argument("--did", type=int, default=config.DID,
-                        help=f"division to load (default: {config.DID})")
+    parser.add_argument("--did", type=int, default=None,
+                        help=f"division to scope to. --load / --ingest-profiles "
+                             f"default to {config.DID}; --ingest with no --did "
+                             f"does ALL active divisions.")
     parser.add_argument("--all-divisions", action="store_true",
                         help="load every active (scrape=True) division")
     parser.add_argument("--roster", type=str, default=None,
@@ -1809,7 +1823,15 @@ def main() -> None:
                         help="captured_date for the snapshot (YYYY-MM-DD, default: today)")
     parser.add_argument("--db", type=str, default=config.DB_PATH,
                         help=f"database path (default: {config.DB_PATH})")
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    # --did now defaults to None so an explicit --did N is distinguishable from
+    # "unset". The single-division commands (--load / --ingest-profiles) keep
+    # their historical default of config.DID; --ingest scopes via _ingest_dids.
+    did = args.did if args.did is not None else config.DID
 
     if args.rebuild:
         report = rebuild(args.db, profiles=not args.no_profiles)
@@ -1820,7 +1842,7 @@ def main() -> None:
         return
 
     if args.ingest:
-        dids = config.active_dids() if args.all_divisions else [args.did]
+        dids = _ingest_dids(args)
         report = ingest(args.db, dids)
         for did, rep in report["divisions"].items():
             print(f"[ingest] {did}: {rep}")
@@ -1830,7 +1852,7 @@ def main() -> None:
     if getattr(args, "ingest_profiles", False):
         pids = [p.strip() for p in args.players.split(",") if p.strip()] if args.players else None
         dids = (config.active_dids() if args.all_divisions
-                else None if (pids or args.all_dirs) else [args.did])
+                else None if (pids or args.all_dirs) else [did])
         report = ingest_profiles(args.db, dids=dids, player_ids=pids,
                                  all_dirs=args.all_dirs, force=args.force)
         print(f"[ingest-profiles] {report}")
@@ -1841,9 +1863,9 @@ def main() -> None:
         return
 
     conn = connect(args.db)
-    dids = config.active_dids() if args.all_divisions else [args.did]
-    for did in dids:
-        _load_one(conn, did, args.date, roster=args.roster if not args.all_divisions else None)
+    dids = config.active_dids() if args.all_divisions else [did]
+    for d in dids:
+        _load_one(conn, d, args.date, roster=args.roster if not args.all_divisions else None)
     conn.close()
 
 
