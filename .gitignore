@@ -36,3 +36,9 @@ logs/
 # Design drop-in archive (the extracted UI lives under handoff_napa_web/) — not shipped.
 NAPA Mobile UI.zip
 handoff_napa_web/
+
+# Cloned sibling GitHub repos for reference (PoolPredict UI) — never committed.
+_ref/
+
+# PoolPredict Scout UI brought in as the NAPA frontend prototype (real rosters/history) — not shipped yet.
+web/
