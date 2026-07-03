@@ -1,112 +1,38 @@
 {
-  "updated_utc": "2026-06-30T15:51:30+00:00",
-  "mode": "scheduled-all",
-  "run_date": "2026-06-30",
-  "due": [
-    13881,
-    13205,
-    14064
-  ],
-  "carryover": [
-    13077,
-    13205,
-    13298,
-    13299,
-    13711,
-    13722,
-    13723,
-    13743,
-    13744,
-    13881,
-    13937,
-    13985,
-    13986,
-    14022,
-    14050,
-    14064
-  ],
-  "backfilled": [
-    13077,
-    13205,
-    13298,
-    13299,
-    13711,
-    13722,
-    13723,
-    13743,
-    13744,
-    13881,
-    13937,
-    13985,
-    13986,
-    14022,
-    14050,
-    14064
-  ],
-  "divisions": {
-    "13077": {
-      "captured": [],
-      "unchanged": []
+  "updated_utc": "2026-07-03T02:36:37+00:00",
+  "run_date": "2026-07-03",
+  "probe": [
+    {
+      "host": "paper.playpool.io",
+      "url": "https://paper.playpool.io/roster_grid.php?did=13077&lcF8=N",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "challenge": true,
+      "latency_ms": 10413,
+      "note": "11543B, 3 req CHALLENGE"
     },
-    "13985": {
-      "captured": [],
-      "unchanged": []
+    {
+      "host": "scores.playpool.io",
+      "url": "https://scores.playpool.io/livescores.php?divID=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "challenge": true,
+      "latency_ms": 10422,
+      "note": "11578B, 3 req CHALLENGE"
     },
-    "14022": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13986": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13937": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13881": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13711": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13299": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13205": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13744": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13723": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13743": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13722": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13298": {
-      "captured": [],
-      "unchanged": []
-    },
-    "14050": {
-      "captured": [],
-      "unchanged": []
-    },
-    "14064": {
-      "captured": [],
-      "unchanged": []
+    {
+      "host": "poolshooters.com",
+      "url": "https://poolshooters.com/division.php?did=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "challenge": true,
+      "latency_ms": 10441,
+      "note": "11672B, 3 req CHALLENGE"
     }
-  }
+  ],
+  "captured": [],
+  "unchanged": []
 }
