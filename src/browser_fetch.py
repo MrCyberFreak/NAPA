@@ -235,14 +235,25 @@ def classify_index(html: str) -> str:
     return "ok" if parse_week_index(html) else "empty"
 
 
-def _walk_weeks(weeks, fetch_index: Callable[[int], str]):
+def _walk_weeks(weeks, fetch_index: Callable[[int], str],
+                week_done: Callable[[int], bool] | None = None):
     """Yield (week, index_html) for each OK week. `weeks` is a list of ints or
     "auto": auto walks week 1,2,3,... and STOPS after 2 CONSECUTIVE empty
     indexes (season end discovered); an "abort" classification ends the walk
-    immediately in EITHER mode (fail-soft — a re-run resumes from disk)."""
+    immediately in EITHER mode (fail-soft — a re-run resumes from disk).
+
+    `week_done` (auto only): a predicate that is True for a week already FULLY
+    captured on disk. Such a week is skipped WITHOUT a live nav — the expensive
+    part is clearing the host challenge on every weekly-index fetch, and a
+    caught-up division re-walked from week 1 daily pays that on ~27 indexes for
+    no new data. Skipping them keeps the same result (those weeks are OK weeks
+    whose sheets are all present) at a fraction of the navigations. Explicit week
+    lists ignore it — an explicit re-pull is a deliberate override."""
     auto = weeks == "auto"
     empties = 0
     for wk in itertools.count(1) if auto else weeks:
+        if auto and week_done is not None and week_done(wk):
+            continue  # already fully on disk — no live nav, no empty-count change
         html = fetch_index(wk)
         verdict = classify_index(html)
         if verdict == "abort":
@@ -271,6 +282,48 @@ def _sheet_captured(target: Path) -> bool:
     from .parse.weekly_scores import parse_score_sheet_file
 
     return target.exists() and bool(parse_score_sheet_file(target).games)
+
+
+def _last_archived_week(out_root: Path) -> int:
+    """Highest week N whose week_NN/_index.html is already on disk (0 if none).
+    The auto-walk always RE-navigates this frontier week (and beyond) so a late
+    or makeup sheet entered into the most-recent week after it was first captured
+    is still picked up; only weeks strictly below it may be skipped as done."""
+    import re as _re
+
+    if not out_root.exists():
+        return 0
+    weeks = [int(m.group(1)) for d in out_root.glob("week_*")
+             if (m := _re.fullmatch(r"week_(\d+)", d.name))
+             and (d / "_index.html").exists()]
+    return max(weeks, default=0)
+
+
+def _week_complete_on_disk(out_root: Path, wk: int) -> bool:
+    """True iff week_wk/_index.html exists AND every score-sheet link it lists is
+    already captured-with-games on disk. A caught-up past week can then be skipped
+    without a live nav. Absent/empty/stale index, or any missing sheet or shell
+    (parses to zero games) -> False, so the week is re-navigated and filled."""
+    import re as _re
+
+    from .parse.weekly_scores import parse_week_index
+
+    wkdir = out_root / f"week_{wk:02d}"
+    idx = wkdir / "_index.html"
+    if not idx.exists():
+        return False
+    try:
+        urls = parse_week_index(idx.read_text(encoding="utf-8"))
+    except OSError:
+        return False
+    if not urls:
+        return False
+    for url in urls:
+        tid = _re.search(r"tid=(\d+)", url)
+        target = wkdir / f"{tid.group(1) if tid else 'x'}.html"
+        if not _sheet_captured(target):
+            return False
+    return True
 
 
 def backfill_score_sheets(weeks, out_root: str | Path | None = None,
@@ -319,7 +372,16 @@ def backfill_score_sheets(weeks, out_root: str | Path | None = None,
                 cookie_landed = True
             return html
 
-        for wk, idx_html in _walk_weeks(weeks, fetch_index):
+        # Incremental resume: skip live-navigating weeks already fully captured
+        # on disk (below the frontier), so a caught-up division costs a couple of
+        # navs, not a full week-1..N re-walk every run. The frontier week itself
+        # is always re-navved (see _last_archived_week).
+        last_arch = _last_archived_week(out_root)
+
+        def week_done(wk: int) -> bool:
+            return wk < last_arch and _week_complete_on_disk(out_root, wk)
+
+        for wk, idx_html in _walk_weeks(weeks, fetch_index, week_done=week_done):
             wkdir = out_root / f"week_{wk:02d}"
             wkdir.mkdir(parents=True, exist_ok=True)
             (wkdir / "_index.html").write_text(idx_html, encoding="utf-8")
@@ -940,9 +1002,14 @@ def scheduled_run(run_date: dt.date | None = None, headless: bool = True,
     # which is how an off-schedule makeup logged under an earlier week gets
     # picked up the morning after it's played.
     if backfill and not aborted:
-        for did in dids:
-            if str(did) in results and did in backfill_dids:
-                backfill_score_sheets("auto", headless=headless, did=did)
+        try:
+            for did in dids:
+                if str(did) in results and did in backfill_dids:
+                    backfill_score_sheets("auto", headless=headless, did=did)
+        except Exception as exc:  # noqa: BLE001 — never lose the queue/heartbeat
+            # A backfill error must not skip the reconcile below; the queue is how
+            # an unfinished division is retried next run. Record and fall through.
+            print(f"[scheduled] backfill error ({exc}); reconciling the queue anyway.")
     elif aborted:
         print("[scheduled] host aborted page scrape — skipping backfill this run "
               "(carried divisions retry next run).")

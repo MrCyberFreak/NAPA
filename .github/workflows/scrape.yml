@@ -117,7 +117,12 @@ jobs:
               print("\n_No rollovers or new leagues detected._")
           PY
 
+      # Runs even if the scrape step was cancelled (90-min timeout) or errored, so
+      # a long/partial run still ARCHIVES whatever it captured instead of throwing
+      # it all away — each run then makes committed progress and the catch-up queue
+      # drains. write-on-change means a no-op if nothing new landed.
       - name: Commit archive back
+        if: ${{ always() }}
         run: |
           git config user.name  "napa-archive-bot"
           git config user.email "napa-archive-bot@users.noreply.github.com"

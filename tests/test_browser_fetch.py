@@ -10,9 +10,11 @@ from pathlib import Path
 from src import browser_fetch, catchup, config, discovery, fetch
 from src.browser_fetch import (
     BotChallengeError,
+    _last_archived_week,
     _parse_weeks,
     _run_discovery,
     _walk_weeks,
+    _week_complete_on_disk,
     capture_clearing_challenge,
     classify_index,
     fetch_divisions_browser,
@@ -112,6 +114,81 @@ def test_walk_aborts_on_challenge_and_never_counts_it_as_empty():
 def test_explicit_week_list_never_auto_stops_on_empties():
     walked = list(_walk_weeks([1, 2, 3], lambda wk: INDEX_EMPTY if wk < 3 else INDEX_OK))
     assert [wk for wk, _ in walked] == [3]  # 2 consecutive empties only stop "auto"
+
+
+# --------------------------------------------------------------------------- #
+# Incremental resume: skip live-navigating weeks already complete on disk. This
+# is the fix for the scheduled-run 90-min timeout — a caught-up division was
+# re-walking ~27 weekly indexes (each paying the host challenge) every day.
+# --------------------------------------------------------------------------- #
+
+
+def test_auto_walk_skips_weeks_already_complete_on_disk():
+    # Weeks 1-3 are already fully captured on disk -> NO live nav; the walk
+    # resumes at the frontier (week 4) and finds season end at 5,6.
+    by_week = {4: INDEX_OK, 5: INDEX_EMPTY, 6: INDEX_EMPTY}
+    fetched: list[int] = []
+
+    def fetch_index(wk):
+        fetched.append(wk)
+        return by_week[wk]
+
+    done = {1, 2, 3}
+    walked = list(_walk_weeks("auto", fetch_index, week_done=lambda wk: wk in done))
+    assert [wk for wk, _ in walked] == [4]   # only the frontier week yielded
+    assert fetched == [4, 5, 6]              # weeks 1-3 never navigated live
+
+
+def test_auto_walk_still_fills_a_gap_below_the_frontier():
+    # A not-done week among done weeks (e.g. a partial capture) is still navved.
+    by_week = {2: INDEX_OK, 4: INDEX_OK, 5: INDEX_EMPTY, 6: INDEX_EMPTY}
+    fetched: list[int] = []
+
+    def fetch_index(wk):
+        fetched.append(wk)
+        return by_week[wk]
+
+    done = {1, 3}  # weeks 2 and 4+ are NOT done -> must be navigated
+    walked = list(_walk_weeks("auto", fetch_index, week_done=lambda wk: wk in done))
+    assert fetched == [2, 4, 5, 6]           # 1 and 3 skipped, the gap at 2 filled
+    assert [wk for wk, _ in walked] == [2, 4]
+
+
+def test_week_done_predicate_reads_disk_and_frontier_is_never_done(tmp_path):
+    import shutil
+
+    scores = tmp_path / "scores"
+    # week 1: index lists tid=42; 42.html is a real populated sheet -> complete
+    w1 = scores / "week_01"
+    w1.mkdir(parents=True)
+    (w1 / "_index.html").write_text(
+        '<a href="https://poolshooters.com/scores.php?did=13077&tid=42">x</a>',
+        encoding="utf-8")
+    shutil.copyfile("fixtures/score_sheet_w1.mht", w1 / "42.html")
+    # week 2: index lists tid=43 but 43.html is an empty pre-play shell -> NOT complete
+    w2 = scores / "week_02"
+    w2.mkdir(parents=True)
+    (w2 / "_index.html").write_text(
+        '<a href="https://poolshooters.com/scores.php?did=13077&tid=43">x</a>',
+        encoding="utf-8")
+    shutil.copyfile("fixtures/score_sheet_empty_shell.html", w2 / "43.html")
+
+    assert _week_complete_on_disk(scores, 1) is True
+    assert _week_complete_on_disk(scores, 2) is False   # a shell -> re-fetch
+    assert _week_complete_on_disk(scores, 3) is False   # no index on disk
+    assert _last_archived_week(scores) == 2             # highest week with an index
+    assert _last_archived_week(tmp_path / "absent") == 0
+
+    # The frontier week (== last archived) is never treated as done, so a late
+    # sheet added to the most-recent week is still re-navved. Mirror the predicate
+    # backfill_score_sheets builds.
+    last_arch = _last_archived_week(scores)
+
+    def week_done(wk):
+        return wk < last_arch and _week_complete_on_disk(scores, wk)
+
+    assert week_done(1) is True    # below the frontier and complete -> skip
+    assert week_done(2) is False   # the frontier itself -> always re-nav
 
 
 def test_sheet_captured_rejects_empty_shell_so_it_is_refetched(tmp_path):
