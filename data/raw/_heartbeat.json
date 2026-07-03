@@ -1,38 +1,36 @@
 {
-  "updated_utc": "2026-07-03T02:36:37+00:00",
-  "run_date": "2026-07-03",
-  "probe": [
-    {
-      "host": "paper.playpool.io",
-      "url": "https://paper.playpool.io/roster_grid.php?did=13077&lcF8=N",
-      "reachable": true,
-      "status": 200,
-      "blocked": false,
-      "challenge": true,
-      "latency_ms": 10413,
-      "note": "11543B, 3 req CHALLENGE"
-    },
-    {
-      "host": "scores.playpool.io",
-      "url": "https://scores.playpool.io/livescores.php?divID=13077",
-      "reachable": true,
-      "status": 200,
-      "blocked": false,
-      "challenge": true,
-      "latency_ms": 10422,
-      "note": "11578B, 3 req CHALLENGE"
-    },
-    {
-      "host": "poolshooters.com",
-      "url": "https://poolshooters.com/division.php?did=13077",
-      "reachable": true,
-      "status": 200,
-      "blocked": false,
-      "challenge": true,
-      "latency_ms": 10441,
-      "note": "11672B, 3 req CHALLENGE"
-    }
+  "updated_utc": "2026-07-03T02:42:57+00:00",
+  "mode": "scheduled-all",
+  "run_date": "2026-07-02",
+  "due": [
+    14022,
+    13937
   ],
-  "captured": [],
-  "unchanged": []
+  "carryover": [
+    13077,
+    13205,
+    13298,
+    13299,
+    13711,
+    13722,
+    13723,
+    13743,
+    13744,
+    13881,
+    13937,
+    13985,
+    13986,
+    14022,
+    14050,
+    14064
+  ],
+  "backfilled": [
+    13077
+  ],
+  "divisions": {
+    "13077": {
+      "captured": [],
+      "unchanged": []
+    }
+  }
 }

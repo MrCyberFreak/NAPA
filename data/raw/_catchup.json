@@ -1,69 +1,69 @@
 {
-  "updated_utc": "2026-06-30T15:51:55+00:00",
-  "run_date": "2026-06-30",
+  "updated_utc": "2026-07-03T02:43:01+00:00",
+  "run_date": "2026-07-02",
   "divisions": {
     "13077": {
       "reason": "scrape-incomplete",
       "since": "2026-06-26"
     },
     "13205": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "13298": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "13299": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "13711": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-15"
     },
     "13722": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-13"
     },
     "13723": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-13"
     },
     "13743": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-13"
     },
     "13744": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-13"
     },
     "13881": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "13937": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-18"
     },
     "13985": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "13986": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-17"
     },
     "14022": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     },
     "14050": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-19"
     },
     "14064": {
-      "reason": "scrape-incomplete",
+      "reason": "scrape-skipped",
       "since": "2026-06-26"
     }
   }
