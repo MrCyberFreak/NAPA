@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-07-03T22:21:39+00:00",
-  "run_date": "2026-07-03",
+  "updated_utc": "2026-07-04T17:10:25+00:00",
+  "run_date": "2026-07-04",
   "divisions": {
     "13711": {
       "reason": "pending-makeups",
@@ -14,7 +14,6 @@
       "reason": "pending-makeups",
       "since": "2026-06-13",
       "rounds": [
-        9,
         10,
         12
       ]
@@ -23,23 +22,8 @@
       "reason": "pending-makeups",
       "since": "2026-06-13",
       "rounds": [
-        9,
         10,
         12
-      ]
-    },
-    "13743": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        13
-      ]
-    },
-    "13744": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        13
       ]
     },
     "13986": {
@@ -72,13 +56,6 @@
       "since": "2026-06-26",
       "rounds": [
         2
-      ]
-    },
-    "14095": {
-      "reason": "pending-makeups",
-      "since": "2026-07-03",
-      "rounds": [
-        1
       ]
     }
   }
