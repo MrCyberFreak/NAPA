@@ -1,10 +1,10 @@
 {
-  "updated_utc": "2026-07-09T18:32:08+00:00",
+  "updated_utc": "2026-07-10T18:00:08+00:00",
   "mode": "scheduled-all",
-  "run_date": "2026-07-09",
+  "run_date": "2026-07-10",
   "due": [
-    14022,
-    13937
+    13077,
+    14050
   ],
   "carryover": [
     13711,
@@ -18,6 +18,7 @@
     14095
   ],
   "backfilled": [
+    13077,
     13711,
     13722,
     13723,
@@ -33,44 +34,32 @@
       "captured": [
         "division",
         "flex",
-        "roster_grid"
+        "roster_grid",
+        "scratch"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "13985": {
       "captured": [
         "division",
         "flex",
-        "roster_grid"
+        "roster_grid",
+        "scratch"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "14022": {
       "captured": [
         "division",
         "flex",
-        "leaderboard",
-        "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
-      ],
-      "unchanged": []
-    },
-    "13986": {
-      "captured": [
-        "division",
-        "flex",
         "roster_grid"
       ],
       "unchanged": [
@@ -80,19 +69,7 @@
         "scratch"
       ]
     },
-    "13937": {
-      "captured": [
-        "division",
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
-      ],
-      "unchanged": []
-    },
-    "13881": {
+    "13986": {
       "captured": [
         "division"
       ],
@@ -105,17 +82,43 @@
         "scratch"
       ]
     },
-    "13711": {
+    "13937": {
       "captured": [
         "division",
         "flex",
-        "roster_grid",
+        "leaderboard",
         "scratch"
+      ],
+      "unchanged": [
+        "live_scores",
+        "roster_grid",
+        "schedule"
+      ]
+    },
+    "13881": {
+      "captured": [
+        "division",
+        "flex",
+        "roster_grid"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule"
+        "schedule",
+        "scratch"
+      ]
+    },
+    "13711": {
+      "captured": [
+        "division",
+        "flex",
+        "roster_grid"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
+        "schedule",
+        "scratch"
       ]
     },
     "13299": {
@@ -158,26 +161,19 @@
       ]
     },
     "13723": {
-      "captured": [],
-      "unchanged": [
+      "captured": [
+        "division",
+        "flex",
         "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
         "schedule"
       ]
     },
     "13743": {
-      "captured": [
-        "division",
-        "roster_grid"
-      ],
-      "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "schedule",
-        "scratch"
-      ]
-    },
-    "13722": {
       "captured": [
         "division"
       ],
@@ -188,6 +184,19 @@
         "roster_grid",
         "schedule",
         "scratch"
+      ]
+    },
+    "13722": {
+      "captured": [
+        "division",
+        "flex",
+        "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
+        "schedule"
       ]
     },
     "13298": {
@@ -207,14 +216,13 @@
       "captured": [
         "division",
         "flex",
-        "roster_grid"
-      ],
-      "unchanged": [
         "leaderboard",
         "live_scores",
+        "roster_grid",
         "schedule",
         "scratch"
-      ]
+      ],
+      "unchanged": []
     },
     "14064": {
       "captured": [
@@ -231,13 +239,13 @@
     },
     "14095": {
       "captured": [
-        "division",
-        "roster_grid"
+        "division"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
+        "roster_grid",
         "schedule",
         "scratch"
       ]
