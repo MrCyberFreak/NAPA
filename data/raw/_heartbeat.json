@@ -1,156 +1,38 @@
 {
-  "updated_utc": "2026-07-16T17:01:16+00:00",
-  "mode": "scheduled-all",
-  "run_date": "2026-07-16",
-  "due": [
-    14022,
-    13937
-  ],
-  "carryover": [
-    13298,
-    13711,
-    13722,
-    13723,
-    13937,
-    13986,
-    14022,
-    14050,
-    14095
-  ],
-  "backfilled": [
-    13298,
-    13711,
-    13722,
-    13723,
-    13937,
-    13986,
-    14022,
-    14050,
-    14095
-  ],
-  "divisions": {
-    "13077": {
-      "captured": [
-        "division",
-        "flex",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
+  "updated_utc": "2026-07-17T16:10:02+00:00",
+  "run_date": "2026-07-17",
+  "probe": [
+    {
+      "host": "paper.playpool.io",
+      "url": "https://paper.playpool.io/roster_grid.php?did=13077&lcF8=N",
+      "reachable": false,
+      "status": null,
+      "blocked": false,
+      "challenge": false,
+      "latency_ms": null,
+      "note": "ReadTimeout: The read operation timed out"
     },
-    "13985": {
-      "captured": [
-        "division",
-        "roster_grid"
-      ],
-      "unchanged": [
-        "schedule",
-        "scratch"
-      ]
+    {
+      "host": "scores.playpool.io",
+      "url": "https://scores.playpool.io/livescores.php?divID=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "challenge": false,
+      "latency_ms": 5287,
+      "note": "3836B, 1 req"
     },
-    "14022": {
-      "captured": [
-        "roster_grid",
-        "schedule"
-      ],
-      "unchanged": []
-    },
-    "13986": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": []
-    },
-    "13937": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": []
-    },
-    "13881": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid"
-      ]
-    },
-    "13711": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": []
-    },
-    "13299": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid"
-      ]
-    },
-    "13205": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid"
-      ]
-    },
-    "13744": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": []
-    },
-    "13723": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid"
-      ]
-    },
-    "13743": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid",
-        "schedule"
-      ]
-    },
-    "13722": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid",
-        "schedule"
-      ]
-    },
-    "13298": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": [
-        "schedule"
-      ]
-    },
-    "14050": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": [
-        "schedule"
-      ]
-    },
-    "14064": {
-      "captured": [],
-      "unchanged": [
-        "roster_grid",
-        "schedule"
-      ]
-    },
-    "14095": {
-      "captured": [
-        "roster_grid"
-      ],
-      "unchanged": [
-        "schedule"
-      ]
+    {
+      "host": "poolshooters.com",
+      "url": "https://poolshooters.com/division.php?did=13077",
+      "reachable": true,
+      "status": 200,
+      "blocked": false,
+      "challenge": false,
+      "latency_ms": 3284,
+      "note": "24886B, 1 req"
     }
-  }
+  ],
+  "captured": [],
+  "unchanged": []
 }
