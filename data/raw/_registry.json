@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-07-19T15:52:00+00:00",
-  "run_date": "2026-07-19",
+  "updated_utc": "2026-07-22T16:17:13+00:00",
+  "run_date": "2026-07-22",
   "discovered": {
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
@@ -21,6 +21,16 @@
       "slug": "tuesday-piazza-dp-2-lc",
       "name": "Tuesday \"Piazza DP #2\" No Limit LC",
       "first_seen": "2026-07-14"
+    },
+    "14185": {
+      "slug": "thursday-utime-dp-8ball",
+      "name": "Thursday \"Utime DP\" No Limit 8-ball",
+      "first_seen": "2026-07-22"
+    },
+    "14186": {
+      "slug": "thursday-utime-dp-lc",
+      "name": "Thursday \"Utime DP\" Singles LC",
+      "first_seen": "2026-07-22"
     }
   }
 }

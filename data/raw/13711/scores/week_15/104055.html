@@ -467,7 +467,7 @@
               <a class="nav-link" href="/start.php">Start A League!</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="https://loco.napaleagues.com/" target="_blank">LO Login</a>
+              <a class="nav-link" href="https://loco.napaleagues.com/login.php" target="_blank">LO Login</a>
             </li>
 
 <!--				 
@@ -496,10 +496,427 @@
 <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
 <tbody><tr><td valign="top" align="center" bgcolor="#BB133E"><div align="center" class="text-white"><h4>Breaking Bad vs. Rack n Rebels</h4></div></td></tr></tbody></table>
 <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
-<tbody><tr><td valign="top" align="center" bgcolor="#002664"><div align="center" class="text-white"><h4>Sunday Jul. 19, 2026</h4></div></td></tr></tbody></table>
-<table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
-<tbody><tr><td bgcolor="#EEEEEE" align="center"><strong>NO MATCH(ES) PLAYED </strong></td></tr>
-</tbody></table><br>
+<tbody><tr><td valign="top" align="center" bgcolor="#002664"><div align="center" class="text-white"><h4>Sunday Jul. 19, 2026</h4></div></td></tr></tbody></table> 
+                          <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+ 													<tbody><tr><td align="CENTER" width="10%">10-ball</td><td bgcolor="#EEEEEE" align="CENTER" width="45%"><a href="stats.php?playerSelected=Y&amp;playerID=10086342" class="text-danger"><strong>Ken Martin</strong></a><br><small>(Rack n Rebels)</small></td>
+													<td align="center" width="45%" bgcolor="#EEEEEE"><a href="stats.php?playerSelected=Y&amp;playerID=10080641" class="text-danger"><strong>Jesus Luva</strong></a><br><small>(Breaking Bad)</small></td></tr>
+ 													<tr><td align="CENTER">RACE</td><td align="center">4</td><td align="center">4</td></tr>
+ 													<tr><td align="CENTER"># WINS</td><td align="center">4</td><td align="center">2</td></tr>
+ 													<tr><td align="CENTER">BO</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">SNAPS</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">RL</td><td align="center">-</td><td align="center">-</td></tr>
+                          <tr><td align="CENTER"><strong>SCORE</strong></td><td bgcolor="#EEEEEE" align="center"><strong>14</strong></td><td bgcolor="#EEEEEE" align="center"><strong>3</strong></td></tr>
+                        <tr><td colspan="3">    
+<style>
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+	
+	</style>                                             
+<!-- Button trigger modal -->
+<div align="center">
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#basicExampleModal23564">
+  Report Incorrect Score
+</button><p></p>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="basicExampleModal23564" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel23564" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel23564">Report Incorrect Score</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        If this score is incorrect fill out the the details below.  Your report will be sent directly to your league operator for review.
+        
+        
+ <form name="searchdata" id="search_form" action="scores.php" method="get">
+                <div class="input-with-icon success-control"><p></p> 
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="tid" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="did" value="13711">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="date" value="2026-07-19">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="homeTeam" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="format" value="Team">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="mid" value="1532145">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="hyper" value="N">
+                    <input type="hidden" class="form-control" id="form1Amount23564" name="report" value="Y">
+                     
+                     Issue:<br>                
+                    <input type="text" class="form-control" id="form1Amount23564" name="searchvalue" placeholder="Explain the scoring error here..."><p></p>
+                    Your name:<br>
+                    <input type="text" class="form-control" id="form1Amount23564" name="player_name" placeholder="Your name..."><p></p>
+                    
+                </div>  
+                <button onclick="form_submit()" name="user_search" value="scores.php?tid=104055&amp;did=13711&amp;date=2026-07-19&amp;homeTeam=104055&amp;format=Team&amp;mid=1532145&amp;hyper=N&amp;report=Y" class="btn btn-danger"><i class="fa fa-user"></i> Send to LO</button>       
+        </form> 
+
+  <script type="text/javascript">
+  function form_submit() {
+    document.getElementById("search_form").submit();
+   }    
+  </script>
+      </div>
+    </div>
+  </div>
+</div>                   
+                        
+                        </td></tr></tbody></table><br> 
+                          <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+ 													<tbody><tr><td align="CENTER" width="10%">8-ball</td><td bgcolor="#EEEEEE" align="CENTER" width="45%"><a href="stats.php?playerSelected=Y&amp;playerID=10086788" class="text-danger"><strong>Nicholas Thomas</strong></a><br><small>(Rack n Rebels)</small></td>
+													<td align="center" width="45%" bgcolor="#EEEEEE"><a href="stats.php?playerSelected=Y&amp;playerID=10085156" class="text-danger"><strong>Rick Weingarten</strong></a><br><small>(Breaking Bad)</small></td></tr>
+ 													<tr><td align="CENTER">RACE</td><td align="center">3</td><td align="center">4</td></tr>
+ 													<tr><td align="CENTER"># WINS</td><td align="center">0</td><td align="center">4</td></tr>
+ 													<tr><td align="CENTER">BO</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">SNAPS</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">RL</td><td align="center">-</td><td align="center">-</td></tr>
+                          <tr><td align="CENTER"><strong>SCORE</strong></td><td bgcolor="#EEEEEE" align="center"><strong>1</strong></td><td bgcolor="#EEEEEE" align="center"><strong>20</strong></td></tr>
+                        <tr><td colspan="3">    
+<style>
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+	
+	</style>                                             
+<!-- Button trigger modal -->
+<div align="center">
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#basicExampleModal83969">
+  Report Incorrect Score
+</button><p></p>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="basicExampleModal83969" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel83969" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel83969">Report Incorrect Score</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        If this score is incorrect fill out the the details below.  Your report will be sent directly to your league operator for review.
+        
+        
+ <form name="searchdata" id="search_form" action="scores.php" method="get">
+                <div class="input-with-icon success-control"><p></p> 
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="tid" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="did" value="13711">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="date" value="2026-07-19">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="homeTeam" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="format" value="Team">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="mid" value="1532146">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="hyper" value="N">
+                    <input type="hidden" class="form-control" id="form1Amount83969" name="report" value="Y">
+                     
+                     Issue:<br>                
+                    <input type="text" class="form-control" id="form1Amount83969" name="searchvalue" placeholder="Explain the scoring error here..."><p></p>
+                    Your name:<br>
+                    <input type="text" class="form-control" id="form1Amount83969" name="player_name" placeholder="Your name..."><p></p>
+                    
+                </div>  
+                <button onclick="form_submit()" name="user_search" value="scores.php?tid=104055&amp;did=13711&amp;date=2026-07-19&amp;homeTeam=104055&amp;format=Team&amp;mid=1532146&amp;hyper=N&amp;report=Y" class="btn btn-danger"><i class="fa fa-user"></i> Send to LO</button>       
+        </form> 
+
+  <script type="text/javascript">
+  function form_submit() {
+    document.getElementById("search_form").submit();
+   }    
+  </script>
+      </div>
+    </div>
+  </div>
+</div>                   
+                        
+                        </td></tr></tbody></table><br> 
+                          <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+ 													<tbody><tr><td align="CENTER" width="10%">10-ball</td><td bgcolor="#EEEEEE" align="CENTER" width="45%"><a href="stats.php?playerSelected=Y&amp;playerID=10080802" class="text-danger"><strong>Aaron Gutierrez</strong></a><br><small>(Breaking Bad)</small></td>
+													<td align="center" width="45%" bgcolor="#EEEEEE"><a href="stats.php?playerSelected=Y&amp;playerID=10090881" class="text-danger"><strong>Terren Thomas</strong></a><br><small>(Rack n Rebels)</small></td></tr>
+ 													<tr><td align="CENTER">RACE</td><td align="center">3</td><td align="center">3</td></tr>
+ 													<tr><td align="CENTER"># WINS</td><td align="center">1</td><td align="center">3</td></tr>
+ 													<tr><td align="CENTER">BO</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">SNAPS</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">RL</td><td align="center">-</td><td align="center">-</td></tr>
+                          <tr><td align="CENTER"><strong>SCORE</strong></td><td bgcolor="#EEEEEE" align="center"><strong>3</strong></td><td bgcolor="#EEEEEE" align="center"><strong>14</strong></td></tr>
+                        <tr><td colspan="3">    
+<style>
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+	
+	</style>                                             
+<!-- Button trigger modal -->
+<div align="center">
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#basicExampleModal22946">
+  Report Incorrect Score
+</button><p></p>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="basicExampleModal22946" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel22946" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel22946">Report Incorrect Score</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        If this score is incorrect fill out the the details below.  Your report will be sent directly to your league operator for review.
+        
+        
+ <form name="searchdata" id="search_form" action="scores.php" method="get">
+                <div class="input-with-icon success-control"><p></p> 
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="tid" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="did" value="13711">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="date" value="2026-07-19">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="homeTeam" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="format" value="Team">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="mid" value="1532157">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="hyper" value="N">
+                    <input type="hidden" class="form-control" id="form1Amount22946" name="report" value="Y">
+                     
+                     Issue:<br>                
+                    <input type="text" class="form-control" id="form1Amount22946" name="searchvalue" placeholder="Explain the scoring error here..."><p></p>
+                    Your name:<br>
+                    <input type="text" class="form-control" id="form1Amount22946" name="player_name" placeholder="Your name..."><p></p>
+                    
+                </div>  
+                <button onclick="form_submit()" name="user_search" value="scores.php?tid=104055&amp;did=13711&amp;date=2026-07-19&amp;homeTeam=104055&amp;format=Team&amp;mid=1532157&amp;hyper=N&amp;report=Y" class="btn btn-danger"><i class="fa fa-user"></i> Send to LO</button>       
+        </form> 
+
+  <script type="text/javascript">
+  function form_submit() {
+    document.getElementById("search_form").submit();
+   }    
+  </script>
+      </div>
+    </div>
+  </div>
+</div>                   
+                        
+                        </td></tr></tbody></table><br> 
+                          <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+ 													<tbody><tr><td align="CENTER" width="10%">10-ball</td><td bgcolor="#EEEEEE" align="CENTER" width="45%"><a href="stats.php?playerSelected=Y&amp;playerID=10080688" class="text-danger"><strong>Terry Lester</strong></a><br><small>(Rack n Rebels)</small></td>
+													<td align="center" width="45%" bgcolor="#EEEEEE"><a href="stats.php?playerSelected=Y&amp;playerID=10054648" class="text-danger"><strong>Charles Hicks</strong></a><br><small>(Breaking Bad)</small></td></tr>
+ 													<tr><td align="CENTER">RACE</td><td align="center">3</td><td align="center">7</td></tr>
+ 													<tr><td align="CENTER"># WINS</td><td align="center">2</td><td align="center">7</td></tr>
+ 													<tr><td align="CENTER">BO</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">SNAPS</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">RL</td><td align="center">-</td><td align="center">-</td></tr>
+                          <tr><td align="CENTER"><strong>SCORE</strong></td><td bgcolor="#EEEEEE" align="center"><strong>6</strong></td><td bgcolor="#EEEEEE" align="center"><strong>14</strong></td></tr>
+                        <tr><td colspan="3">    
+<style>
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+	
+	</style>                                             
+<!-- Button trigger modal -->
+<div align="center">
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#basicExampleModal58718">
+  Report Incorrect Score
+</button><p></p>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="basicExampleModal58718" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel58718" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel58718">Report Incorrect Score</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        If this score is incorrect fill out the the details below.  Your report will be sent directly to your league operator for review.
+        
+        
+ <form name="searchdata" id="search_form" action="scores.php" method="get">
+                <div class="input-with-icon success-control"><p></p> 
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="tid" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="did" value="13711">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="date" value="2026-07-19">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="homeTeam" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="format" value="Team">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="mid" value="1532158">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="hyper" value="N">
+                    <input type="hidden" class="form-control" id="form1Amount58718" name="report" value="Y">
+                     
+                     Issue:<br>                
+                    <input type="text" class="form-control" id="form1Amount58718" name="searchvalue" placeholder="Explain the scoring error here..."><p></p>
+                    Your name:<br>
+                    <input type="text" class="form-control" id="form1Amount58718" name="player_name" placeholder="Your name..."><p></p>
+                    
+                </div>  
+                <button onclick="form_submit()" name="user_search" value="scores.php?tid=104055&amp;did=13711&amp;date=2026-07-19&amp;homeTeam=104055&amp;format=Team&amp;mid=1532158&amp;hyper=N&amp;report=Y" class="btn btn-danger"><i class="fa fa-user"></i> Send to LO</button>       
+        </form> 
+
+  <script type="text/javascript">
+  function form_submit() {
+    document.getElementById("search_form").submit();
+   }    
+  </script>
+      </div>
+    </div>
+  </div>
+</div>                   
+                        
+                        </td></tr></tbody></table><br> 
+                          <table width="100%" cellspacing="1" cellpadding="8" class="table-bordered">
+ 													<tbody><tr><td align="CENTER" width="10%">10-ball</td><td bgcolor="#EEEEEE" align="CENTER" width="45%"><a href="stats.php?playerSelected=Y&amp;playerID=10081233" class="text-danger"><strong>Tiff Spencer</strong></a><br><small>(Rack n Rebels)</small></td>
+													<td align="center" width="45%" bgcolor="#EEEEEE"><a href="stats.php?playerSelected=Y&amp;playerID=10072131" class="text-danger"><strong>Jessica Mccarty</strong></a><br><small>(Breaking Bad)</small></td></tr>
+ 													<tr><td align="CENTER">RACE</td><td align="center">3</td><td align="center">2</td></tr>
+ 													<tr><td align="CENTER"># WINS</td><td align="center">3</td><td align="center">1</td></tr>
+ 													<tr><td align="CENTER">BO</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">SNAPS</td><td align="center">-</td><td align="center">-</td></tr>
+ 													<tr><td align="CENTER">RL</td><td align="center">-</td><td align="center">-</td></tr>
+                          <tr><td align="CENTER"><strong>SCORE</strong></td><td bgcolor="#EEEEEE" align="center"><strong>14</strong></td><td bgcolor="#EEEEEE" align="center"><strong>6</strong></td></tr>
+                        <tr><td colspan="3">    
+<style>
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    padding: 6px 0px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.42857;
+}
+
+	
+	</style>                                             
+<!-- Button trigger modal -->
+<div align="center">
+<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#basicExampleModal89799">
+  Report Incorrect Score
+</button><p></p>
+
+</div>
+<!-- Modal -->
+<div class="modal fade" id="basicExampleModal89799" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel89799" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel89799">Report Incorrect Score</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        If this score is incorrect fill out the the details below.  Your report will be sent directly to your league operator for review.
+        
+        
+ <form name="searchdata" id="search_form" action="scores.php" method="get">
+                <div class="input-with-icon success-control"><p></p> 
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="tid" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="did" value="13711">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="date" value="2026-07-19">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="homeTeam" value="104055">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="format" value="Team">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="mid" value="1532164">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="hyper" value="N">
+                    <input type="hidden" class="form-control" id="form1Amount89799" name="report" value="Y">
+                     
+                     Issue:<br>                
+                    <input type="text" class="form-control" id="form1Amount89799" name="searchvalue" placeholder="Explain the scoring error here..."><p></p>
+                    Your name:<br>
+                    <input type="text" class="form-control" id="form1Amount89799" name="player_name" placeholder="Your name..."><p></p>
+                    
+                </div>  
+                <button onclick="form_submit()" name="user_search" value="scores.php?tid=104055&amp;did=13711&amp;date=2026-07-19&amp;homeTeam=104055&amp;format=Team&amp;mid=1532164&amp;hyper=N&amp;report=Y" class="btn btn-danger"><i class="fa fa-user"></i> Send to LO</button>       
+        </form> 
+
+  <script type="text/javascript">
+  function form_submit() {
+    document.getElementById("search_form").submit();
+   }    
+  </script>
+      </div>
+    </div>
+  </div>
+</div>                   
+                        
+                        </td></tr></tbody></table><br>
 
 
     </div>
