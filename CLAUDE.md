@@ -4,6 +4,15 @@ Personal pipeline: scrape NoCo divisions -> archive raw HTML -> parse -> SQLite 
 playerID); divisions and teams are routing — everything known about a player
 (skill drift, form, pairings, per-rack results) accrues to one player row.
 
+## Whose data this is (the user / "me" / "I")
+- The user is **Nathan Carroll**, NAPA playerID **10085360**.
+- His team is **English Majors** in the Thursday "Big Table Felt" No Limit LC
+  league — division 13077 (2025-26 season) / current session **14050** (R1
+  2026-06-18). This is why `config.DID` defaults to 13077.
+- So "who do I play tonight / this week" = look up English Majors' opponent in
+  14050's schedule (data/raw/14050/<date>/schedule.html); "my form / my results"
+  = playerID 10085360. NEVER re-ask which team/player is the user's — it's here.
+
 ## Status (as of 2026-06-12)
 - Phases 0–5 DONE for division 13077 (full 2025-26 season: 27 weeks of score
   sheets, snapshots, pairing graph, form layers).
