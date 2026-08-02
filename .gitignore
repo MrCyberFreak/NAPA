@@ -24,7 +24,7 @@ data/*ingest_state.json
 dashboard.html
 
 # Local session scratch (handoff docs + logs) and DB backups — not shipped.
-handoffs/
+_handoffs/
 data/napa.db.bak*
 
 # Local editor/tooling output — not part of the project.
