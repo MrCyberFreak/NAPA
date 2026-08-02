@@ -17,7 +17,7 @@
     powershell -NoProfile -ExecutionPolicy Bypass -File tools\local_scrape.ps1
 #>
 $ErrorActionPreference = 'Continue'
-$repo = 'X:\Claude_Code\Projectes\NAPA'
+$repo = 'X:\Claude_Code\Projectes\Billiards\NAPA'
 Set-Location $repo
 
 $logDir = Join-Path $repo 'logs\local_scrape'

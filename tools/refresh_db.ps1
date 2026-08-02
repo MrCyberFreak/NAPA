@@ -17,7 +17,7 @@
 #>
 $ErrorActionPreference = 'Continue'
 $PSNativeCommandUseErrorActionPreference = $false  # native stderr is not fatal
-$repo = 'X:\Claude_Code\Projectes\NAPA'
+$repo = 'X:\Claude_Code\Projectes\Billiards\NAPA'
 Set-Location $repo
 $env:PYTHONUTF8 = '1'
 
