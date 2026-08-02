@@ -17,7 +17,7 @@
 #   scripts/discover.sh check                        # inspect latest run, NO dispatch
 set -u
 
-REPO_DIR="X:/Claude_Code/Projectes/NAPA"
+REPO_DIR="X:/Claude_Code/Projectes/Billiards/NAPA"
 WF=".github/workflows/discover.yml"
 WF_NAME="discover.yml"
 cd "$REPO_DIR" || { echo "cannot cd $REPO_DIR" >&2; exit 1; }

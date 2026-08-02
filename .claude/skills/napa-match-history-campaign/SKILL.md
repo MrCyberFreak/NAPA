@@ -30,7 +30,7 @@ Why this skill exists, and why it is NOT a workflow fan-out:
 `status` is read-only. `launch` and `stop` MUTATE a long local job — require an
 explicit verb and confirm before running.
 
-Paths used throughout (repo root `X:/Claude_Code/Projectes/NAPA`):
+Paths used throughout (repo root `X:/Claude_Code/Projectes/Billiards/NAPA`):
 
 - Pages: `data/raw/profiles/<player_id>/match_*.html`
 - Log: `handoffs/veterans_first.log` (the `COMPLETE: ... no new pages` line = done)
@@ -115,7 +115,7 @@ for the veterans tier; default 200 ≈ 152 players).
 3. **Register + run the Scheduled Task** pointing at the promoted `.bat`:
    ```
    schtasks /create /tn NAPA_MatchHistoryCapture /sc ONCE /st 00:00 /f \
-     /tr "X:\Claude_Code\Projectes\NAPA\.claude\skills\napa-match-history-campaign\scripts\run_capture.bat <VET>"
+     /tr "X:\Claude_Code\Projectes\Billiards\NAPA\.claude\skills\napa-match-history-campaign\scripts\run_capture.bat <VET>"
    schtasks /run /tn NAPA_MatchHistoryCapture
    ```
    (Omit `<VET>` to use the default 200.) The `.bat` → `capture_veterans_first.sh`

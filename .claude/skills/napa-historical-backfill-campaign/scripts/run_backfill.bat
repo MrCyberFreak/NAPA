@@ -10,5 +10,5 @@ REM resumable (skips on-disk pages).
 REM
 REM Optional args: an explicit space-separated did list; default = computed
 REM uncaptured-historical set.
-cd /d X:\Claude_Code\Projectes\NAPA
+cd /d X:\Claude_Code\Projectes\Billiards\NAPA
 python .claude\skills\napa-historical-backfill-campaign\scripts\run_backfill.py %*

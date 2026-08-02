@@ -6,7 +6,7 @@
 `players` table keyed by the 8-digit playerID; divisions and teams are routing — a player
 funnels into whatever division/team they happen to play in, and everything we know about
 them (skill drift, form, lifetime pairings, per-rack results) accrues to the one player row.
-The pipeline (repo `MrCyberFreak/NAPA`; local clone to be made at `X:\Claude_Code\Projectes\NAPA`)
+The pipeline (repo `MrCyberFreak/NAPA`; local clone to be made at `X:\Claude_Code\Projectes\Billiards\NAPA`)
 currently captures one division — 13077. Expanding to all 14 divisions of **NAPA of Northern
 Colorado** (not El Paso "Rockies 2.0", not Mesa) completes the master list for this league and
 pools per-player racks across divisions, which is what Phase 6 forecasting needs to fight
@@ -280,6 +280,6 @@ write-on-change, `[skip ci]`/pull-rebase discipline.
    teams/matches/games rows tagged with its `division_id`; load report anomalies zero beyond
    expected subs.
 
-First implementation action: clone the repo to `X:\Claude_Code\Projectes\NAPA` (folder
+First implementation action: clone the repo to `X:\Claude_Code\Projectes\Billiards\NAPA` (folder
 contains only `.claude/` — clone into it via `git clone <url> tmp` + move, or `git init` +
 remote + pull) and work on a feature branch, PR like Phases 0–5.

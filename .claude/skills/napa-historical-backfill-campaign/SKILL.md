@@ -46,7 +46,7 @@ survives `/clear` and closing Claude Code.
 `run` and `stop` MUTATE a long local job — require an explicit verb and confirm
 before running.
 
-Paths used throughout (repo root `X:/Claude_Code/Projectes/NAPA`):
+Paths used throughout (repo root `X:/Claude_Code/Projectes/Billiards/NAPA`):
 
 - Uncaptured-did source of truth: `data/raw/_historical.json` → `["historical"]`
   (42 did→meta) MINUS dids that already have a `data/raw/<did>/scores/` dir.
@@ -154,7 +154,7 @@ Confirm with the user first. Optional arg: an explicit space-separated did list
 4. **Register + run the Scheduled Task** pointing at the `.bat`:
    ```
    schtasks /create /tn NAPA_HistoricalBackfill /sc ONCE /st 00:00 /f \
-     /tr "X:\Claude_Code\Projectes\NAPA\.claude\skills\napa-historical-backfill-campaign\scripts\run_backfill.bat"
+     /tr "X:\Claude_Code\Projectes\Billiards\NAPA\.claude\skills\napa-historical-backfill-campaign\scripts\run_backfill.bat"
    schtasks /run /tn NAPA_HistoricalBackfill
    ```
    (Append a did list to the `.bat` path to scope it.) The driver loops the

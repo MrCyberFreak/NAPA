@@ -20,7 +20,7 @@
 #                 standard for densification); 0 = tabs-only. Must be 0 or 1.
 set -u
 
-REPO_DIR="X:/Claude_Code/Projectes/NAPA"
+REPO_DIR="X:/Claude_Code/Projectes/Billiards/NAPA"
 cd "$REPO_DIR" || { echo "cannot cd $REPO_DIR" >&2; exit 1; }
 
 WORKFLOW="harvest"; DRILL="1"; DIDS=()
