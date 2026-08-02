@@ -42,3 +42,6 @@ _ref/
 
 # PoolPredict Scout UI brought in as the NAPA frontend prototype (real rosters/history) — not shipped yet.
 web/
+
+# scratch - not source
+.tmp/
