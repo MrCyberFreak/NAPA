@@ -1,74 +1,127 @@
 {
-  "updated_utc": "2026-08-03T17:07:30+00:00",
-  "run_date": "2026-08-03",
+  "updated_utc": "2026-08-04T18:00:30+00:00",
+  "run_date": "2026-08-04",
   "divisions": {
-    "13077": {
-      "reason": "scrape-incomplete",
-      "since": "2026-08-03"
-    },
-    "13205": {
-      "reason": "scrape-skipped",
-      "since": "2026-08-03"
-    },
-    "13298": {
-      "reason": "scrape-skipped",
-      "since": "2026-08-03"
-    },
-    "13299": {
-      "reason": "scrape-skipped",
-      "since": "2026-08-03"
-    },
     "13711": {
-      "reason": "scrape-skipped",
-      "since": "2026-06-15"
+      "reason": "pending-makeups",
+      "since": "2026-06-15",
+      "rounds": [
+        16
+      ]
     },
     "13722": {
-      "reason": "scrape-skipped",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        10,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
     },
     "13723": {
-      "reason": "scrape-skipped",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        10,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
     },
     "13743": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-16"
+      "reason": "pending-makeups",
+      "since": "2026-07-16",
+      "rounds": [
+        15
+      ]
     },
     "13744": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-16"
+      "reason": "pending-makeups",
+      "since": "2026-07-16",
+      "rounds": [
+        15
+      ]
     },
     "13881": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-20"
+      "reason": "pending-makeups",
+      "since": "2026-07-20",
+      "rounds": [
+        10,
+        11
+      ]
     },
     "13937": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-08"
+      "reason": "pending-makeups",
+      "since": "2026-07-08",
+      "rounds": [
+        4,
+        5,
+        6,
+        7,
+        10
+      ]
     },
     "13985": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-20"
+      "reason": "pending-makeups",
+      "since": "2026-07-20",
+      "rounds": [
+        8,
+        10
+      ]
     },
     "13986": {
-      "reason": "scrape-skipped",
-      "since": "2026-06-17"
+      "reason": "pending-makeups",
+      "since": "2026-06-17",
+      "rounds": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
     },
     "14022": {
-      "reason": "scrape-skipped",
-      "since": "2026-06-26"
+      "reason": "pending-makeups",
+      "since": "2026-06-26",
+      "rounds": [
+        4,
+        5
+      ]
     },
     "14050": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-23"
+      "reason": "pending-makeups",
+      "since": "2026-07-23",
+      "rounds": [
+        5,
+        6
+      ]
     },
     "14064": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-20"
+      "reason": "pending-makeups",
+      "since": "2026-07-20",
+      "rounds": [
+        5,
+        6
+      ]
     },
     "14095": {
-      "reason": "scrape-skipped",
-      "since": "2026-07-07"
+      "reason": "pending-makeups",
+      "since": "2026-07-07",
+      "rounds": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
     }
   }
 }
