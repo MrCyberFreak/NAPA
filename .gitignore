@@ -45,3 +45,6 @@ web/
 
 # scratch - not source
 .tmp/
+
+# Generated phone snapshot (tools/phone_view.py) - regenerable from napa.db.
+phone.html

@@ -1,0 +1,525 @@
+<title>NAPA NoCo Scout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap">
+<style>
+/* ---- tokens: light is the base set; both dark states redefine only these --- */
+:root{
+  --ground:#eaeff5; --surface:#ffffff; --sunk:#f4f7fa; --raised:#dde5ee;
+  --ink:#0e1822; --ink2:#4c5d6e; --ink3:#7b8c9d;
+  --line:#ccd7e3; --hair:#e1e8f0;
+  --cloth:#0d6f85; --cloth-ink:#ffffff; --cloth-wash:#d9edf2;
+  --mast:#0d6f85; --mast-ink:#ffffff; --mast-sub:rgba(255,255,255,.78); --mast-pill:rgba(255,255,255,.15); --mast-edge:rgba(255,255,255,.26);
+  --brass:#8a5f16; --brass-wash:#f2e6cb;
+  --good:#22643f; --good-wash:#d8ecdf;
+  --warn:#95500f; --warn-wash:#f7e6d2;
+  --crit:#9a2c26; --crit-wash:#f6dcda;
+  --shadow:0 1px 2px rgba(14,24,34,.06), 0 10px 24px -16px rgba(14,24,34,.45);
+  --focus:#0d6f85;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0a121a; --surface:#141f2a; --sunk:#101a24; --raised:#1e2c39;
+    --ink:#e6edf4; --ink2:#9cb0c2; --ink3:#6f8496;
+    --line:#26353f; --hair:#1c2833;
+    --cloth:#3fb0c9; --cloth-ink:#04222a; --cloth-wash:#123039;
+    --mast:#0e2a33; --mast-ink:#dff1f6; --mast-sub:rgba(223,241,246,.66); --mast-pill:rgba(255,255,255,.07); --mast-edge:rgba(255,255,255,.13);
+    --brass:#d6a856; --brass-wash:#33280f;
+    --good:#5cc08c; --good-wash:#123024;
+    --warn:#e0964a; --warn-wash:#33230f;
+    --crit:#e8756d; --crit-wash:#341917;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -18px rgba(0,0,0,.9);
+    --focus:#3fb0c9;
+  }
+}
+:root[data-theme="dark"]{
+  --mast:#0e2a33; --mast-ink:#dff1f6; --mast-sub:rgba(223,241,246,.66); --mast-pill:rgba(255,255,255,.07); --mast-edge:rgba(255,255,255,.13);
+  --ground:#0a121a; --surface:#141f2a; --sunk:#101a24; --raised:#1e2c39;
+  --ink:#e6edf4; --ink2:#9cb0c2; --ink3:#6f8496;
+  --line:#26353f; --hair:#1c2833;
+  --cloth:#3fb0c9; --cloth-ink:#04222a; --cloth-wash:#123039;
+  --brass:#d6a856; --brass-wash:#33280f;
+  --good:#5cc08c; --good-wash:#123024;
+  --warn:#e0964a; --warn-wash:#33230f;
+  --crit:#e8756d; --crit-wash:#341917;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 28px -18px rgba(0,0,0,.9);
+  --focus:#3fb0c9;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font:400 16px/1.5 "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:680px; margin:0 auto; padding:0 14px 96px}
+h1,h2,h3{margin:0; font-family:"Saira Condensed", "IBM Plex Sans", sans-serif; text-wrap:balance}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:4px}
+
+/* ---- masthead ---------------------------------------------------------- */
+.mast{
+  background:var(--mast); color:var(--mast-ink);
+  margin:0 -14px; padding:18px 20px 16px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.mast h1{font-size:30px; font-weight:700; letter-spacing:.01em; line-height:1}
+.mast .sub{font-size:12.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--mast-sub); font-weight:500}
+.fresh{
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  font-size:13.5px; background:var(--mast-pill);
+  border:1px solid var(--mast-edge); border-radius:999px;
+  padding:7px 13px; width:fit-content;
+}
+.dot{width:9px; height:9px; border-radius:50%; flex:none; box-shadow:0 0 0 3px var(--mast-pill)}
+
+/* ---- tabs -------------------------------------------------------------- */
+.tabs{
+  position:sticky; top:0; z-index:20; margin:0 -14px 14px; padding:8px 14px;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--hair);
+  display:flex; gap:6px;
+}
+.tab{
+  flex:1; padding:9px 6px; border:1px solid var(--line); background:var(--surface);
+  border-radius:9px; font-size:14px; font-weight:500; cursor:pointer;
+  transition:background .12s, border-color .12s, color .12s;
+}
+.tab:hover{border-color:var(--cloth)}
+.tab[aria-selected="true"]{background:var(--cloth); color:var(--cloth-ink); border-color:var(--cloth); font-weight:600}
+.panel[hidden]{display:none}
+
+/* ---- search ------------------------------------------------------------ */
+.search{position:relative; margin-bottom:12px}
+.search input{
+  width:100%; padding:13px 14px 13px 40px; font:400 16px/1.2 "IBM Plex Sans",sans-serif;
+  background:var(--surface); color:var(--ink);
+  border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow);
+}
+.search input::placeholder{color:var(--ink3)}
+.search svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--ink3)}
+.scope{display:flex; gap:6px; margin:0 0 11px}
+.sbtn{
+  flex:1; padding:8px 6px; cursor:pointer; border-radius:8px; font-size:13.5px; font-weight:500;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink2);
+}
+.sbtn[aria-pressed="true"]{background:var(--raised); color:var(--ink); border-color:var(--line); font-weight:600}
+.chip.past{background:var(--raised); color:var(--ink3)}
+.count{font-size:12.5px; color:var(--ink2); margin:0 2px 10px; letter-spacing:.02em}
+
+/* ---- player card ------------------------------------------------------- */
+.card{
+  background:var(--surface); border:1px solid var(--hair); border-radius:12px;
+  padding:12px 13px; margin-bottom:8px; box-shadow:var(--shadow);
+}
+.card .top{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap}
+.card .nm{font-family:"Saira Condensed",sans-serif; font-weight:600; font-size:21px; line-height:1.1}
+.chip{
+  font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase;
+  padding:3px 7px; border-radius:5px; background:var(--raised); color:var(--ink2); flex:none;
+}
+.chip.cls{background:var(--cloth-wash); color:var(--cloth)}
+.chip.cap{background:var(--brass-wash); color:var(--brass)}
+.meta{font-size:13px; color:var(--ink2); margin-top:3px}
+.meta .div{color:var(--ink3)}
+.csr{display:flex; gap:6px; margin-top:10px; flex-wrap:wrap}
+.csr .cell{
+  flex:1 1 0; min-width:56px; background:var(--sunk); border:1px solid var(--hair);
+  border-radius:8px; padding:6px 4px 5px; text-align:center;
+}
+.csr .cell.best{border-color:var(--brass); background:var(--brass-wash)}
+.csr .k{display:block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.csr .v{display:block; font-size:20px; font-weight:600; line-height:1.15; margin-top:1px}
+.csr .cell.na .v{color:var(--ink3); font-weight:500}
+.rec{font-size:12.5px; color:var(--ink2); margin-top:9px; display:flex; gap:12px; flex-wrap:wrap}
+
+.form{
+  font-size:12.5px; color:var(--ink2); margin-top:8px; padding-top:8px;
+  border-top:1px dashed var(--hair); display:flex; gap:9px; flex-wrap:wrap; align-items:baseline;
+}
+.form .q{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.form .sep{color:var(--ink3); opacity:.55}
+.more{
+  display:block; width:100%; margin:6px 0 0; padding:11px; cursor:pointer;
+  background:var(--surface); border:1px dashed var(--line); border-radius:10px;
+  font-size:14px; font-weight:500; color:var(--ink2);
+}
+.more:hover{border-color:var(--cloth); color:var(--cloth)}
+.empty{padding:28px 10px; text-align:center; color:var(--ink2); font-size:14.5px}
+
+/* ---- race -------------------------------------------------------------- */
+.pick{margin-bottom:10px}
+.pick label{display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); font-weight:600; margin-bottom:5px}
+.pick select, .pick input{
+  width:100%; padding:11px 12px; font:400 16px/1.2 "IBM Plex Sans",sans-serif;
+  background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:10px;
+}
+.games{display:flex; gap:6px; margin:4px 0 14px; flex-wrap:wrap}
+.gbtn{
+  flex:1 1 0; min-width:64px; padding:9px 4px; cursor:pointer; border-radius:9px;
+  border:1px solid var(--line); background:var(--surface); font-size:14px; font-weight:500;
+}
+.gbtn[aria-pressed="true"]{background:var(--cloth); color:var(--cloth-ink); border-color:var(--cloth); font-weight:600}
+.gbtn:disabled{opacity:.38; cursor:not-allowed}
+.result{
+  background:var(--surface); border:1px solid var(--hair); border-radius:14px;
+  box-shadow:var(--shadow); padding:18px 16px; text-align:center;
+}
+.result .vs{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px;
+}
+.result .side .who{font-family:"Saira Condensed",sans-serif; font-weight:600; font-size:17px; line-height:1.15}
+.result .side .csrv{font-size:12.5px; color:var(--ink2); margin-top:2px}
+.result .side .to{
+  font-size:46px; font-weight:700; line-height:1; margin-top:8px;
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+}
+.result .side.fav .to{color:var(--cloth)}
+.result .mid{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.result .note{
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--hair);
+  font-size:13px; color:var(--ink2); text-align:left;
+}
+
+/* ---- divisions --------------------------------------------------------- */
+.drow{
+  background:var(--surface); border:1px solid var(--hair); border-left:4px solid var(--good);
+  border-radius:10px; padding:11px 12px; margin-bottom:8px; box-shadow:var(--shadow);
+}
+.drow.warn{border-left-color:var(--warn)}
+.drow.crit{border-left-color:var(--crit)}
+.drow .dn{font-family:"Saira Condensed",sans-serif; font-weight:600; font-size:18px; line-height:1.15}
+.drow .dm{font-size:12.5px; color:var(--ink2); margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
+.drow .pend{font-size:12.5px; color:var(--warn); margin-top:5px}
+.bar{height:5px; border-radius:3px; background:var(--raised); margin-top:8px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--cloth)}
+
+.legend{font-size:12.5px; color:var(--ink2); margin:14px 2px 0; line-height:1.6}
+.legend b{color:var(--ink); font-weight:600}
+</style>
+<!--HEAD-END-->
+<div class="wrap">
+
+  <header class="mast">
+    <div>
+      <div class="sub">NAPA of Northern Colorado</div>
+      <h1>NoCo Scout</h1>
+    </div>
+    <div class="fresh"><span class="dot" id="fdot"></span><span id="ftext">—</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"  data-p="players">Players</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="race">Race</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="divs">Divisions</button>
+  </nav>
+
+  <!-- players ------------------------------------------------------------ -->
+  <section class="panel" id="p-players" role="tabpanel">
+    <div class="search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="q" type="search" placeholder="Search a player, team, or division" autocomplete="off" aria-label="Search players">
+    </div>
+    <div class="scope">
+      <button class="sbtn" id="scope-cur"  aria-pressed="true">On a roster now</button>
+      <button class="sbtn" id="scope-all"  aria-pressed="false">Everyone on record</button>
+    </div>
+    <p class="count" id="pcount"></p>
+    <div id="plist"></div>
+  </section>
+
+  <!-- race --------------------------------------------------------------- -->
+  <section class="panel" id="p-race" role="tabpanel" hidden>
+    <div class="pick">
+      <label for="ra">Player</label>
+      <select id="ra"></select>
+    </div>
+    <div class="pick">
+      <label for="rb">Opponent</label>
+      <select id="rb"></select>
+    </div>
+    <label style="display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:5px">Game</label>
+    <div class="games" id="gsel">
+      <button class="gbtn" data-g="c8"  aria-pressed="false">8-ball</button>
+      <button class="gbtn" data-g="c9"  aria-pressed="true">9-ball</button>
+      <button class="gbtn" data-g="c10" aria-pressed="false">10-ball</button>
+      <button class="gbtn" data-g="cbp" aria-pressed="false">10BP</button>
+    </div>
+    <div class="result" id="rout"></div>
+    <p class="legend">
+      Races come from the <b>NAPA race matrix</b> transcribed in <code>src/race.py</code> — the band is the
+      stronger player's CSR for that game, and the race follows from the gap. It is a static league-wide
+      table, not a live lookup.
+    </p>
+  </section>
+
+  <!-- divisions ----------------------------------------------------------- -->
+  <section class="panel" id="p-divs" role="tabpanel" hidden>
+    <p class="count" id="dcount"></p>
+    <div id="dlist"></div>
+    <p class="legend">
+      <b>Loaded</b> is how many already-played fixtures have score sheets in the database, out of those
+      whose date has passed. A gap is normally a <b>pending makeup</b> — a match scheduled but not yet
+      played, which the catch-up queue keeps re-pulling until it lands.
+    </p>
+  </section>
+</div>
+
+<script>
+const DATA = __NAPA_DATA__;
+
+/* ---- race matrix: ported verbatim from src/race.py --------------------- */
+const BANDS = [
+  [0, 39,    [[19, 2, 2], [Infinity, 3, 2]]],
+  [40, 49,   [[10, 3, 3], [26, 3, 2], [Infinity, 4, 2]]],
+  [50, 69,   [[6, 4, 4], [18, 4, 3], [29, 5, 3], [39, 4, 2], [48, 5, 2], [Infinity, 6, 2]]],
+  [70, 89,   [[5, 5, 5], [14, 5, 4], [21, 6, 4], [28, 5, 3], [36, 6, 3], [46, 7, 3],
+              [56, 6, 2], [62, 7, 2], [Infinity, 8, 2]]],
+  [90, 10000,[[4, 6, 6], [11, 6, 5], [17, 7, 5], [22, 6, 4], [28, 7, 4], [35, 8, 4],
+              [42, 7, 3], [48, 8, 3], [58, 9, 3], [68, 8, 2], [74, 9, 2], [Infinity, 10, 2]]],
+];
+const CLASSES = [[39,"D/E"],[49,"C"],[69,"B"],[89,"A"],[10000,"M/GM"]];
+function csrClass(v){ for(const [hi,l] of CLASSES) if(v<=hi) return l; return "M/GM"; }
+function bandRules(strong){
+  for(const [lo,hi,rules] of BANDS) if(strong>=lo && strong<=hi) return rules;
+  return BANDS[BANDS.length-1][2];
+}
+function race(a,b){
+  const strong=Math.max(a,b), diff=Math.abs(a-b);
+  let rs, rw;
+  for(const [dmax,s,w] of bandRules(strong)){ rs=s; rw=w; if(diff<=dmax) break; }
+  return a>=b ? [rs,rw] : [rw,rs];
+}
+
+/* ---- helpers ----------------------------------------------------------- */
+const $  = s => document.querySelector(s);
+const el = (t,c) => { const n=document.createElement(t); if(c) n.className=c; return n; };
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, m =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const GAMES = [["c8","8"],["c9","9"],["c10","10"],["cbp","10BP"]];
+
+function fmtDate(iso){
+  if(!iso) return "—";
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y,m-1,d)).toLocaleDateString(undefined,
+    {month:"short", day:"numeric", year:"numeric", timeZone:"UTC"});
+}
+function daysBetween(a,b){
+  return Math.round((Date.parse(b+"T00:00:00Z") - Date.parse(a+"T00:00:00Z"))/864e5);
+}
+
+/* ---- freshness strip --------------------------------------------------- */
+(function(){
+  const age = DATA.archive_through ? daysBetween(DATA.archive_through, DATA.today) : null;
+  let tone = "var(--crit)", word = "no capture on record";
+  if(age !== null){
+    word = `archive through ${fmtDate(DATA.archive_through)}`;
+    tone = age <= 1 ? "var(--good)" : age <= 3 ? "var(--warn)" : "var(--crit)";
+    if(age > 1) word += ` · ${age} days behind`;
+  }
+  $("#fdot").style.background = tone;
+  $("#ftext").textContent = word;
+})();
+
+/* ---- tabs -------------------------------------------------------------- */
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x===t)));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = true);
+  $("#p-"+t.dataset.p).hidden = false;
+}));
+
+/* ---- players ----------------------------------------------------------- */
+const P = DATA.players.slice();
+P.forEach(p => {
+  p._h = (p.n + " " + p.t.map(t => t.team + " " + t.div + " " + t.weekday).join(" ")).toLowerCase();
+  p._best = Math.max(p.c8??0, p.c9??0, p.c10??0, p.cbp??0);
+});
+P.sort((a,b) => b.a - a.a || b._best - a._best || a.n.localeCompare(b.n));
+const CURRENT = P.filter(p => p.a);
+
+const PAGE = 40;
+let shown = PAGE, scope = CURRENT, matches = CURRENT;
+
+function playerCard(p){
+  const c = el("article","card");
+  const top = el("div","top");
+  const nm = el("div","nm"); nm.textContent = p.n; top.appendChild(nm);
+  if(p.cls){ const ch = el("span","chip cls"); ch.textContent = p.cls; top.appendChild(ch); }
+  if(p.t.some(t => t.captain)){ const ch = el("span","chip cap"); ch.textContent = "Captain"; top.appendChild(ch); }
+  if(!p.a){ const ch = el("span","chip past"); ch.textContent = "Past"; top.appendChild(ch); }
+  c.appendChild(top);
+
+  const m = el("div","meta");
+  m.innerHTML = p.t.length
+    ? p.t.map(t => `${esc(t.team)} <span class="div">· ${esc(t.weekday)}s, ${esc(t.div)}</span>`).join("<br>")
+    : `<span class="div">not on a current roster in an active division</span>`;
+  c.appendChild(m);
+
+  const g = el("div","csr");
+  for(const [k,label] of GAMES){
+    const v = p[k];
+    const cell = el("div","cell" + (v==null ? " na" : (v===p._best && v>0 ? " best" : "")));
+    cell.innerHTML = `<span class="k">${label}</span><span class="v mono">${v==null?"–":v}</span>`;
+    g.appendChild(cell);
+  }
+  c.appendChild(g);
+
+  const r = el("div","rec");
+  const tot = p.w + p.l;
+  r.innerHTML =
+    (tot ? `<span><b class="mono">${p.w}–${p.l}</b> racks (${Math.round(p.w/tot*100)}%)</span>` : `<span>no racks on record</span>`) +
+    (p.last ? `<span>last played ${esc(fmtDate(p.last))}</span>` : "") +
+    (p.on ? `<span>rated ${esc(fmtDate(p.on))}</span>` : "");
+  c.appendChild(r);
+
+  if(p.f){
+    const f = p.f, bits = [];
+    if(f.l10w != null && (f.l10w + f.l10l) > 0)
+      bits.push(`last 10 <b class="mono">${f.l10w}\u2013${f.l10l}</b>`);
+    if(f.d90) bits.push(`<span class="q">90d</span> <b class="mono">${f.d90w}\u2013${f.d90l}</b>`);
+    if(f.hh)  bits.push(`<span class="q">hill\u2013hill</span> <b class="mono">${f.hhw}\u2013${f.hhl}</b>`);
+    if(bits.length){
+      const fr = el("div","form");
+      fr.innerHTML = bits.join('<span class="sep">/</span>');
+      c.appendChild(fr);
+    }
+  }
+  return c;
+}
+
+function renderPlayers(){
+  const list = $("#plist"); list.textContent = "";
+  if(!matches.length){
+    const e = el("p","empty");
+    e.textContent = scope === CURRENT
+      ? "Nobody on a current roster matches that. Try \u201cEveryone on record\u201d."
+      : "No player, team, or division matches that search.";
+    list.appendChild(e); $("#pcount").textContent = ""; return;
+  }
+  const frag = document.createDocumentFragment();
+  matches.slice(0, shown).forEach(p => frag.appendChild(playerCard(p)));
+  list.appendChild(frag);
+  if(shown < matches.length){
+    const b = el("button","more");
+    b.textContent = `Show ${Math.min(PAGE, matches.length-shown)} more`;
+    b.onclick = () => { shown += PAGE; renderPlayers(); };
+    list.appendChild(b);
+  }
+  $("#pcount").textContent =
+    `${matches.length.toLocaleString()} of ${scope.length.toLocaleString()} ` +
+    `${scope === CURRENT ? "rostered" : "known"} players · strongest rating first`;
+}
+
+function applyFilter(){
+  const q = $("#q").value.trim().toLowerCase();
+  matches = q ? scope.filter(p => p._h.includes(q)) : scope;
+  shown = PAGE;
+  renderPlayers();
+}
+let timer;
+$("#q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(applyFilter, 110); });
+$("#scope-cur").addEventListener("click", () => setScope(CURRENT));
+$("#scope-all").addEventListener("click", () => setScope(P));
+function setScope(s){
+  scope = s;
+  $("#scope-cur").setAttribute("aria-pressed", String(s === CURRENT));
+  $("#scope-all").setAttribute("aria-pressed", String(s === P));
+  applyFilter();
+}
+$("#scope-all").textContent = `Everyone on record (${P.length.toLocaleString()})`;
+$("#scope-cur").textContent = `On a roster now (${CURRENT.length.toLocaleString()})`;
+renderPlayers();
+
+/* ---- race -------------------------------------------------------------- */
+const RATED = (CURRENT.length ? CURRENT : P).filter(p => p._best > 0).slice().sort((a,b) => a.n.localeCompare(b.n));
+function fillSelect(sel, idx){
+  RATED.forEach((p,i) => {
+    const o = document.createElement("option");
+    o.value = i;
+    const t = p.t[0];
+    o.textContent = p.n + (t ? ` — ${t.team}` : "");
+    sel.appendChild(o);
+  });
+  sel.value = String(Math.min(idx, RATED.length-1));
+}
+fillSelect($("#ra"), 0);
+fillSelect($("#rb"), 1);
+
+let game = "c9";
+document.querySelectorAll(".gbtn").forEach(b => b.addEventListener("click", () => {
+  game = b.dataset.g;
+  document.querySelectorAll(".gbtn").forEach(x => x.setAttribute("aria-pressed", String(x===b)));
+  drawRace();
+}));
+
+function drawRace(){
+  const a = RATED[+$("#ra").value], b = RATED[+$("#rb").value];
+  const out = $("#rout");
+  if(!a || !b){ out.innerHTML = `<p class="empty">Pick two players.</p>`; return; }
+  const label = GAMES.find(g => g[0]===game)[1];
+  const va = a[game], vb = b[game];
+
+  if(va == null || vb == null){
+    const who = [va==null ? a.n : null, vb==null ? b.n : null].filter(Boolean).join(" and ");
+    out.innerHTML = `<p class="empty">No ${esc(label)}-ball rating on record for ${esc(who)}.
+      Their division may not play that game — pick another.</p>`;
+    return;
+  }
+  const [ra, rb] = race(va, vb);
+  out.innerHTML = `
+    <div class="vs">
+      <div class="side ${ra>=rb?"fav":""}">
+        <div class="who">${esc(a.n)}</div>
+        <div class="csrv mono">${va} · ${esc(csrClass(va))}</div>
+        <div class="to">${ra}</div>
+      </div>
+      <div class="mid">races to</div>
+      <div class="side ${rb>=ra?"fav":""}">
+        <div class="who">${esc(b.n)}</div>
+        <div class="csrv mono">${vb} · ${esc(csrClass(vb))}</div>
+        <div class="to">${rb}</div>
+      </div>
+    </div>
+    <div class="note">
+      ${esc(label)}-ball · band <b>${esc(csrClass(Math.max(va,vb)))}</b> (stronger player's CSR)
+      · gap <b class="mono">${Math.abs(va-vb)}</b>
+    </div>`;
+}
+$("#ra").addEventListener("change", drawRace);
+$("#rb").addEventListener("change", drawRace);
+drawRace();
+
+/* ---- divisions --------------------------------------------------------- */
+(function(){
+  const list = $("#dlist"), frag = document.createDocumentFragment();
+  DATA.divisions.forEach(d => {
+    const age = d.last_capture ? daysBetween(d.last_capture, DATA.today) : 99;
+    const owed = d.due - d.loaded;
+    const row = el("div", "drow" + (age > 3 ? " crit" : owed > 0 ? " warn" : ""));
+    const pct = d.due ? Math.round(d.loaded/d.due*100) : 100;
+
+    row.innerHTML =
+      `<div class="dn">${esc(d.name)}</div>
+       <div class="dm">
+         <span>${esc(d.weekday)}s</span>
+         <span>#${d.did}</span>
+         <span>${d.weeks} weeks captured</span>
+         <span>captured ${esc(fmtDate(d.last_capture))}</span>
+       </div>
+       <div class="dm"><span>last result on file <b>${esc(fmtDate(d.last_result))}</b></span></div>
+       <div class="bar"><i style="width:${pct}%"></i></div>
+       <div class="dm"><span><b class="mono">${d.loaded}/${d.due}</b> played fixtures loaded (${pct}%)</span></div>` +
+      (d.pending_rounds && d.pending_rounds.length
+        ? `<div class="pend">Makeups owed since ${esc(fmtDate(d.pending_since))} — round${d.pending_rounds.length>1?"s":""} ${d.pending_rounds.join(", ")}</div>`
+        : "");
+    frag.appendChild(row);
+  });
+  list.appendChild(frag);
+  const t = DATA.totals;
+  $("#dcount").textContent =
+    `${DATA.divisions.length} active divisions · ${t.players.toLocaleString()} players · ` +
+    `${t.games.toLocaleString()} racks · ${t.matches.toLocaleString()} fixtures`;
+})();
+</script>
