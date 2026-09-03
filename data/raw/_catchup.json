@@ -1,7 +1,11 @@
 {
-  "updated_utc": "2026-09-02T19:13:46+00:00",
-  "run_date": "2026-09-02",
+  "updated_utc": "2026-09-03T19:09:39+00:00",
+  "run_date": "2026-09-03",
   "divisions": {
+    "13077": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-03"
+    },
     "13711": {
       "reason": "pending-makeups",
       "since": "2026-06-15",
@@ -56,8 +60,7 @@
       "reason": "pending-makeups",
       "since": "2026-07-08",
       "rounds": [
-        10,
-        16
+        10
       ]
     },
     "13985": {
@@ -81,19 +84,12 @@
         14
       ]
     },
-    "14022": {
-      "reason": "pending-makeups",
-      "since": "2026-06-26",
-      "rounds": [
-        5,
-        13
-      ]
-    },
     "14050": {
       "reason": "pending-makeups",
       "since": "2026-08-27",
       "rounds": [
-        9
+        9,
+        10
       ]
     },
     "14064": {
