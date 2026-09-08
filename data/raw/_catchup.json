@@ -1,110 +1,74 @@
 {
-  "updated_utc": "2026-09-07T19:46:33+00:00",
-  "run_date": "2026-09-07",
+  "updated_utc": "2026-09-08T19:12:06+00:00",
+  "run_date": "2026-09-08",
   "divisions": {
+    "13077": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-08"
+    },
+    "13205": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-08"
+    },
+    "13298": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-08"
+    },
+    "13299": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-08"
+    },
     "13711": {
-      "reason": "pending-makeups",
-      "since": "2026-06-15",
-      "rounds": [
-        20,
-        22
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-06-15"
     },
     "13722": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        14,
-        17,
-        18,
-        19,
-        20
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-06-13"
     },
     "13723": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        14,
-        17,
-        18,
-        19,
-        20
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-06-13"
     },
     "13743": {
-      "reason": "pending-makeups",
-      "since": "2026-07-16",
-      "rounds": [
-        15
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-16"
     },
     "13744": {
-      "reason": "pending-makeups",
-      "since": "2026-07-16",
-      "rounds": [
-        15
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-16"
     },
     "13881": {
-      "reason": "pending-makeups",
-      "since": "2026-07-20",
-      "rounds": [
-        10,
-        16
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-20"
     },
     "13937": {
-      "reason": "pending-makeups",
-      "since": "2026-07-08",
-      "rounds": [
-        10
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-08"
     },
     "13985": {
-      "reason": "pending-makeups",
-      "since": "2026-07-20",
-      "rounds": [
-        8
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-20"
     },
     "13986": {
-      "reason": "pending-makeups",
-      "since": "2026-06-17",
-      "rounds": [
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-06-17"
+    },
+    "14022": {
+      "reason": "scrape-incomplete",
+      "since": "2026-09-08"
     },
     "14050": {
-      "reason": "pending-makeups",
-      "since": "2026-08-27",
-      "rounds": [
-        9,
-        10
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-08-27"
     },
     "14064": {
-      "reason": "pending-makeups",
-      "since": "2026-07-20",
-      "rounds": [
-        5
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-20"
     },
     "14095": {
-      "reason": "pending-makeups",
-      "since": "2026-07-07",
-      "rounds": [
-        3,
-        4,
-        5
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-07"
     }
   }
 }
