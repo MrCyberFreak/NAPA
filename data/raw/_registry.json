@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-09-09T18:14:10+00:00",
-  "run_date": "2026-09-09",
+  "updated_utc": "2026-09-10T17:59:17+00:00",
+  "run_date": "2026-09-10",
   "discovered": {
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
@@ -31,6 +31,16 @@
       "slug": "thursday-utime-dp-lc",
       "name": "Thursday \"Utime DP\" Singles LC",
       "first_seen": "2026-07-22"
+    },
+    "14370": {
+      "slug": "friday-broomfield-westminster-dp-8ball",
+      "name": "Friday \"Broomfield Westminster DP\" No Limit 8-ball",
+      "first_seen": "2026-09-10"
+    },
+    "14371": {
+      "slug": "friday-broomfield-westminster-dp-lc",
+      "name": "Friday \"Broomfield Westminster DP\" No Limit LC",
+      "first_seen": "2026-09-10"
     }
   }
 }
