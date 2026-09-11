@@ -1,42 +1,58 @@
 {
-  "updated_utc": "2026-09-10T18:49:53+00:00",
-  "run_date": "2026-09-10",
+  "updated_utc": "2026-09-11T18:54:56+00:00",
+  "run_date": "2026-09-11",
   "divisions": {
-    "13205": {
-      "reason": "scrape-incomplete",
-      "since": "2026-09-10"
-    },
-    "13298": {
-      "reason": "scrape-incomplete",
-      "since": "2026-09-10"
-    },
-    "13299": {
-      "reason": "scrape-incomplete",
-      "since": "2026-09-10"
-    },
     "13711": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-15"
+      "reason": "pending-makeups",
+      "since": "2026-06-15",
+      "rounds": [
+        20,
+        22
+      ]
     },
     "13722": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        14,
+        17,
+        18,
+        19,
+        20
+      ]
     },
     "13723": {
-      "reason": "scrape-incomplete",
-      "since": "2026-06-13"
+      "reason": "pending-makeups",
+      "since": "2026-06-13",
+      "rounds": [
+        14,
+        17,
+        18,
+        19,
+        20
+      ]
     },
     "13743": {
-      "reason": "scrape-incomplete",
-      "since": "2026-07-16"
+      "reason": "pending-makeups",
+      "since": "2026-07-16",
+      "rounds": [
+        15
+      ]
     },
     "13744": {
-      "reason": "scrape-incomplete",
-      "since": "2026-07-16"
+      "reason": "pending-makeups",
+      "since": "2026-07-16",
+      "rounds": [
+        15
+      ]
     },
     "13881": {
-      "reason": "scrape-incomplete",
-      "since": "2026-07-20"
+      "reason": "pending-makeups",
+      "since": "2026-07-20",
+      "rounds": [
+        10,
+        16
+      ]
     },
     "13937": {
       "reason": "pending-makeups",
@@ -74,8 +90,13 @@
       ]
     },
     "14050": {
-      "reason": "scrape-incomplete",
-      "since": "2026-08-27"
+      "reason": "pending-makeups",
+      "since": "2026-08-27",
+      "rounds": [
+        9,
+        10,
+        11
+      ]
     },
     "14064": {
       "reason": "pending-makeups",
