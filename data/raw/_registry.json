@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-09-29T19:44:21+00:00",
-  "run_date": "2026-09-29",
+  "updated_utc": "2026-09-30T19:46:12+00:00",
+  "run_date": "2026-09-30",
   "discovered": {
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
@@ -41,6 +41,11 @@
       "slug": "friday-broomfield-westminster-dp-lc",
       "name": "Friday \"Broomfield Westminster DP\" No Limit LC",
       "first_seen": "2026-09-10"
+    },
+    "14474": {
+      "slug": "wednesday-paradise-wednesday-lc",
+      "name": "Wednesday \"Paradise Wednesday\" Standard Limit LC",
+      "first_seen": "2026-09-30"
     }
   }
 }
