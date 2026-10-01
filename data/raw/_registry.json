@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-09-30T19:46:12+00:00",
-  "run_date": "2026-09-30",
+  "updated_utc": "2026-10-01T20:05:55+00:00",
+  "run_date": "2026-10-01",
   "discovered": {
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
@@ -44,7 +44,7 @@
     },
     "14474": {
       "slug": "wednesday-paradise-wednesday-lc",
-      "name": "Wednesday \"Paradise Wednesday\" Standard Limit LC",
+      "name": "Wednesday \"Paradise Wednesday\" No Limit LC",
       "first_seen": "2026-09-30"
     }
   }
