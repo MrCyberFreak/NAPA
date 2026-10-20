@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-10-19T20:19:21+00:00",
-  "run_date": "2026-10-19",
+  "updated_utc": "2026-10-20T18:51:54+00:00",
+  "run_date": "2026-10-20",
   "discovered": {
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
@@ -9,6 +9,14 @@
       "name": "Tuesday \"Zoosters Laggers\" No Limit LC",
       "predecessor": 13986,
       "since": "2026-07-03"
+    },
+    "14538": {
+      "slug": "tuesday-felt-laggers-lc",
+      "status": "active",
+      "weekday": "Tuesday",
+      "name": "Tuesday \"Felt Laggers\" No Limit LC",
+      "predecessor": 13985,
+      "since": "2026-10-20"
     }
   },
   "unknown": {
