@@ -1,7 +1,14 @@
 {
-  "updated_utc": "2026-10-20T18:51:54+00:00",
-  "run_date": "2026-10-20",
+  "updated_utc": "2026-10-21T19:04:00+00:00",
+  "run_date": "2026-10-21",
   "discovered": {
+    "13985": {
+      "slug": "tuesday-felt-laggers-lc",
+      "status": "rolled",
+      "weekday": "Tuesday",
+      "successor": 14538,
+      "rolled_on": "2026-10-21"
+    },
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
       "status": "active",
@@ -17,6 +24,14 @@
       "name": "Tuesday \"Felt Laggers\" No Limit LC",
       "predecessor": 13985,
       "since": "2026-10-20"
+    },
+    "14542": {
+      "slug": "wednesday-pharaohs-lc",
+      "status": "active",
+      "weekday": "Wednesday",
+      "name": "Wednesday \"Pharaohs\" No Limit LC",
+      "predecessor": 13937,
+      "since": "2026-10-21"
     }
   },
   "unknown": {
