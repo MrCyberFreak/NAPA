@@ -1,10 +1,12 @@
 {
-  "updated_utc": "2026-10-30T20:37:12+00:00",
+  "updated_utc": "2026-10-31T19:54:07+00:00",
   "mode": "scheduled-all",
-  "run_date": "2026-10-30",
+  "run_date": "2026-10-31",
   "due": [
-    13077,
-    14050
+    13744,
+    13723,
+    13743,
+    13722
   ],
   "carryover": [
     13722,
@@ -19,9 +21,10 @@
     14542
   ],
   "backfilled": [
-    13077,
     13722,
     13723,
+    13743,
+    13744,
     13881,
     13986,
     14022,
@@ -29,36 +32,11 @@
     14064,
     14095,
     14538,
-    14542
+    14542,
+    14567
   ],
   "divisions": {
     "13077": {
-      "captured": [
-        "division",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
-    },
-    "13985": {
-      "captured": [
-        "division",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
-    },
-    "14022": {
       "captured": [
         "division",
         "roster_grid"
@@ -71,7 +49,20 @@
         "scratch"
       ]
     },
-    "13986": {
+    "13985": {
+      "captured": [
+        "division",
+        "roster_grid"
+      ],
+      "unchanged": [
+        "flex",
+        "leaderboard",
+        "live_scores",
+        "schedule",
+        "scratch"
+      ]
+    },
+    "14022": {
       "captured": [
         "division"
       ],
@@ -84,15 +75,28 @@
         "scratch"
       ]
     },
+    "13986": {
+      "captured": [
+        "division",
+        "flex",
+        "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
+        "schedule"
+      ]
+    },
     "13937": {
       "captured": [
-        "division"
+        "division",
+        "roster_grid"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule",
         "scratch"
       ]
@@ -100,6 +104,19 @@
     "13881": {
       "captured": [
         "division",
+        "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "flex",
+        "leaderboard",
+        "live_scores",
+        "schedule"
+      ]
+    },
+    "13711": {
+      "captured": [
+        "division",
         "roster_grid"
       ],
       "unchanged": [
@@ -110,28 +127,15 @@
         "scratch"
       ]
     },
-    "13711": {
-      "captured": [
-        "division"
-      ],
-      "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
-      ]
-    },
     "13299": {
       "captured": [
-        "division"
+        "division",
+        "roster_grid"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule",
         "scratch"
       ]
@@ -152,56 +156,69 @@
     "13744": {
       "captured": [
         "division",
+        "roster_grid",
         "scratch"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule"
       ]
     },
     "13723": {
       "captured": [
         "division",
+        "flex",
+        "live_scores",
         "roster_grid",
+        "schedule",
         "scratch"
       ],
       "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "schedule"
+        "leaderboard"
       ]
     },
     "13743": {
       "captured": [
         "division",
+        "roster_grid",
         "scratch"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule"
       ]
     },
     "13722": {
       "captured": [
         "division",
+        "flex",
+        "live_scores",
         "roster_grid",
         "schedule",
         "scratch"
       ],
       "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores"
+        "leaderboard"
       ]
     },
     "13298": {
+      "captured": [
+        "division",
+        "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "flex",
+        "leaderboard",
+        "live_scores",
+        "schedule"
+      ]
+    },
+    "14050": {
       "captured": [
         "division",
         "roster_grid"
@@ -212,19 +229,6 @@
         "live_scores",
         "schedule",
         "scratch"
-      ]
-    },
-    "14050": {
-      "captured": [
-        "division",
-        "flex",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard",
-        "live_scores",
-        "schedule"
       ]
     },
     "14064": {
@@ -242,15 +246,15 @@
     },
     "14095": {
       "captured": [
-        "division"
+        "division",
+        "flex",
+        "roster_grid",
+        "scratch"
       ],
       "unchanged": [
-        "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "14538": {
@@ -268,16 +272,28 @@
     },
     "14542": {
       "captured": [
+        "division"
+      ],
+      "unchanged": [
+        "flex",
+        "leaderboard",
+        "live_scores",
+        "roster_grid",
+        "schedule",
+        "scratch"
+      ]
+    },
+    "14567": {
+      "captured": [
         "division",
+        "flex",
+        "leaderboard",
         "live_scores",
         "roster_grid",
         "schedule",
         "scratch"
       ],
-      "unchanged": [
-        "flex",
-        "leaderboard"
-      ]
+      "unchanged": []
     }
   }
 }
