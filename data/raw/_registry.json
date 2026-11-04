@@ -1,13 +1,27 @@
 {
-  "updated_utc": "2026-11-03T20:44:08+00:00",
-  "run_date": "2026-11-03",
+  "updated_utc": "2026-11-04T21:00:32+00:00",
+  "run_date": "2026-11-04",
   "discovered": {
+    "13937": {
+      "slug": "wednesday-pharaohs-lc",
+      "status": "rolled",
+      "weekday": "Wednesday",
+      "successor": 14542,
+      "rolled_on": "2026-11-04"
+    },
     "13985": {
       "slug": "tuesday-felt-laggers-lc",
       "status": "rolled",
       "weekday": "Tuesday",
       "successor": 14538,
       "rolled_on": "2026-10-21"
+    },
+    "13986": {
+      "slug": "tuesday-zoosters-laggers-lc",
+      "status": "rolled",
+      "weekday": "Tuesday",
+      "successor": 14095,
+      "rolled_on": "2026-11-04"
     },
     "14095": {
       "slug": "tuesday-zoosters-laggers-lc",
