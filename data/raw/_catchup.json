@@ -1,25 +1,7 @@
 {
-  "updated_utc": "2026-11-13T22:04:09+00:00",
-  "run_date": "2026-11-13",
+  "updated_utc": "2026-11-14T20:34:54+00:00",
+  "run_date": "2026-11-14",
   "divisions": {
-    "13722": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        25,
-        26,
-        27
-      ]
-    },
-    "13723": {
-      "reason": "pending-makeups",
-      "since": "2026-06-13",
-      "rounds": [
-        25,
-        26,
-        27
-      ]
-    },
     "13986": {
       "reason": "pending-makeups",
       "since": "2026-06-17",
