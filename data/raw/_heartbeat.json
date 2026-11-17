@@ -1,12 +1,14 @@
 {
-  "updated_utc": "2026-11-17T00:30:47+00:00",
+  "updated_utc": "2026-11-17T23:39:58+00:00",
   "mode": "scheduled-all",
-  "run_date": "2026-11-16",
+  "run_date": "2026-11-17",
   "due": [
-    13711
+    13881,
+    13205,
+    14064
   ],
   "carryover": [
-    13711,
+    13881,
     13986,
     14050,
     14064,
@@ -15,7 +17,8 @@
     14567
   ],
   "backfilled": [
-    13711,
+    13205,
+    13881,
     13986,
     14050,
     14064,
@@ -28,26 +31,26 @@
       "captured": [
         "division",
         "flex",
-        "roster_grid"
+        "roster_grid",
+        "scratch"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "13985": {
       "captured": [
         "division",
-        "flex",
-        "roster_grid"
+        "scratch"
       ],
       "unchanged": [
+        "flex",
         "leaderboard",
         "live_scores",
-        "schedule",
-        "scratch"
+        "roster_grid",
+        "schedule"
       ]
     },
     "14022": {
@@ -93,19 +96,6 @@
       "captured": [
         "division",
         "flex",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
-    },
-    "13711": {
-      "captured": [
-        "division",
-        "flex",
         "live_scores",
         "roster_grid",
         "schedule",
@@ -115,20 +105,20 @@
         "leaderboard"
       ]
     },
-    "13299": {
+    "13711": {
       "captured": [
-        "division"
+        "division",
+        "flex",
+        "roster_grid"
       ],
       "unchanged": [
-        "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule",
         "scratch"
       ]
     },
-    "13205": {
+    "13299": {
       "captured": [
         "division",
         "scratch"
@@ -138,6 +128,19 @@
         "leaderboard",
         "live_scores",
         "roster_grid",
+        "schedule"
+      ]
+    },
+    "13205": {
+      "captured": [
+        "division",
+        "flex",
+        "roster_grid",
+        "scratch"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
         "schedule"
       ]
     },
@@ -182,64 +185,64 @@
     },
     "13722": {
       "captured": [
-        "division"
+        "division",
+        "roster_grid"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
-        "roster_grid",
         "schedule",
         "scratch"
       ]
     },
     "13298": {
       "captured": [
-        "division"
+        "division",
+        "scratch"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
         "roster_grid",
-        "schedule",
-        "scratch"
+        "schedule"
       ]
     },
     "14050": {
       "captured": [
         "division",
         "flex",
-        "roster_grid",
-        "scratch"
+        "roster_grid"
       ],
       "unchanged": [
         "leaderboard",
         "live_scores",
-        "schedule"
+        "schedule",
+        "scratch"
       ]
     },
     "14064": {
       "captured": [
         "division",
+        "flex",
+        "live_scores",
+        "roster_grid",
+        "schedule",
         "scratch"
       ],
       "unchanged": [
-        "flex",
-        "leaderboard",
-        "live_scores",
-        "roster_grid",
-        "schedule"
+        "leaderboard"
       ]
     },
     "14538": {
       "captured": [
         "division",
-        "flex",
         "roster_grid",
         "scratch"
       ],
       "unchanged": [
+        "flex",
         "leaderboard",
         "live_scores",
         "schedule"
@@ -247,15 +250,15 @@
     },
     "14542": {
       "captured": [
-        "division",
-        "scratch"
+        "division"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
         "roster_grid",
-        "schedule"
+        "schedule",
+        "scratch"
       ]
     },
     "14567": {
