@@ -1,64 +1,74 @@
 {
-  "updated_utc": "2026-11-17T23:40:30+00:00",
-  "run_date": "2026-11-17",
+  "updated_utc": "2026-11-18T23:24:57+00:00",
+  "run_date": "2026-11-18",
   "divisions": {
+    "13205": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13298": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13299": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13711": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13722": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13723": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13743": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13744": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13881": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13937": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
+    "13985": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-18"
+    },
     "13986": {
-      "reason": "pending-makeups",
-      "since": "2026-06-17",
-      "rounds": [
-        17,
-        18,
-        19,
-        20,
-        21
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-06-17"
     },
     "14050": {
-      "reason": "pending-makeups",
-      "since": "2026-08-27",
-      "rounds": [
-        17,
-        18
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-08-27"
     },
     "14064": {
-      "reason": "pending-makeups",
-      "since": "2026-07-20",
-      "rounds": [
-        16,
-        17,
-        18,
-        19,
-        20,
-        21
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-07-20"
     },
     "14538": {
-      "reason": "pending-makeups",
-      "since": "2026-10-20",
-      "rounds": [
-        1,
-        2,
-        3,
-        5
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-10-20"
     },
     "14542": {
-      "reason": "pending-makeups",
-      "since": "2026-10-21",
-      "rounds": [
-        1,
-        2
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-10-21"
     },
     "14567": {
-      "reason": "pending-makeups",
-      "since": "2026-11-03",
-      "rounds": [
-        1,
-        2,
-        3
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-11-03"
     }
   }
 }
