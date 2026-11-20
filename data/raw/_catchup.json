@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-11-19T23:27:01+00:00",
-  "run_date": "2026-11-19",
+  "updated_utc": "2026-11-20T23:04:36+00:00",
+  "run_date": "2026-11-20",
   "divisions": {
     "13205": {
       "reason": "scrape-incomplete",
@@ -35,10 +35,6 @@
       "since": "2026-11-18"
     },
     "13881": {
-      "reason": "scrape-incomplete",
-      "since": "2026-11-18"
-    },
-    "13937": {
       "reason": "scrape-incomplete",
       "since": "2026-11-18"
     },

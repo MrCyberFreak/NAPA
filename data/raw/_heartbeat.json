@@ -1,11 +1,10 @@
 {
-  "updated_utc": "2026-11-19T23:26:29+00:00",
+  "updated_utc": "2026-11-20T23:03:46+00:00",
   "mode": "scheduled-all",
-  "run_date": "2026-11-19",
+  "run_date": "2026-11-20",
   "due": [
-    14022,
-    13937,
-    14542
+    13077,
+    14050
   ],
   "carryover": [
     13205,
@@ -27,6 +26,7 @@
     14567
   ],
   "backfilled": [
+    13077,
     13205,
     13298,
     13299,
@@ -39,7 +39,6 @@
     13937,
     13985,
     13986,
-    14022,
     14050,
     14064,
     14538,
@@ -68,6 +67,23 @@
       "captured": [
         "division",
         "flex",
+        "roster_grid"
+      ],
+      "unchanged": [
+        "leaderboard",
+        "live_scores",
+        "schedule",
+        "scratch"
+      ]
+    },
+    "13986": {
+      "captured": [],
+      "unchanged": []
+    },
+    "13937": {
+      "captured": [
+        "division",
+        "flex",
         "roster_grid",
         "scratch"
       ],
@@ -76,14 +92,6 @@
         "live_scores",
         "schedule"
       ]
-    },
-    "13986": {
-      "captured": [],
-      "unchanged": []
-    },
-    "13937": {
-      "captured": [],
-      "unchanged": []
     },
     "13881": {
       "captured": [],
