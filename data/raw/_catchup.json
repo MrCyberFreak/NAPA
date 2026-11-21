@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-11-20T23:04:36+00:00",
-  "run_date": "2026-11-20",
+  "updated_utc": "2026-11-21T21:39:34+00:00",
+  "run_date": "2026-11-21",
   "divisions": {
     "13205": {
       "reason": "scrape-incomplete",
@@ -11,10 +11,6 @@
       "since": "2026-11-18"
     },
     "13299": {
-      "reason": "scrape-incomplete",
-      "since": "2026-11-18"
-    },
-    "13711": {
       "reason": "scrape-incomplete",
       "since": "2026-11-18"
     },
@@ -37,6 +33,10 @@
     "13881": {
       "reason": "scrape-incomplete",
       "since": "2026-11-18"
+    },
+    "13937": {
+      "reason": "scrape-incomplete",
+      "since": "2026-11-21"
     },
     "13985": {
       "reason": "scrape-incomplete",
