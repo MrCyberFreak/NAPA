@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-11-21T21:39:34+00:00",
-  "run_date": "2026-11-21",
+  "updated_utc": "2026-11-22T21:47:03+00:00",
+  "run_date": "2026-11-22",
   "divisions": {
     "13205": {
       "reason": "scrape-incomplete",
@@ -14,9 +14,9 @@
       "reason": "scrape-incomplete",
       "since": "2026-11-18"
     },
-    "13722": {
+    "13711": {
       "reason": "scrape-incomplete",
-      "since": "2026-11-18"
+      "since": "2026-11-22"
     },
     "13723": {
       "reason": "scrape-incomplete",
@@ -27,10 +27,6 @@
       "since": "2026-11-18"
     },
     "13744": {
-      "reason": "scrape-incomplete",
-      "since": "2026-11-18"
-    },
-    "13881": {
       "reason": "scrape-incomplete",
       "since": "2026-11-18"
     },
@@ -55,8 +51,13 @@
       "since": "2026-07-20"
     },
     "14538": {
-      "reason": "scrape-incomplete",
-      "since": "2026-10-20"
+      "reason": "pending-makeups",
+      "since": "2026-10-20",
+      "rounds": [
+        1,
+        2,
+        3
+      ]
     },
     "14542": {
       "reason": "scrape-incomplete",
