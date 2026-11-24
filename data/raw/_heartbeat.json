@@ -1,17 +1,18 @@
 {
-  "updated_utc": "2026-11-22T21:46:37+00:00",
+  "updated_utc": "2026-11-24T02:58:06+00:00",
   "mode": "scheduled-all",
-  "run_date": "2026-11-22",
-  "due": [],
+  "run_date": "2026-11-23",
+  "due": [
+    13711
+  ],
   "carryover": [
     13205,
     13298,
     13299,
-    13722,
+    13711,
     13723,
     13743,
     13744,
-    13881,
     13937,
     13985,
     13986,
@@ -25,11 +26,10 @@
     13205,
     13298,
     13299,
-    13722,
+    13711,
     13723,
     13743,
     13744,
-    13881,
     13937,
     13985,
     13986,
@@ -42,15 +42,15 @@
   "divisions": {
     "13077": {
       "captured": [
-        "division",
-        "scratch"
+        "division"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
         "roster_grid",
-        "schedule"
+        "schedule",
+        "scratch"
       ]
     },
     "13985": {
@@ -59,15 +59,15 @@
     },
     "14022": {
       "captured": [
-        "division",
-        "scratch"
+        "division"
       ],
       "unchanged": [
         "flex",
         "leaderboard",
         "live_scores",
         "roster_grid",
-        "schedule"
+        "schedule",
+        "scratch"
       ]
     },
     "13986": {
@@ -79,17 +79,8 @@
       "unchanged": []
     },
     "13881": {
-      "captured": [
-        "division",
-        "flex",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
+      "captured": [],
+      "unchanged": []
     },
     "13711": {
       "captured": [],
@@ -116,17 +107,8 @@
       "unchanged": []
     },
     "13722": {
-      "captured": [
-        "division",
-        "flex",
-        "roster_grid",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard",
-        "live_scores",
-        "schedule"
-      ]
+      "captured": [],
+      "unchanged": []
     },
     "13298": {
       "captured": [],
@@ -141,17 +123,8 @@
       "unchanged": []
     },
     "14538": {
-      "captured": [
-        "division",
-        "flex",
-        "live_scores",
-        "roster_grid",
-        "schedule",
-        "scratch"
-      ],
-      "unchanged": [
-        "leaderboard"
-      ]
+      "captured": [],
+      "unchanged": []
     },
     "14542": {
       "captured": [],
