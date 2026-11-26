@@ -1,6 +1,6 @@
 {
-  "updated_utc": "2026-11-25T00:37:26+00:00",
-  "run_date": "2026-11-24",
+  "updated_utc": "2026-11-26T00:21:41+00:00",
+  "run_date": "2026-11-25",
   "divisions": {
     "13205": {
       "reason": "scrape-incomplete",
@@ -67,13 +67,8 @@
       "since": "2026-10-21"
     },
     "14567": {
-      "reason": "pending-makeups",
-      "since": "2026-11-03",
-      "rounds": [
-        1,
-        2,
-        4
-      ]
+      "reason": "scrape-incomplete",
+      "since": "2026-11-03"
     }
   }
 }
